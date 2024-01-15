@@ -29,10 +29,10 @@ public class User implements UserDetails {
     private String username;
     @Column(name = "password", nullable = false)
     private String password;
-    @Column(name = "role", length = 10)
+    @Column(name = "role")
     @Enumerated(EnumType.STRING)
     private Role role;
-    @Column(name = "status", length = 10)
+    @Column(name = "status")
     @Enumerated(EnumType.STRING)
     private Status status;
 
