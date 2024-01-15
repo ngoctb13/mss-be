@@ -32,7 +32,7 @@ public class User implements UserDetails {
     @Column(name = "role")
     @Enumerated(EnumType.STRING)
     private Role role;
-    @Column(name = "status")
+    @Column(name = "status", columnDefinition = "VARCHAR(255) DEFAULT 'ACTIVE'")
     @Enumerated(EnumType.STRING)
     private Status status;
 
