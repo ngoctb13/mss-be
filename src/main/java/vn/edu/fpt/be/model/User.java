@@ -9,9 +9,10 @@ import lombok.NoArgsConstructor;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
+import vn.edu.fpt.be.model.enums.Role;
+import vn.edu.fpt.be.model.enums.Status;
 
 import java.util.Collection;
-import java.util.Date;
 import java.util.List;
 
 @Data
