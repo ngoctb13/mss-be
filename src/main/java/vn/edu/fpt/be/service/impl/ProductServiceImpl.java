@@ -18,6 +18,9 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 @Service
 public class ProductServiceImpl implements ProductService {
+    @Autowired
+    private ProductRepository productRepository;
+
     private Product getProduct(ProductRequest productDTO, Product product) {
         product.setDescription(productDTO.getDescription());
         product.setProductName(productDTO.getProduct_name());
@@ -27,8 +30,6 @@ public class ProductServiceImpl implements ProductService {
         product.setWholesalePrice(product.getWholesalePrice());
         return productRepository.save(product);
     }
-    @Autowired
-    private ProductRepository productRepository;
     public Product addProduct(ProductRequest productDTO) {
         Product product = new Product();
 

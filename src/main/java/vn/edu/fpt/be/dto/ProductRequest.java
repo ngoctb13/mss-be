@@ -21,5 +21,4 @@ public class ProductRequest {
     private double wholesale_price;
     private String unitBagType;
     private double weight;
-
 }
