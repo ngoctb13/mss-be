@@ -22,12 +22,4 @@ public interface ProductRepository extends JpaRepository<Product, Long> {
             "AND b.bagTypeId = pb.bagType.bagTypeId")
     List<Object[]> findAllInformationOfProduct();
 
-//    default List<Product> findAllProductsSafely() {
-//        try {
-//            return findAllInformationOfProduct();
-//        } catch (Exception e) {
-//            logger.error("Error occurred while fetching product information: ", e);
-//            throw new EntityNotFoundException("Product information could not be retrieved.");
-//        }
-//    }
 }

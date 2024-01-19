@@ -45,5 +45,11 @@ public class ProductController {
         Product updatedProduct = productService.updateProduct(id, productDTO);
         return ResponseEntity.ok(updatedProduct);
     }
+    @PutMapping("/deactivate/{id}")
+    @PreAuthorize("hasRole('STORE_OWNER')")
+    public ResponseEntity<Product> deactivate(@PathVariable Long id){
+        Product deactivateProduct = productService.deActivate(id);
+        return ResponseEntity.ok(deactivateProduct);
+    }
 
 }

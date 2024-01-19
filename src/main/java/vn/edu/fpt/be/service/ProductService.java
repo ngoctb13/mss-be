@@ -10,6 +10,7 @@ import vn.edu.fpt.be.dto.ProductRequest;
 import vn.edu.fpt.be.model.BagType;
 import vn.edu.fpt.be.model.Product;
 import vn.edu.fpt.be.model.enums.Role;
+import vn.edu.fpt.be.model.enums.Status;
 import vn.edu.fpt.be.repository.ProductRepository;
 
 import java.util.List;
@@ -52,10 +53,11 @@ public class ProductService {
                 .map(result -> new ProductBagTypeDTO((Product) result[0], (BagType) result[1]))
                 .collect(Collectors.toList());
     }
-//    public List<Product> getAllProducts() {
-//        return productRepository.findAll();
-//    }
 
-
+    public Product deActivate(Long id) {
+        Product product = productRepository.findById(id).orElseThrow(()-> new RuntimeException(("Product not found")));
+        product.setStatus(Status.INACTIVE);
+        return productRepository.save(product);
+    }
 
 }
