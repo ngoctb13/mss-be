@@ -5,6 +5,7 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import vn.edu.fpt.be.model.enums.Status;
 
 
 import java.util.HashSet;
@@ -41,5 +42,7 @@ public class Product {
     private Double importPrice;
     @Column(name = "description")
     private String description;
+    @Column(name = "status", columnDefinition = "Active")
+    private Status status;
 
 }

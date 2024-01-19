@@ -13,9 +13,4 @@ import vn.edu.fpt.be.model.Product;
 public class ProductBagTypeDTO {
     private Product product;
     private BagType bagType;
-
-//    public ProductBagTypeDTO(Product product, BagType bagType) {
-//        this.product = product;
-//        this.bagType = bagType;
-//    }
 }

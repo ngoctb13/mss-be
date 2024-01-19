@@ -22,7 +22,4 @@ public class ProductRequest {
     private String unitBagType;
     private double weight;
 
-
-    public ProductRequest(Product product, BagType bagType) {
-    }
 }
