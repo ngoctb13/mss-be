@@ -5,13 +5,16 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.web.bind.annotation.PostMapping;
+import vn.edu.fpt.be.dto.ProductBagTypeDTO;
 import vn.edu.fpt.be.dto.ProductRequest;
+import vn.edu.fpt.be.model.BagType;
 import vn.edu.fpt.be.model.Product;
 import vn.edu.fpt.be.model.enums.Role;
 import vn.edu.fpt.be.repository.ProductRepository;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -29,6 +32,7 @@ public class ProductService {
     private ProductRepository productRepository;
     public Product addProduct(ProductRequest productDTO) {
         Product product = new Product();
+
         return getProduct(productDTO, product);
     }
 
@@ -42,10 +46,15 @@ public class ProductService {
         return productRepository.findById(id);
     }
 
-    public List<Product> getAllProducts() {
-        return productRepository.findAll();
+    public List<ProductBagTypeDTO> getAllProductsWithBagType() {
+        List<Object[]> results = productRepository.findAllInformationOfProduct();
+        return results.stream()
+                .map(result -> new ProductBagTypeDTO((Product) result[0], (BagType) result[1]))
+                .collect(Collectors.toList());
     }
-
+//    public List<Product> getAllProducts() {
+//        return productRepository.findAll();
+//    }
 
 
 

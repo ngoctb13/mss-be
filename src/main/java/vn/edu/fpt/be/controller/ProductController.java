@@ -5,11 +5,14 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
+import vn.edu.fpt.be.dto.ProductBagTypeDTO;
 import vn.edu.fpt.be.dto.ProductRequest;
+import vn.edu.fpt.be.model.BagType;
 import vn.edu.fpt.be.model.Product;
 import vn.edu.fpt.be.service.ProductService;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/api/products")
@@ -23,8 +26,12 @@ public class ProductController {
         return ResponseEntity.ok(product);
     }
     @GetMapping("/")
-    public List<Product> getAllProducts() {
-        return productService.getAllProducts();
+    public ResponseEntity<List<ProductBagTypeDTO>> getAllProductsWithBagType() {
+        List<ProductBagTypeDTO> productsWithBagType = productService.getAllProductsWithBagType();
+        if (productsWithBagType.isEmpty()) {
+            return ResponseEntity.noContent().build();
+        }
+        return ResponseEntity.ok(productsWithBagType);
     }
     @GetMapping("/{id}")
     public ResponseEntity<Product> getProductById(@PathVariable Long id) {
