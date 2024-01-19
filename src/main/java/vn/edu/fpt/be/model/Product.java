@@ -42,7 +42,8 @@ public class Product {
     private Double importPrice;
     @Column(name = "description")
     private String description;
-    @Column(name = "status", columnDefinition = "Active")
+    @Column(name = "status", columnDefinition = "VARCHAR(255) DEFAULT 'ACTIVE'")
+    @Enumerated(EnumType.STRING)
     private Status status;
 
 }
