@@ -51,5 +51,4 @@ public class ProductController {
         Product deactivateProduct = productService.deActivate(id);
         return ResponseEntity.ok(deactivateProduct);
     }
-
 }
