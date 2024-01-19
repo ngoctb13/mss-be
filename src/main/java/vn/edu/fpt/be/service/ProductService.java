@@ -59,5 +59,7 @@ public class ProductService {
         product.setStatus(Status.INACTIVE);
         return productRepository.save(product);
     }
-
+    public void test() {
+        //okok
+    }
 }
