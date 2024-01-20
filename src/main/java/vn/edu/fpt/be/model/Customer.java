@@ -25,4 +25,7 @@ public class Customer {
     private String address;
     @Column(name = "note")
     private String note;
+    @ManyToOne
+    @JoinColumn(name = "store_id")
+    private Store store;
 }

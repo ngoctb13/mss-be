@@ -45,5 +45,8 @@ public class Product {
     @Column(name = "status", columnDefinition = "VARCHAR(255) DEFAULT 'ACTIVE'")
     @Enumerated(EnumType.STRING)
     private Status status;
+    @ManyToOne
+    @JoinColumn(name = "store_id")
+    private Store store;
 
 }
