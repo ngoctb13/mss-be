@@ -1,4 +1,4 @@
-package vn.edu.fpt.be.service;
+package vn.edu.fpt.be.service.auth;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.authentication.AuthenticationManager;

@@ -1,4 +1,4 @@
-package vn.edu.fpt.be.service;
+package vn.edu.fpt.be.service.auth;
 
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;

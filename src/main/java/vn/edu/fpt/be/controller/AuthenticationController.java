@@ -6,7 +6,7 @@ import org.springframework.web.bind.annotation.*;
 import vn.edu.fpt.be.dto.AuthenticationRequest;
 import vn.edu.fpt.be.dto.AuthenticationResponse;
 import vn.edu.fpt.be.dto.RegisterRequest;
-import vn.edu.fpt.be.service.AuthenticationService;
+import vn.edu.fpt.be.service.auth.AuthenticationService;
 
 @RestController
 @RequestMapping("/api/v1/auth")
