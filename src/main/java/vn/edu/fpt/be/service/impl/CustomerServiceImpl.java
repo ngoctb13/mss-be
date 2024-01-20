@@ -43,4 +43,13 @@ public class CustomerServiceImpl implements CustomerService {
                 .map(customer -> modelMapper.map(customer, CustomerDTO.class))
                 .collect(Collectors.toList());
     }
+    @Override
+    public List<CustomerDTO> getCustomersByStoreId(Long storeId) {
+        List<Customer> customers = customerRepository.findByStore_StoreId(storeId);
+
+        return customers.stream()
+                .map(customer -> modelMapper.map(customer, CustomerDTO.class))
+                .toList();
+    }
+
 }
