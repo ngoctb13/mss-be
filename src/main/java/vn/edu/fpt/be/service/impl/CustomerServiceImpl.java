@@ -3,6 +3,7 @@ package vn.edu.fpt.be.service.impl;
 import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.DataAccessException;
 import org.springframework.stereotype.Service;
 import vn.edu.fpt.be.dto.CustomerDTO;
 import vn.edu.fpt.be.model.Customer;
@@ -58,6 +59,24 @@ public class CustomerServiceImpl implements CustomerService {
         return customers.stream()
                 .map(customer -> modelMapper.map(customer, CustomerDTO.class))
                 .collect(Collectors.toList());
+    }
+
+    @Override
+    public List<CustomerDTO> getCustomersByNameOrPhoneNumber(String searchTerm) {
+        try {
+            if (searchTerm == null || searchTerm.trim().isEmpty()) {
+                List<Customer> allCustomers = customerRepository.findAll();
+                return allCustomers.stream()
+                        .map(customer -> modelMapper.map(customer, CustomerDTO.class))
+                        .collect(Collectors.toList());
+            }
+            List<Customer> customers = customerRepository.findByCustomerNameOrPhoneNumberContaining(searchTerm);
+            return customers.stream()
+                    .map(customer -> modelMapper.map(customer, CustomerDTO.class))
+                    .collect(Collectors.toList());
+        } catch (DataAccessException e) {
+            throw new RuntimeException("An error occurred while retrieving customers. Please try again later.");
+        }
     }
 
 }

@@ -10,4 +10,5 @@ public interface CustomerService {
     List<CustomerDTO> getAllCustomer();
     List<CustomerDTO> getCustomersByStoreId(Long storeId);
     List<CustomerDTO> getCustomerByCustomerName(String customerName);
+    List<CustomerDTO> getCustomersByNameOrPhoneNumber(String searchTerm);
 }

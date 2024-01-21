@@ -1,7 +1,9 @@
 package vn.edu.fpt.be.controller;
 
+import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.DataAccessException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -13,6 +15,7 @@ import vn.edu.fpt.be.model.User;
 import vn.edu.fpt.be.service.CustomerService;
 import vn.edu.fpt.be.service.UserService;
 
+import java.util.Collections;
 import java.util.List;
 
 @RestController
@@ -56,10 +59,10 @@ public class CustomerController {
         List<CustomerDTO> customers = customerService.getCustomersByStoreId(storeId);
         return new ResponseEntity<>(customers, HttpStatus.OK);
     }
-    @GetMapping("/search/{partialName}")
+    @GetMapping("/search/{searchTerm}")
     @PreAuthorize("hasRole('STORE_OWNER')")
-    public ResponseEntity<List<CustomerDTO>> searchCustomersByName(@PathVariable String partialName) {
-        List<CustomerDTO> customers = customerService.getCustomerByCustomerName(partialName);
-        return new ResponseEntity<>(customers, HttpStatus.OK);
+    public ResponseEntity<List<CustomerDTO>> getCustomersByNameOrPhoneNumber(@PathVariable(required = false) String searchTerm) {
+            List<CustomerDTO> customers = customerService.getCustomersByNameOrPhoneNumber(searchTerm);
+            return new ResponseEntity<>(customers, HttpStatus.OK);
     }
 }
