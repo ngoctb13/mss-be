@@ -56,4 +56,10 @@ public class CustomerController {
         List<CustomerDTO> customers = customerService.getCustomersByStoreId(storeId);
         return new ResponseEntity<>(customers, HttpStatus.OK);
     }
+    @GetMapping("/search/{partialName}")
+    @PreAuthorize("hasRole('STORE_OWNER')")
+    public ResponseEntity<List<CustomerDTO>> searchCustomersByName(@PathVariable String partialName) {
+        List<CustomerDTO> customers = customerService.getCustomerByCustomerName(partialName);
+        return new ResponseEntity<>(customers, HttpStatus.OK);
+    }
 }

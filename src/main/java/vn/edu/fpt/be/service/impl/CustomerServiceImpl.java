@@ -52,4 +52,12 @@ public class CustomerServiceImpl implements CustomerService {
                 .toList();
     }
 
+    @Override
+    public List<CustomerDTO> getCustomerByCustomerName(String customerName) {
+        List<Customer> customers = customerRepository.findByCustomerNameContaining(customerName);
+        return customers.stream()
+                .map(customer -> modelMapper.map(customer, CustomerDTO.class))
+                .collect(Collectors.toList());
+    }
+
 }

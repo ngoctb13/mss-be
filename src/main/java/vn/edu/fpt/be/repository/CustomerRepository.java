@@ -7,4 +7,5 @@ import java.util.List;
 
 public interface CustomerRepository extends JpaRepository<Customer, Long> {
     List<Customer> findByStore_StoreId(Long storeId);
+    List<Customer> findByCustomerNameContaining(String customerName);
 }
