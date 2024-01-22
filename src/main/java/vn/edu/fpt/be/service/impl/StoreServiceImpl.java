@@ -4,6 +4,7 @@ import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import vn.edu.fpt.be.dto.StoreAddDTO;
+import vn.edu.fpt.be.dto.StoreUpdateDTO;
 import vn.edu.fpt.be.model.Store;
 import vn.edu.fpt.be.model.enums.Status;
 import vn.edu.fpt.be.repository.StoreRepository;
@@ -22,9 +23,10 @@ public class StoreServiceImpl implements StoreService {
     private final ModelMapper modelMapper = new ModelMapper();
 
     @Override
-    public Store createStore(StoreAddDTO storeAddDTO) {
+    public StoreAddDTO createStore(StoreAddDTO storeAddDTO) {
         Store store = modelMapper.map(storeAddDTO, Store.class);
-        return storeRepository.save(store);
+        Store saveStore = storeRepository.save(store);
+        return modelMapper.map(saveStore,StoreAddDTO.class);
     }
 
     @Override
@@ -34,10 +36,10 @@ public class StoreServiceImpl implements StoreService {
     }
 
     @Override
-    public Store updateStore(Long storeId, StoreAddDTO storeAddDTO) {
-        Store store = getStore(storeId);
-        modelMapper.map(storeAddDTO, store);
-        return storeRepository.save(store);
+    public StoreUpdateDTO updateStore(Long storeId, StoreUpdateDTO storeUpdateDTO) {
+        Store store = modelMapper.map(storeUpdateDTO, Store.class);
+        Store saveStore = storeRepository.save(store);
+        return modelMapper.map(saveStore,StoreUpdateDTO.class);
     }
 
     @Override
