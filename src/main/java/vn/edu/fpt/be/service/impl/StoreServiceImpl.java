@@ -6,6 +6,7 @@ import org.springframework.stereotype.Service;
 import vn.edu.fpt.be.dto.StoreAddDTO;
 import vn.edu.fpt.be.dto.StoreUpdateDTO;
 import vn.edu.fpt.be.model.Store;
+import vn.edu.fpt.be.model.User;
 import vn.edu.fpt.be.model.enums.Status;
 import vn.edu.fpt.be.repository.StoreRepository;
 import vn.edu.fpt.be.service.StoreService;
@@ -53,6 +54,8 @@ public class StoreServiceImpl implements StoreService {
     public List<Store> getAllStores() {
         return storeRepository.findAll();
     }
+
+
 
     // Example method to convert entity list to DTO list
     public List<StoreAddDTO> getAllStoreDTOs() {

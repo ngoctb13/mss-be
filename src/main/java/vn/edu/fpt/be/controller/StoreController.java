@@ -1,9 +1,9 @@
 package vn.edu.fpt.be.controller;
 
-import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import vn.edu.fpt.be.dto.StoreAddDTO;
@@ -29,8 +29,10 @@ public class StoreController {
     @PreAuthorize("hasRole('STORE_OWNER')")
     public ResponseEntity<StoreAddDTO> createStore(@RequestBody StoreAddDTO storeAddDTO, @RequestHeader("Authorization") String jwt) {
         User authUser = userService.findUserByJwt(jwt);
-        // Add additional authorization checks if needed
 
+        if (!userService.isUserIsStoreOwner(authUser.getUserId())) {
+            throw new AccessDeniedException("The specified store does not belong to the authenticated store owner.");
+        }
         StoreAddDTO createdStore = storeService.createStore(storeAddDTO);
         return new ResponseEntity<>(createdStore, HttpStatus.CREATED);
     }

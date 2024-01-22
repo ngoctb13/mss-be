@@ -12,4 +12,5 @@ public interface StoreService {
     StoreUpdateDTO updateStore(Long storeId, StoreUpdateDTO storeUpdateDTO);
     void deactivateStore(Long storeId);
     List<Store> getAllStores();
+
 }
