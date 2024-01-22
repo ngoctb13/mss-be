@@ -5,6 +5,7 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import vn.edu.fpt.be.model.enums.Status;
 
 @Data
 @Builder
@@ -24,4 +25,7 @@ public class Store {
     @ManyToOne
     @JoinColumn(name = "owner", nullable = false)
     private User owner;
+    @Column(name = "status", columnDefinition = "VARCHAR(255) DEFAULT 'ACTIVE'")
+    @Enumerated(EnumType.STRING)
+    private Status status;
 }
