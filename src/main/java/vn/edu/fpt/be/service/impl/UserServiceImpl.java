@@ -43,4 +43,14 @@ public class UserServiceImpl implements UserService {
         }
         return false;
     }
+    @Override
+    public boolean isUserIsStoreOwner(Long userId) {
+        Optional<User> user = userRepository.findById(userId);
+
+        if (user.isPresent()) {
+            return user.get().getRole().equals("STORE_OWNER");
+        }
+        return false;
+    }
+
 }
