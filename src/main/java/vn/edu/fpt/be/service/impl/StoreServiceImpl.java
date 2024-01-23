@@ -9,6 +9,7 @@ import vn.edu.fpt.be.model.Store;
 import vn.edu.fpt.be.model.User;
 import vn.edu.fpt.be.model.enums.Status;
 import vn.edu.fpt.be.repository.StoreRepository;
+import vn.edu.fpt.be.repository.UserRepository;
 import vn.edu.fpt.be.service.StoreService;
 
 import java.util.List;
@@ -20,14 +21,21 @@ public class StoreServiceImpl implements StoreService {
 
     @Autowired
     private StoreRepository storeRepository;
-
+    @Autowired
+    private UserRepository userRepository;
     private final ModelMapper modelMapper = new ModelMapper();
 
     @Override
     public StoreAddDTO createStore(StoreAddDTO storeAddDTO) {
         Store store = modelMapper.map(storeAddDTO, Store.class);
-        Store saveStore = storeRepository.save(store);
-        return modelMapper.map(saveStore,StoreAddDTO.class);
+//        Store saveStore = storeRepository.save(store);
+        User owner = store.getOwner();
+        if (owner != null && owner.getUserId() == null) {
+            userRepository.save(owner); // Persist the User entity
+        }
+
+        Store savedStore = storeRepository.save(store);
+        return modelMapper.map(savedStore,StoreAddDTO.class);
     }
 
     @Override

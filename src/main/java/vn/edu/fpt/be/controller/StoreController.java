@@ -29,8 +29,8 @@ public class StoreController {
     @PreAuthorize("hasRole('STORE_OWNER')")
     public ResponseEntity<StoreAddDTO> createStore(@RequestBody StoreAddDTO storeAddDTO, @RequestHeader("Authorization") String jwt) {
         User authUser = userService.findUserByJwt(jwt);
-
-        if (!userService.isUserIsStoreOwner(authUser.getUserId())) {
+        storeAddDTO.setOwner(authUser);
+        if (userService.isUserIsStoreOwner(authUser.getUserId())) {
             throw new AccessDeniedException("The specified store does not belong to the authenticated store owner.");
         }
         StoreAddDTO createdStore = storeService.createStore(storeAddDTO);
