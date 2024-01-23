@@ -45,8 +45,10 @@ public class StoreServiceImpl implements StoreService {
 
     @Override
     public StoreUpdateDTO updateStore(Long storeId, StoreUpdateDTO storeUpdateDTO) {
-        Store store = modelMapper.map(storeUpdateDTO, Store.class);
-        Store saveStore = storeRepository.save(store);
+        Store existStore = storeRepository.findById(storeId)
+                .orElseThrow(() -> new RuntimeException("Store not found"));
+        modelMapper.map(storeUpdateDTO, existStore);
+        Store saveStore = storeRepository.save(existStore);
         return modelMapper.map(saveStore,StoreUpdateDTO.class);
     }
 
