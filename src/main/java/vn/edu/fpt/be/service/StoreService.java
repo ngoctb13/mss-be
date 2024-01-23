@@ -10,7 +10,7 @@ public interface StoreService {
     StoreAddDTO createStore(StoreAddDTO storeAddDTO);
     Store getStore(Long storeId);
     StoreUpdateDTO updateStore(Long storeId, StoreUpdateDTO storeUpdateDTO);
-    void deactivateStore(Long storeId);
+    Store deactivateStore(Long storeId);
     List<Store> getAllStores();
 
 }

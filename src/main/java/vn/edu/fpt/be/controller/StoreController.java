@@ -50,6 +50,10 @@ public class StoreController {
         List<Store> stores = storeService.getAllStores();
         return new ResponseEntity<>(stores, HttpStatus.OK);
     }
-
-    // Other endpoints as needed...
+    @PutMapping("/deactivate/{storeId}")
+    @PreAuthorize("hasRole('STORE_OWNER')")
+    public ResponseEntity<Store> deactivateStore(@PathVariable Long storeId) {
+        Store deactivateStore = storeService.deactivateStore(storeId);
+        return new ResponseEntity<>(deactivateStore, HttpStatus.OK);
+    }
 }

@@ -28,10 +28,9 @@ public class StoreServiceImpl implements StoreService {
     @Override
     public StoreAddDTO createStore(StoreAddDTO storeAddDTO) {
         Store store = modelMapper.map(storeAddDTO, Store.class);
-//        Store saveStore = storeRepository.save(store);
         User owner = store.getOwner();
         if (owner != null && owner.getUserId() == null) {
-            userRepository.save(owner); // Persist the User entity
+            userRepository.save(owner);
         }
 
         Store savedStore = storeRepository.save(store);
@@ -52,10 +51,10 @@ public class StoreServiceImpl implements StoreService {
     }
 
     @Override
-    public void deactivateStore(Long storeId) {
+    public Store deactivateStore(Long storeId) {
         Store store = new Store();
         store.setStatus(Status.INACTIVE);
-        storeRepository.save(store);
+        return storeRepository.save(store);
     }
 
     @Override
