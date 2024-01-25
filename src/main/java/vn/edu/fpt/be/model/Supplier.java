@@ -5,6 +5,7 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import vn.edu.fpt.be.model.enums.Status;
 
 @Data
 @Builder
@@ -25,6 +26,9 @@ public class Supplier {
     private String address;
     @Column(name = "note")
     private String note;
+    @Column(name = "status", columnDefinition = "VARCHAR(255) DEFAULT 'ACTIVE'")
+    @Enumerated(EnumType.STRING)
+    private Status status;
     @ManyToOne
     @JoinColumn(name = "store_id")
     private Store store;
