@@ -1,11 +1,7 @@
 package vn.edu.fpt.be.controller;
 
-import jakarta.persistence.EntityNotFoundException;
-import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.dao.DataAccessException;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -15,7 +11,6 @@ import vn.edu.fpt.be.model.User;
 import vn.edu.fpt.be.service.CustomerService;
 import vn.edu.fpt.be.service.UserService;
 
-import java.util.Collections;
 import java.util.List;
 
 @RestController
@@ -33,7 +28,7 @@ public class CustomerController {
         User authUser = userService.findUserByJwt(jwt);
         Long storeId = customerDTO.getStoreId();
 
-        if (!userService.isStoreOwnerOfStore(authUser.getUserId(), storeId)) {
+        if (userService.isStoreOwnerOfStore(authUser.getUserId(), storeId)) {
             throw new AccessDeniedException("The specified store does not belong to the authenticated store owner.");
         }
 

@@ -6,7 +6,7 @@ import java.util.List;
 
 public interface SupplierService {
     SupplierDTO createSupplier(SupplierDTO supplierDTO);
-    SupplierDTO updateSupplier(SupplierDTO supplierDTO);
+    SupplierDTO updateSupplier(SupplierDTO supplierDTO, Long supplierId);
     List<SupplierDTO> getAllSuppliers();
     List<SupplierDTO> getSuppliersByStoreId(Long storeId);
     List<SupplierDTO> getSuppliersByNameOrPhoneNumber(String searchTerm);

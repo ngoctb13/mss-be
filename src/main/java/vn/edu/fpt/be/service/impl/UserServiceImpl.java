@@ -39,9 +39,9 @@ public class UserServiceImpl implements UserService {
         Optional<Store> store = storeRepository.findById(storeId);
 
         if (user.isPresent() && store.isPresent()) {
-            return store.get().getOwner().equals(user.get());
+            return !store.get().getOwner().equals(user.get());
         }
-        return false;
+        return true;
     }
     @Override
     public boolean isUserIsStoreOwner(Long userId) {
