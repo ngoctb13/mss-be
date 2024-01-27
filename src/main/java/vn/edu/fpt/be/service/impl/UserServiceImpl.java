@@ -1,56 +1,44 @@
 package vn.edu.fpt.be.service.impl;
 
 import lombok.RequiredArgsConstructor;
+import org.modelmapper.ModelMapper;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
-import vn.edu.fpt.be.model.Store;
+import vn.edu.fpt.be.dto.RegisterRequestDTO;
 import vn.edu.fpt.be.model.User;
-import vn.edu.fpt.be.repository.StoreRepository;
+import vn.edu.fpt.be.model.enums.Role;
+import vn.edu.fpt.be.model.enums.Status;
 import vn.edu.fpt.be.repository.UserRepository;
 import vn.edu.fpt.be.service.UserService;
-import vn.edu.fpt.be.service.auth.JwtService;
 
+import java.util.Date;
 import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
 public class UserServiceImpl implements UserService {
-
-    private final JwtService jwtService;
     private final UserRepository userRepository;
-    private final StoreRepository storeRepository;
-
+    private final ModelMapper modelMapper = new ModelMapper();
+    private final PasswordEncoder passwordEncoder;
     @Override
-    public User findUserByJwt(String jwt) {
-        jwt = jwt.substring(7);
-        String username = jwtService.extractUsername(jwt);
-
-        Optional<User> user = userRepository.findByUsername(username);
-
-        if (user.isPresent()) {
-            return user.get();
-        } else {
-            throw new RuntimeException("User not found");
-        }
+    public String getRoleByUsername(String username) {
+        Optional<User> userOptional = userRepository.findByUsername(username);
+        return String.valueOf(userOptional.get().getRole());
     }
 
     @Override
-    public boolean isStoreOwnerOfStore(Long userId, Long storeId) {
-        Optional<User> user = userRepository.findById(userId);
-        Optional<Store> store = storeRepository.findById(storeId);
-
-        if (user.isPresent() && store.isPresent()) {
-            return !store.get().getOwner().equals(user.get());
+    public void registerUser(RegisterRequestDTO registerRequestDTO) {
+        Optional<User> existingUser = userRepository.findByUsername(registerRequestDTO.getUsername());
+        if (existingUser.isPresent()) {
+            throw new IllegalArgumentException(registerRequestDTO.getUsername() + " dã tồn tại! Hãy bấm quên mật khẩu nếu bạn không nhớ mật khẩu của mình!");
         }
-        return true;
-    }
-    @Override
-    public boolean isUserIsStoreOwner(Long userId) {
-        Optional<User> user = userRepository.findById(userId);
 
-        if (user.isPresent()) {
-            return user.get().getRole().equals("STORE_OWNER");
-        }
-        return false;
-    }
+        User user = modelMapper.map(registerRequestDTO, User.class);
+        user.setPassword(passwordEncoder.encode(registerRequestDTO.getPassword()));
+        user.setRole(Role.STORE_OWNER);
+        user.setStatus(Status.ACTIVE);
+        user.setCreatedAt(new Date());
 
+        userRepository.save(user);
+    }
 }

@@ -10,16 +10,11 @@ import vn.edu.fpt.be.model.enums.Gender;
 import java.util.Date;
 
 @Data
-@Builder
 @Entity
 @NoArgsConstructor
 @AllArgsConstructor
 @Table(name = "user_profile")
-public class UserProfile {
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "user_profile_id")
-    private Long userProfileId;
+public class UserProfile extends Model {
     @Column(name = "full_name")
     private String fullName;
     @Column(name = "gender", length = 10)
