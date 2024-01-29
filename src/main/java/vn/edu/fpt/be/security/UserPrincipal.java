@@ -33,7 +33,8 @@ public class UserPrincipal implements UserDetails {
         // Assuming getRole() returns a single Role object
         String role = String.valueOf(user.getRole());
         if (role != null) {
-            authorities.add(new SimpleGrantedAuthority("ROLE_" + role.toUpperCase()));
+//            authorities.add(new SimpleGrantedAuthority("ROLE_" + role.toUpperCase()));
+            authorities.add(new SimpleGrantedAuthority(role.toUpperCase()));
         }
         return new UserPrincipal(
                 user.getId(),
