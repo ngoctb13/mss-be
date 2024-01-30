@@ -4,14 +4,14 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import vn.edu.fpt.be.model.enums.Status;
 
 @Data
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-public class RegisterRequest {
-    private String username;
-    private String password;
+public class StoreCreateDTO {
     private String storeName;
-    private String storeAddress;
+    private String address;
+    private Status status;
 }

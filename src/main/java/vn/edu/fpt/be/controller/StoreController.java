@@ -1,59 +1,53 @@
 package vn.edu.fpt.be.controller;
 
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
-import vn.edu.fpt.be.dto.StoreAddDTO;
-import vn.edu.fpt.be.dto.StoreUpdateDTO;
-import vn.edu.fpt.be.model.Store;
-import vn.edu.fpt.be.model.User;
+import vn.edu.fpt.be.dto.StoreCreateDTO;
+import vn.edu.fpt.be.dto.StoreDTO;
+import vn.edu.fpt.be.exception.ErrorResponse;
 import vn.edu.fpt.be.service.StoreService;
-import vn.edu.fpt.be.service.UserService;
 
 import java.util.List;
 
 @RestController
+@RequiredArgsConstructor
 @RequestMapping("/api/stores")
 public class StoreController {
 
-    @Autowired
-    private StoreService storeService;
-
-    @Autowired
-    private UserService userService;
+    private final StoreService storeService;
 
     @PostMapping("/create")
-    @PreAuthorize("hasRole('STORE_OWNER')")
-    public ResponseEntity<StoreAddDTO> createStore(@RequestBody StoreAddDTO storeAddDTO, @RequestHeader("Authorization") String jwt) {
-        User authUser = userService.findUserByJwt(jwt);
-        storeAddDTO.setOwner(authUser);
-        if (userService.isUserIsStoreOwner(authUser.getUserId())) {
-            throw new AccessDeniedException("The specified store does not belong to the authenticated store owner.");
+    @PreAuthorize("hasAuthority('STORE_OWNER')")
+    public ResponseEntity<?> createStore(@RequestBody StoreCreateDTO storeCreateDTO) {
+        try {
+            return ResponseEntity.ok(storeService.createStore(storeCreateDTO));
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body(e.getMessage());
         }
-        StoreAddDTO createdStore = storeService.createStore(storeAddDTO);
-        return new ResponseEntity<>(createdStore, HttpStatus.CREATED);
     }
 
-    @PutMapping("/{storeId}")
-    @PreAuthorize("hasRole('STORE_OWNER')")
-    public ResponseEntity<StoreUpdateDTO> updateStore(@PathVariable Long storeId, @RequestBody StoreUpdateDTO storeUpdateDTO) {
-        StoreUpdateDTO updatedStore = storeService.updateStore(storeId, storeUpdateDTO);
-        return new ResponseEntity<>(updatedStore, HttpStatus.OK);
+    @GetMapping("/all")
+    @PreAuthorize("hasAnyAuthority('SYSTEM_ADMIN','STORE_OWNER')")
+    public ResponseEntity<?> getAllStores() {
+        try {
+            List<StoreDTO> stores = storeService.getAllStores();
+            return new ResponseEntity<>(stores, HttpStatus.OK);
+        } catch (Exception e) {
+            return new ResponseEntity<>(new ErrorResponse("Failed to fetch all stores: " + e.getMessage()), HttpStatus.INTERNAL_SERVER_ERROR);
+        }
     }
 
-    @GetMapping("/getAll")
-    @PreAuthorize("hasRole('STORE_OWNER')")
-    public ResponseEntity<List<Store>> getAllStores() {
-        List<Store> stores = storeService.getAllStores();
-        return new ResponseEntity<>(stores, HttpStatus.OK);
-    }
-    @PutMapping("/deactivate/{storeId}")
-    @PreAuthorize("hasRole('STORE_OWNER')")
-    public ResponseEntity<Store> deactivateStore(@PathVariable Long storeId) {
-        Store deactivateStore = storeService.deactivateStore(storeId);
-        return new ResponseEntity<>(deactivateStore, HttpStatus.OK);
+    @GetMapping("/owner/all")
+    @PreAuthorize("hasAuthority('STORE_OWNER')")
+    public ResponseEntity<?> getStoresByOwner() {
+        try {
+            List<StoreDTO> stores = storeService.getStoresByOwner();
+            return new ResponseEntity<>(stores, HttpStatus.OK);
+        } catch (Exception e) {
+            return new ResponseEntity<>(new ErrorResponse("Failed to fetch stores by owner: " + e.getMessage()), HttpStatus.INTERNAL_SERVER_ERROR);
+        }
     }
 }

@@ -1,23 +1,18 @@
 package vn.edu.fpt.be.model;
 
-import jakarta.persistence.*;
+import javax.persistence.*;
 import lombok.AllArgsConstructor;
-import lombok.Builder;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 import vn.edu.fpt.be.model.enums.Status;
 
+@EqualsAndHashCode(callSuper = false)
 @Data
-@Builder
 @Entity
 @NoArgsConstructor
 @AllArgsConstructor
-@Table(name = "store")
-public class Store {
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "store_id")
-    private Long storeId;
+public class Store extends Model{
     @Column(name = "store_name")
     private String storeName;
     @Column(name = "address")
@@ -25,7 +20,7 @@ public class Store {
     @ManyToOne
     @JoinColumn(name = "owner", nullable = false)
     private User owner;
-    @Column(name = "status", columnDefinition = "VARCHAR(255) DEFAULT 'ACTIVE'")
+    @Column(name = "status", columnDefinition = "VARCHAR(30) DEFAULT 'ACTIVE'")
     @Enumerated(EnumType.STRING)
     private Status status;
 }

@@ -1,25 +1,18 @@
 package vn.edu.fpt.be.model;
 
-import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import javax.persistence.*;
+import lombok.*;
 import vn.edu.fpt.be.model.enums.Gender;
 
 import java.util.Date;
 
+@EqualsAndHashCode(callSuper = true)
 @Data
-@Builder
 @Entity
 @NoArgsConstructor
 @AllArgsConstructor
 @Table(name = "user_profile")
-public class UserProfile {
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "user_profile_id")
-    private Long userProfileId;
+public class UserProfile extends Model {
     @Column(name = "full_name")
     private String fullName;
     @Column(name = "gender", length = 10)
