@@ -1,7 +1,7 @@
 package vn.edu.fpt.be.model;
 
-import jakarta.persistence.*;
-import jakarta.persistence.MappedSuperclass;
+import javax.persistence.*;
+import javax.persistence.MappedSuperclass;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;

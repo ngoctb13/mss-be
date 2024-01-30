@@ -1,7 +1,7 @@
 package vn.edu.fpt.be.model;
 
 
-import jakarta.persistence.*;
+import javax.persistence.*;
 import lombok.*;
 import vn.edu.fpt.be.model.enums.Role;
 import vn.edu.fpt.be.model.enums.Status;

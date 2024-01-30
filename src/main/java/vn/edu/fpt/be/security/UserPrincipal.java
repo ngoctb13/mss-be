@@ -8,10 +8,7 @@ import org.springframework.security.core.userdetails.UserDetails;
 import vn.edu.fpt.be.model.User;
 import vn.edu.fpt.be.model.enums.Status;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
-import java.util.Objects;
+import java.util.*;
 
 public class UserPrincipal implements UserDetails {
     private Long id;
@@ -32,9 +29,10 @@ public class UserPrincipal implements UserDetails {
         List<GrantedAuthority> authorities = new ArrayList<>();
         // Assuming getRole() returns a single Role object
         String role = String.valueOf(user.getRole());
+        System.out.println(role + "OOoooooooooo");
         if (role != null) {
-//            authorities.add(new SimpleGrantedAuthority("ROLE_" + role.toUpperCase()));
             authorities.add(new SimpleGrantedAuthority(role.toUpperCase()));
+//            authorities.add(new SimpleGrantedAuthority(role.toUpperCase()));
         }
         return new UserPrincipal(
                 user.getId(),
@@ -44,6 +42,18 @@ public class UserPrincipal implements UserDetails {
                 authorities
         );
     }
+
+//    public static UserPrincipal create(User user) {
+//        GrantedAuthority authority = new SimpleGrantedAuthority("ROLE_" + user.getRole().name().toUpperCase());
+//
+//        return new UserPrincipal(
+//                user.getId(),
+//                user.getUsername(),
+//                user.getPassword(),
+//                user.getStatus(),
+//                Collections.singletonList(authority)
+//        );
+//    }
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {

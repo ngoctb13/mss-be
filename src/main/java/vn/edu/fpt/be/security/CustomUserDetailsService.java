@@ -17,10 +17,12 @@ public class CustomUserDetailsService implements UserDetailsService {
     @Autowired
     UserRepository userRepository;
     @Override
+    @Transactional
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
         User user = userRepository.findByUsername(username)
                 .orElseThrow(() -> new UsernameNotFoundException("User not found with email: " + username));
         System.out.println(user);
+        System.out.println("User roles: " + user.getRole());
         return UserPrincipal.create(user);
     }
     @Transactional
@@ -32,6 +34,8 @@ public class CustomUserDetailsService implements UserDetailsService {
         if (user.getStatus() == Status.INACTIVE) {
             throw new RuntimeException("Sorry! You had been blocked!.");
         }
+
+        System.out.println("User roles: " + user.getRole());
 
         return UserPrincipal.create(user);
     }
