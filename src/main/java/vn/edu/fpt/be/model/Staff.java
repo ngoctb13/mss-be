@@ -5,16 +5,14 @@ import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 
-import javax.persistence.Entity;
-import javax.persistence.JoinColumn;
-import javax.persistence.ManyToOne;
-import javax.persistence.OneToOne;
+import javax.persistence.*;
 
 @EqualsAndHashCode(callSuper = false)
 @Data
 @Entity
 @NoArgsConstructor
 @AllArgsConstructor
+@Table(name = "staff")
 public class Staff extends Model{
     @ManyToOne
     @JoinColumn(name = "store_id")

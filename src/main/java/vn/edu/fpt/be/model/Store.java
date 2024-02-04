@@ -12,6 +12,7 @@ import vn.edu.fpt.be.model.enums.Status;
 @Entity
 @NoArgsConstructor
 @AllArgsConstructor
+@Table(name = "store")
 public class Store extends Model{
     @Column(name = "store_name")
     private String storeName;
