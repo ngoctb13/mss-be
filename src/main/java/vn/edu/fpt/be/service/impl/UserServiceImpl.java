@@ -5,9 +5,13 @@ import org.modelmapper.ModelMapper;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import vn.edu.fpt.be.dto.RegisterRequestDTO;
+import vn.edu.fpt.be.dto.UserProfileDTO;
+import vn.edu.fpt.be.dto.UserUpdateDTO;
 import vn.edu.fpt.be.model.User;
+import vn.edu.fpt.be.model.UserProfile;
 import vn.edu.fpt.be.model.enums.Role;
 import vn.edu.fpt.be.model.enums.Status;
+import vn.edu.fpt.be.repository.UserProfileRepository;
 import vn.edu.fpt.be.repository.UserRepository;
 import vn.edu.fpt.be.service.UserService;
 
@@ -19,6 +23,7 @@ import java.util.Optional;
 @RequiredArgsConstructor
 public class UserServiceImpl implements UserService {
     private final UserRepository userRepository;
+    private final UserProfileRepository userProfileRepository;
     private final ModelMapper modelMapper = new ModelMapper();
     private final PasswordEncoder passwordEncoder;
     @Override
@@ -41,5 +46,29 @@ public class UserServiceImpl implements UserService {
         user.setCreatedAt(LocalDateTime.now());
 
         userRepository.save(user);
+    }
+
+    @Override
+    public UserProfileDTO updateUser(Long userId, UserUpdateDTO userUpdateDTO) {
+        Optional<User> user = userRepository.findById(userId);
+        if (user.isEmpty()) {
+            throw new IllegalArgumentException("User not found with id: " + userId);
+        }
+        UserProfile userProfile = userProfileRepository.findByUser(user.get());
+        if (userProfile  == null) {
+            userProfile = new UserProfile();
+            userProfile.setUser(user.get());
+            userProfile.setCreatedAt(LocalDateTime.now());
+        }
+        userProfile.setFullName(userUpdateDTO.getFullName());
+        userProfile.setGender(userUpdateDTO.getGender());
+        userProfile.setDateOfBirth(userUpdateDTO.getDateOfBirth());
+        userProfile.setPhoneNumber(userUpdateDTO.getPhoneNumber());
+        userProfile.setIdentityNumber(userUpdateDTO.getIdentityNumber());
+        user.get().setUpdatedAt(new Date());
+        userRepository.save(user.get());
+        userProfileRepository.save(userProfile);
+
+        return modelMapper.map(userProfile, UserProfileDTO.class);
     }
 }
