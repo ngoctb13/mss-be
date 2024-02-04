@@ -32,13 +32,13 @@ public class Model {
     @Temporal(TemporalType.TIMESTAMP)
     private Date updatedAt;
 
-    @Column(name = "is_delete")
-    private Boolean isDelete;
-
-    @Column(name = "deleted_at")
-    @Temporal(TemporalType.TIMESTAMP)
-    private Date deletedAt;
-
-    @Column(name = "deleted_by")
-    private String deletedBy;
+//    @Column(name = "is_delete")
+//    private Boolean isDelete;
+//
+//    @Column(name = "deleted_at")
+//    @Temporal(TemporalType.TIMESTAMP)
+//    private Date deletedAt;
+//
+//    @Column(name = "deleted_by")
+//    private String deletedBy;
 }
