@@ -7,6 +7,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import vn.edu.fpt.be.dto.RegisterRequestDTO;
 import vn.edu.fpt.be.dto.StaffCreateDTO;
+import vn.edu.fpt.be.dto.StaffDTO;
 import vn.edu.fpt.be.model.Staff;
 import vn.edu.fpt.be.model.Store;
 import vn.edu.fpt.be.model.User;
@@ -22,6 +23,7 @@ import java.time.LocalDateTime;
 import java.util.Date;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -71,5 +73,39 @@ public class StaffServiceImpl implements StaffService {
 
         userRepository.save(staffUser);
         staffRepository.save(staff);
+    }
+
+    @Override
+    public List<StaffDTO> getAllStaffs() {
+        List<Staff> staffList = staffRepository.findAll();
+        return staffList.stream()
+                .map(this::convertToDto)
+                .collect(Collectors.toList());
+    }
+
+    @Override
+    public List<StaffDTO> getStaffsByStore(Long storeId) {
+        UserPrincipal currentUserPrincipal = (UserPrincipal) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        Optional<User> currentUser = userRepository.findById(currentUserPrincipal.getId());
+        if (currentUser.isEmpty()) {
+            throw new RuntimeException("Authenticated user not found.");
+        }
+
+        List<Store> ownedStores = storeRepository.findByOwnerId(currentUser.get().getId());
+        // Check if the provided storeId is in the list of ownedStores
+        boolean isStoreOwnedByCurrentUser = ownedStores.stream()
+                .anyMatch(store -> store.getId().equals(storeId));
+        if (!isStoreOwnedByCurrentUser) {
+            throw new IllegalArgumentException("The store with ID " + storeId + " is not owned by the current user.");
+        }
+
+        List<Staff> staffList = staffRepository.findByStoreId(storeId);
+        return staffList.stream()
+                .map(this::convertToDto)
+                .collect(Collectors.toList());
+    }
+
+    private StaffDTO convertToDto(Staff staff) {
+        return modelMapper.map(staff, StaffDTO.class);
     }
 }
