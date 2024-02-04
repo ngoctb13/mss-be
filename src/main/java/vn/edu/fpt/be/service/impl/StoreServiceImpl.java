@@ -46,7 +46,7 @@ public class StoreServiceImpl implements StoreService {
             store.setAddress(storeCreateDTO.getAddress());
             store.setOwner(currentUser.get());
             store.setStatus(Status.ACTIVE);
-            store.setCreatedAt(new Date());
+            store.setCreatedAt(LocalDateTime.now());
             store.setCreatedBy(currentUser.get().getUsername());
 
             return modelMapper.map(storeRepository.save(store), StoreCreateDTO.class);
