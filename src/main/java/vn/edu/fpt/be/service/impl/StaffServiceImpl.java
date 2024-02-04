@@ -18,6 +18,7 @@ import vn.edu.fpt.be.repository.UserRepository;
 import vn.edu.fpt.be.security.UserPrincipal;
 import vn.edu.fpt.be.service.StaffService;
 
+import java.time.LocalDateTime;
 import java.util.Date;
 import java.util.List;
 import java.util.Optional;
@@ -32,6 +33,12 @@ public class StaffServiceImpl implements StaffService {
     private final StoreRepository storeRepository;
     @Override
     public void createStaff(StaffCreateDTO staffCreateDTO) {
+        UserPrincipal currentUserPrincipal = (UserPrincipal) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        Optional<User> currentUser = userRepository.findById(currentUserPrincipal.getId());
+        if (currentUser.isEmpty()) {
+            throw new RuntimeException("Authenticated user not found.");
+        }
+
         Optional<User> existingUser = userRepository.findByUsername(staffCreateDTO.getUsername());
         if (existingUser.isPresent()) {
             throw new IllegalArgumentException(staffCreateDTO.getUsername() + " đã tồn tại!");
@@ -42,23 +49,16 @@ public class StaffServiceImpl implements StaffService {
         staffUser.setPassword(passwordEncoder.encode(staffCreateDTO.getPassword()));
         staffUser.setRole(Role.STAFF);
         staffUser.setStatus(Status.ACTIVE);
-        staffUser.setCreatedAt(new Date());
-        userRepository.save(staffUser);
+        staffUser.setCreatedAt(LocalDateTime.now());
+        staffUser.setCreatedBy(currentUser.get().getUsername());
 
         Staff staff = new Staff();
         staff.setUser(staffUser);
 
-        UserPrincipal currentUserPrincipal = (UserPrincipal) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-        Optional<User> currentUser = userRepository.findById(currentUserPrincipal.getId());
-        if (currentUser.isEmpty()) {
-            throw new RuntimeException("Authenticated user not found.");
-        }
         List<Store> ownedStores = storeRepository.findByOwnerId(currentUser.get().getId());
-
         // Check if the provided storeId is in the list of ownedStores
         boolean isStoreOwnedByCurrentUser = ownedStores.stream()
                 .anyMatch(store -> store.getId().equals(staffCreateDTO.getStoreId()));
-
         if (!isStoreOwnedByCurrentUser) {
             throw new IllegalArgumentException("The store with ID " + staffCreateDTO.getStoreId() + " is not owned by the current user.");
         }
@@ -69,6 +69,7 @@ public class StaffServiceImpl implements StaffService {
                 .orElseThrow(() -> new IllegalStateException("Store not found with id: " + staffCreateDTO.getStoreId())); // This should theoretically never happen due to the previous check
         staff.setStore(store);
 
+        userRepository.save(staffUser);
         staffRepository.save(staff);
     }
 }

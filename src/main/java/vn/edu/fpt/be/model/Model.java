@@ -7,6 +7,7 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.time.LocalDateTime;
 import java.util.Date;
 
 
@@ -21,8 +22,8 @@ public class Model {
     private Long id;
 
     @Column(name = "created_at")
-    @Temporal(TemporalType.TIMESTAMP)
-    private Date createdAt;
+//    @Temporal(TemporalType.TIMESTAMP)
+    private LocalDateTime createdAt;
 
     @Column(name = "created_by")
     private String createdBy;

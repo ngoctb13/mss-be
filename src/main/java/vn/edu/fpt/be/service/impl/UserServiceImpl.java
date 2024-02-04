@@ -11,6 +11,7 @@ import vn.edu.fpt.be.model.enums.Status;
 import vn.edu.fpt.be.repository.UserRepository;
 import vn.edu.fpt.be.service.UserService;
 
+import java.time.LocalDateTime;
 import java.util.Date;
 import java.util.Optional;
 
@@ -37,7 +38,7 @@ public class UserServiceImpl implements UserService {
         user.setPassword(passwordEncoder.encode(registerRequestDTO.getPassword()));
         user.setRole(Role.STORE_OWNER);
         user.setStatus(Status.ACTIVE);
-        user.setCreatedAt(new Date());
+        user.setCreatedAt(LocalDateTime.now());
 
         userRepository.save(user);
     }
