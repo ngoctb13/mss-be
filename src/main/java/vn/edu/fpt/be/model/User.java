@@ -21,7 +21,7 @@ public class User extends Model {
     @Column(name = "role")
     @Enumerated(EnumType.STRING)
     private Role role;
-    @Column(name = "status", columnDefinition = "VARCHAR(255) DEFAULT 'ACTIVE'")
+    @Column(name = "status", columnDefinition = "VARCHAR(50) DEFAULT 'ACTIVE'")
     @Enumerated(EnumType.STRING)
     private Status status;
 }
