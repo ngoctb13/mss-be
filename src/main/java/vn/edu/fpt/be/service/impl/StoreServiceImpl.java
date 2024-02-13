@@ -9,6 +9,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import vn.edu.fpt.be.dto.StoreCreateDTO;
 import vn.edu.fpt.be.dto.StoreDTO;
+import vn.edu.fpt.be.dto.StoreUpdateDTO;
 import vn.edu.fpt.be.model.Store;
 import vn.edu.fpt.be.model.User;
 import vn.edu.fpt.be.model.enums.Status;
@@ -31,11 +32,12 @@ public class StoreServiceImpl implements StoreService {
     private final StoreRepository storeRepository;
     private final ModelMapper modelMapper = new ModelMapper();
     private static final Logger logger = LoggerFactory.getLogger(StoreServiceImpl.class);
+    UserPrincipal currentUserPrincipal = (UserPrincipal) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+    Optional<User> currentUser = userRepository.findById(currentUserPrincipal.getId());
     @Override
     public StoreCreateDTO createStore(StoreCreateDTO storeCreateDTO) {
         try {
-            UserPrincipal currentUserPrincipal = (UserPrincipal) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-            Optional<User> currentUser = userRepository.findById(currentUserPrincipal.getId());
+
 
             if (currentUser.isEmpty()) {
                 throw new RuntimeException("Authenticated user not found.");
@@ -91,6 +93,38 @@ public class StoreServiceImpl implements StoreService {
                     .collect(Collectors.toList());
         } catch (Exception e) {
             throw new RuntimeException("Failed to fetch stores by owner.", e);
+        }
+    }
+
+    @Override
+    public StoreDTO updateStore(Long storeId,StoreUpdateDTO storeUpdateDTO) {
+        try {
+            if (currentUser.isEmpty()) {
+                throw new RuntimeException("Authenticated user not found.");
+            }
+            Store store = storeRepository.findById(storeId).orElseThrow(() -> new RuntimeException("Customer not found"));
+            store.setStoreName(storeUpdateDTO.getStoreName());
+            store.setAddress(storeUpdateDTO.getAddress());
+            store.setUpdatedAt(LocalDateTime.now());
+            return modelMapper.map(storeRepository.save(store), StoreDTO.class);
+        } catch (Exception e){
+            throw new RuntimeException("Fail to update store: " + e.getMessage());
+        }
+
+    }
+
+    @Override
+    public StoreDTO deactivateStore(Long storeId) {
+        try {
+            if (currentUser.isEmpty()) {
+                throw new RuntimeException("Authenticated user not found.");
+            }
+            Store store = storeRepository.findById(storeId).orElseThrow(() -> new RuntimeException("Customer not found"));
+            store.setStatus(Status.INACTIVE);
+            store.setUpdatedAt(LocalDateTime.now());
+            return modelMapper.map(storeRepository.save(store), StoreDTO.class);
+        } catch (Exception e){
+            throw new RuntimeException("Fail to update store: " + e.getMessage());
         }
     }
 }
