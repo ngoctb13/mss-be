@@ -8,6 +8,7 @@ import org.springframework.stereotype.Service;
 import vn.edu.fpt.be.dto.CustomerDTO;
 import vn.edu.fpt.be.dto.SupplierCreateDTO;
 import vn.edu.fpt.be.dto.SupplierDTO;
+import vn.edu.fpt.be.dto.SupplierUpdateDTO;
 import vn.edu.fpt.be.model.Customer;
 import vn.edu.fpt.be.model.Store;
 import vn.edu.fpt.be.model.Supplier;
@@ -19,6 +20,7 @@ import vn.edu.fpt.be.repository.UserRepository;
 import vn.edu.fpt.be.security.UserPrincipal;
 import vn.edu.fpt.be.service.SupplierService;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -90,5 +92,31 @@ public class SupplierServiceImpl implements SupplierService {
         return suppliers.stream()
                 .map(supplier -> modelMapper.map(suppliers, SupplierDTO.class))
                 .collect(Collectors.toList());
+    }
+
+    @Override
+    public SupplierDTO updateSupplier(SupplierUpdateDTO supplierUpdateDTO, Long supplierId) {
+        if (currentUser.isEmpty()) {
+            throw new RuntimeException("Authenticated user not found.");
+        }
+        Supplier supplier = supplierRepository.findById(supplierId).orElseThrow(() -> new RuntimeException("Supplier not found"));
+        supplier.setSupplierName(supplierUpdateDTO.getSupplierName());
+        supplier.setPhoneNumber(supplierUpdateDTO.getPhoneNumber());
+        supplier.setAddress(supplierUpdateDTO.getAddress());
+        supplier.setNote(supplierUpdateDTO.getNote());
+        supplier.setUpdatedAt(LocalDateTime.now());
+        Supplier savedSupplier = supplierRepository.save(supplier);
+        return modelMapper.map(savedSupplier, SupplierDTO.class);
+    }
+
+    @Override
+    public SupplierDTO deactivate(Long supplierId) {
+        if (currentUser.isEmpty()) {
+            throw new RuntimeException("Authenticated user not found.");
+        }
+        Supplier supplier = supplierRepository.findById(supplierId).orElseThrow(() -> new RuntimeException("Supplier not found"));
+        supplier.setStatus(Status.INACTIVE);
+        Supplier savedSupplier = supplierRepository.save(supplier);
+        return modelMapper.map(savedSupplier, SupplierDTO.class);
     }
 }

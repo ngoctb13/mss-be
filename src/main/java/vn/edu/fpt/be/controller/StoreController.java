@@ -7,6 +7,7 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import vn.edu.fpt.be.dto.StoreCreateDTO;
 import vn.edu.fpt.be.dto.StoreDTO;
+import vn.edu.fpt.be.dto.StoreUpdateDTO;
 import vn.edu.fpt.be.exception.ErrorResponse;
 import vn.edu.fpt.be.service.StoreService;
 
@@ -48,6 +49,24 @@ public class StoreController {
             return new ResponseEntity<>(stores, HttpStatus.OK);
         } catch (Exception e) {
             return new ResponseEntity<>(new ErrorResponse("Failed to fetch stores by owner: " + e.getMessage()), HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+    @PostMapping("/update/{storeId}")
+    @PreAuthorize("hasAuthority('STORE_OWNER')")
+    public ResponseEntity<?> updateStore(@RequestBody StoreUpdateDTO storeUpdateDTO, @PathVariable Long storeId) {
+        try {
+            return ResponseEntity.ok(storeService.updateStore(storeId,storeUpdateDTO));
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body(e.getMessage());
+        }
+    }
+    @PostMapping("/deactivate/{storeId}")
+    @PreAuthorize("hasAuthority('STORE_OWNER')")
+    public ResponseEntity<?> deactivateStore(@PathVariable Long storeId) {
+        try {
+            return ResponseEntity.ok(storeService.deactivateStore(storeId));
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body(e.getMessage());
         }
     }
 }

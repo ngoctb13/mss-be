@@ -7,6 +7,7 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import vn.edu.fpt.be.dto.SupplierCreateDTO;
 import vn.edu.fpt.be.dto.SupplierDTO;
+import vn.edu.fpt.be.dto.SupplierUpdateDTO;
 import vn.edu.fpt.be.service.SupplierService;
 
 import java.util.List;
@@ -36,5 +37,17 @@ public class SupplierController {
     public ResponseEntity<List<SupplierDTO>> getSuppliersByStore(@PathVariable Long storeId) {
         List<SupplierDTO> suppliers = supplierService.getSuppliersByStore(storeId);
         return new ResponseEntity<>(suppliers, HttpStatus.OK);
+    }
+    @PostMapping("/update/{storeId}")
+    @PreAuthorize("hasAuthority('STORE_OWNER')")
+    public ResponseEntity<SupplierDTO> updateSupplier(@RequestBody SupplierUpdateDTO supplierUpdateDTO, @PathVariable Long storeId) {
+        SupplierDTO createdSupplier = supplierService.updateSupplier(supplierUpdateDTO, storeId);
+        return new ResponseEntity<>(createdSupplier, HttpStatus.CREATED);
+    }
+    @PostMapping("/deactivate/{storeId}")
+    @PreAuthorize("hasAuthority('STORE_OWNER')")
+    public ResponseEntity<SupplierDTO> deactivateSupplier(@PathVariable Long storeId) {
+        SupplierDTO createdSupplier = supplierService.deactivate( storeId);
+        return new ResponseEntity<>(createdSupplier, HttpStatus.CREATED);
     }
 }
