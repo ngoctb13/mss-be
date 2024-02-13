@@ -30,7 +30,7 @@ public class Model {
 
     @Column(name = "updated_at")
     @Temporal(TemporalType.TIMESTAMP)
-    private Date updatedAt;
+    private LocalDateTime updatedAt;
 
 //    @Column(name = "is_delete")
 //    private Boolean isDelete;

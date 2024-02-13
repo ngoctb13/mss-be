@@ -7,6 +7,7 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import vn.edu.fpt.be.dto.CustomerCreateDTO;
 import vn.edu.fpt.be.dto.CustomerDTO;
+import vn.edu.fpt.be.dto.CustomerUpdateDTO;
 import vn.edu.fpt.be.dto.StaffCreateDTO;
 import vn.edu.fpt.be.service.CustomerService;
 
@@ -53,6 +54,29 @@ public class CustomerController {
             return ResponseEntity.status(HttpStatus.OK).body(customers);
         } catch (Exception e) {
             return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+    @PostMapping("/update/{customerId}")
+    @PreAuthorize("hasAuthority('STORE_OWNER')")
+    public ResponseEntity<?> updateCustomer(@RequestBody CustomerUpdateDTO customerUpdateDTO,
+                                            @PathVariable Long customerId) {
+        try {
+            CustomerDTO createdCustomer = customerService.updateCustomer(customerId,customerUpdateDTO);
+            return ResponseEntity.status(HttpStatus.OK).body(createdCustomer);
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body("An error occurred while update the customer.");
+        }
+    }
+    @PostMapping("/update/{customerId}")
+    @PreAuthorize("hasAuthority('STORE_OWNER')")
+    public ResponseEntity<?> deactivateCustomer(@PathVariable Long customerId) {
+        try {
+            CustomerDTO createdCustomer = customerService.deactivateCustomer(customerId);
+            return ResponseEntity.status(HttpStatus.OK).body(createdCustomer);
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body("An error occurred while deactivate the customer.");
         }
     }
 }
