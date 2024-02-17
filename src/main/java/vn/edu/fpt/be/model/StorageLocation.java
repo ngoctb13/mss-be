@@ -15,13 +15,15 @@ import javax.persistence.*;
 @AllArgsConstructor
 @Table(name = "storage_location")
 public class StorageLocation extends Model {
-    @ManyToOne
-    @JoinColumn(name = "warehouse_id")
-    private StoreWarehouse storeWarehouse;
     @Column(name = "location_name")
     private String locationName;
+    @Column(name = "capacity")
+    private int capacity;
     @Column(name = "description")
     private String description;
     @Column(name = "status", columnDefinition = "VARCHAR(50) DEFAULT 'ACTIVE'")
     private Status status;
+    @ManyToOne
+    @JoinColumn(name = "store_id")
+    private Store store;
 }
