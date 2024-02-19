@@ -46,9 +46,14 @@ public class StorageLocationServiceImpl implements StorageLocationService {
         Store store = storeRepository.findById(storageLocationRequest.getStoreId())
                 .orElseThrow(() -> new RuntimeException("Store not found"));
 
-        StorageLocation storageLocation = modelMapper.map(storageLocationRequest, StorageLocation.class);
+//        StorageLocation storageLocation = modelMapper.map(storageLocationRequest, StorageLocation.class);
+        StorageLocation storageLocation = new StorageLocation();
+        storageLocation.setLocationName(storageLocationRequest.getLocationName());
+        storageLocation.setCapacity(storageLocationRequest.getCapacity());
+        storageLocation.setDescription(storageLocationRequest.getDescription());
         storageLocation.setStatus(Status.ACTIVE);
         storageLocation.setStore(store);
+        storageLocation.setCreatedBy(currentUser.get().getUsername());
         StorageLocation savedStorageLocation = repo.save(storageLocation);
         return modelMapper.map(savedStorageLocation, StorageLocationDTO.class);
     }
@@ -71,7 +76,6 @@ public class StorageLocationServiceImpl implements StorageLocationService {
         existingStorageLocation.setDescription(storageLocationRequest.getDescription());
         existingStorageLocation.setStatus(Status.ACTIVE);
         existingStorageLocation.setStore(store);
-        existingStorageLocation.setCreatedBy(currentUser.get().getUsername());
 
         StorageLocation updatedStorageLocation = repo.save(existingStorageLocation);
         return modelMapper.map(updatedStorageLocation, StorageLocationDTO.class);
