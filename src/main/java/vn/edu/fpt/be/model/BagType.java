@@ -5,11 +5,9 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
+import vn.edu.fpt.be.model.enums.Status;
 
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.ManyToMany;
-import javax.persistence.Table;
+import javax.persistence.*;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -24,6 +22,12 @@ public class BagType extends Model {
     private Double weight;
     @Column(name = "unit")
     private String unit;
+    @Column(name = "status", columnDefinition = "VARCHAR(20) DEFAULT 'ACTIVE'")
+    @Enumerated(EnumType.STRING)
+    private Status status;
+//    @ManyToOne
+//    @JoinColumn(name = "store_id")
+//    private Store store;
     @ManyToMany(mappedBy = "bagTypes")
     @JsonIgnore
     private Set<Product> products = new HashSet<>();
