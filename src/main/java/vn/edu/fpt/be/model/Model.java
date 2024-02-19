@@ -21,16 +21,24 @@ public class Model {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(name = "created_at")
-//    @Temporal(TemporalType.TIMESTAMP)
+    @Column(name = "created_at", columnDefinition = "DATETIME(0)")
+    //@Temporal(TemporalType.TIMESTAMP)
     private LocalDateTime createdAt;
 
     @Column(name = "created_by")
     private String createdBy;
 
-    @Column(name = "updated_at")
-    @Temporal(TemporalType.TIMESTAMP)
-    private Date updatedAt;
+    @Column(name = "updated_at", columnDefinition = "DATETIME(0)")
+//    @Temporal(TemporalType.TIMESTAMP)
+    private LocalDateTime updatedAt;
+    @PrePersist
+    protected void onCreate() {
+        createdAt = LocalDateTime.now();
+    }
+    @PreUpdate
+    protected void onUpdate() {
+        updatedAt = LocalDateTime.now();
+    }
 
 //    @Column(name = "is_delete")
 //    private Boolean isDelete;
@@ -41,4 +49,5 @@ public class Model {
 //
 //    @Column(name = "deleted_by")
 //    private String deletedBy;
+
 }
