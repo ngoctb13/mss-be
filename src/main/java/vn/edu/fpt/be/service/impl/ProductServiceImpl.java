@@ -9,6 +9,7 @@ import vn.edu.fpt.be.dto.CustomerDTO;
 import vn.edu.fpt.be.dto.ProductCreateDTO;
 import vn.edu.fpt.be.dto.ProductDTO;
 import vn.edu.fpt.be.model.Product;
+import vn.edu.fpt.be.model.StorageLocation;
 import vn.edu.fpt.be.model.Store;
 import vn.edu.fpt.be.model.User;
 import vn.edu.fpt.be.model.enums.Status;
@@ -54,6 +55,7 @@ public class ProductServiceImpl implements ProductService {
                 .orElseThrow(() -> new IllegalStateException("Cửa hàng không được tìm thấy với id: " + currentUser.get().getId()));
         product.setStatus(Status.ACTIVE);
         product.setStore(store);
+        product.setStorageLocation(productCreateDTO.getStorageLocation());
         Product saveProduct= productRepository.save(product);
         return modelMapper.map(saveProduct, ProductDTO.class);
     }
