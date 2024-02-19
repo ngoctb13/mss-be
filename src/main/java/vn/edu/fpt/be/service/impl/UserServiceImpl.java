@@ -58,7 +58,7 @@ public class UserServiceImpl implements UserService {
         if (userProfile  == null) {
             userProfile = new UserProfile();
             userProfile.setUser(user.get());
-            userProfile.setCreatedAt(LocalDateTime.now());
+//            userProfile.setCreatedAt(LocalDateTime.now());
         }
         userProfile.setFullName(userUpdateDTO.getFullName());
         userProfile.setGender(userUpdateDTO.getGender());
