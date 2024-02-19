@@ -32,12 +32,12 @@ public class StoreServiceImpl implements StoreService {
     private final StoreRepository storeRepository;
     private final ModelMapper modelMapper = new ModelMapper();
     private static final Logger logger = LoggerFactory.getLogger(StoreServiceImpl.class);
-    UserPrincipal currentUserPrincipal = (UserPrincipal) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-    Optional<User> currentUser = userRepository.findById(currentUserPrincipal.getId());
+
     @Override
     public StoreCreateDTO createStore(StoreCreateDTO storeCreateDTO) {
         try {
-
+            UserPrincipal currentUserPrincipal = (UserPrincipal) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+            Optional<User> currentUser = userRepository.findById(currentUserPrincipal.getId());
 
             if (currentUser.isEmpty()) {
                 throw new RuntimeException("Authenticated user not found.");
@@ -99,6 +99,8 @@ public class StoreServiceImpl implements StoreService {
     @Override
     public StoreDTO updateStore(Long storeId,StoreUpdateDTO storeUpdateDTO) {
         try {
+            UserPrincipal currentUserPrincipal = (UserPrincipal) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+            Optional<User> currentUser = userRepository.findById(currentUserPrincipal.getId());
             if (currentUser.isEmpty()) {
                 throw new RuntimeException("Authenticated user not found.");
             }
@@ -116,6 +118,8 @@ public class StoreServiceImpl implements StoreService {
     @Override
     public StoreDTO deactivateStore(Long storeId) {
         try {
+            UserPrincipal currentUserPrincipal = (UserPrincipal) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+            Optional<User> currentUser = userRepository.findById(currentUserPrincipal.getId());
             if (currentUser.isEmpty()) {
                 throw new RuntimeException("Authenticated user not found.");
             }

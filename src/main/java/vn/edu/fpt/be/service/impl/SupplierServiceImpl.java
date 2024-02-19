@@ -32,10 +32,11 @@ public class SupplierServiceImpl implements SupplierService {
     private final UserRepository userRepository;
     private final SupplierRepository supplierRepository;
     private final ModelMapper modelMapper = new ModelMapper();
-    UserPrincipal currentUserPrincipal = (UserPrincipal) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-    Optional<User> currentUser = userRepository.findById(currentUserPrincipal.getId());
+
     @Override
     public SupplierDTO createSupplier(SupplierCreateDTO supplierCreateDTO, Long storeId) {
+        UserPrincipal currentUserPrincipal = (UserPrincipal) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        Optional<User> currentUser = userRepository.findById(currentUserPrincipal.getId());
 
         if (currentUser.isEmpty()) {
             throw new RuntimeException("Authenticated user not found.");
@@ -76,6 +77,8 @@ public class SupplierServiceImpl implements SupplierService {
 
     @Override
     public List<SupplierDTO> getSuppliersByStore(Long storeId) {
+        UserPrincipal currentUserPrincipal = (UserPrincipal) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        Optional<User> currentUser = userRepository.findById(currentUserPrincipal.getId());
         if (currentUser.isEmpty()) {
             throw new RuntimeException("Authenticated user not found.");
         }
@@ -96,6 +99,8 @@ public class SupplierServiceImpl implements SupplierService {
 
     @Override
     public SupplierDTO updateSupplier(SupplierUpdateDTO supplierUpdateDTO, Long supplierId) {
+        UserPrincipal currentUserPrincipal = (UserPrincipal) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        Optional<User> currentUser = userRepository.findById(currentUserPrincipal.getId());
         if (currentUser.isEmpty()) {
             throw new RuntimeException("Authenticated user not found.");
         }
@@ -111,6 +116,8 @@ public class SupplierServiceImpl implements SupplierService {
 
     @Override
     public SupplierDTO deactivate(Long supplierId) {
+        UserPrincipal currentUserPrincipal = (UserPrincipal) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        Optional<User> currentUser = userRepository.findById(currentUserPrincipal.getId());
         if (currentUser.isEmpty()) {
             throw new RuntimeException("Authenticated user not found.");
         }

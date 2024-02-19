@@ -29,10 +29,11 @@ public class CustomerServiceImpl implements CustomerService {
     private final UserRepository userRepository;
     private final CustomerRepository customerRepository;
     private final ModelMapper modelMapper = new ModelMapper();
-    UserPrincipal currentUserPrincipal = (UserPrincipal) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-    Optional<User> currentUser = userRepository.findById(currentUserPrincipal.getId());
+
     @Override
     public CustomerDTO createCustomer(CustomerCreateDTO customerCreateDTO, Long storeId) {
+        UserPrincipal currentUserPrincipal = (UserPrincipal) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        Optional<User> currentUser = userRepository.findById(currentUserPrincipal.getId());
         if (currentUser.isEmpty()) {
             throw new RuntimeException("Authenticated user not found.");
         }
@@ -72,7 +73,8 @@ public class CustomerServiceImpl implements CustomerService {
 
     @Override
     public List<CustomerDTO> getCustomersByStore(Long storeId) {
-
+        UserPrincipal currentUserPrincipal = (UserPrincipal) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        Optional<User> currentUser = userRepository.findById(currentUserPrincipal.getId());
 
         if (currentUser.isEmpty()) {
             throw new RuntimeException("Authenticated user not found.");
@@ -94,6 +96,8 @@ public class CustomerServiceImpl implements CustomerService {
 
     @Override
     public CustomerDTO updateCustomer(Long customerId, CustomerUpdateDTO customerUpdateDTO) {
+        UserPrincipal currentUserPrincipal = (UserPrincipal) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        Optional<User> currentUser = userRepository.findById(currentUserPrincipal.getId());
         if (currentUser.isEmpty()) {
             throw new RuntimeException("Authenticated user not found.");
         }
@@ -109,6 +113,8 @@ public class CustomerServiceImpl implements CustomerService {
 
     @Override
     public CustomerDTO deactivateCustomer(Long customerId) {
+        UserPrincipal currentUserPrincipal = (UserPrincipal) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        Optional<User> currentUser = userRepository.findById(currentUserPrincipal.getId());
         if (currentUser.isEmpty()) {
             throw new RuntimeException("Authenticated user not found.");
         }
