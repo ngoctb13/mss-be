@@ -18,6 +18,7 @@ public class ProductCreateDTO {
     private Double retailPrice;
     private Double wholeSalePrice;
     private Double importPrice;
+    private Double begin_inventory;
     private Double inventory;
     private StorageLocation storageLocation;
 }

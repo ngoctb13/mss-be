@@ -5,11 +5,10 @@ import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
-import vn.edu.fpt.be.dto.CustomerDTO;
 import vn.edu.fpt.be.dto.ProductCreateDTO;
 import vn.edu.fpt.be.dto.ProductDTO;
+import vn.edu.fpt.be.dto.ProductUpdateSingleDTO;
 import vn.edu.fpt.be.model.Product;
-import vn.edu.fpt.be.model.StorageLocation;
 import vn.edu.fpt.be.model.Store;
 import vn.edu.fpt.be.model.User;
 import vn.edu.fpt.be.model.enums.Status;
@@ -47,6 +46,7 @@ public class ProductServiceImpl implements ProductService {
         product.setRetailPrice(productCreateDTO.getRetailPrice());
         product.setWholesalePrice(productCreateDTO.getWholeSalePrice());
         product.setImportPrice(productCreateDTO.getImportPrice());
+        product.setBegin_inventory(productCreateDTO.getBegin_inventory());
         product.setInventory(productCreateDTO.getInventory());
         List<Store> ownedStores = storeRepository.findByOwnerId(currentUser.get().getId());
         Store store = ownedStores.stream()
@@ -89,4 +89,24 @@ public class ProductServiceImpl implements ProductService {
                 .map(product -> modelMapper.map(product, ProductDTO.class))
                 .collect(Collectors.toList());
     }
+
+    @Override
+    public ProductDTO updateSingleProduct(Long productID,boolean minusOrPlus, ProductUpdateSingleDTO productUpdateSingleDTO) {
+        UserPrincipal currentUserPrincipal = (UserPrincipal) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        Optional<User> currentUser = userRepository.findById(currentUserPrincipal.getId());
+        if (currentUser.isEmpty()) {
+            throw new RuntimeException("Authenticated user not found.");
+        }
+        Product product = productRepository.findById(productID).orElseThrow(() -> new RuntimeException("Product not found"));
+        double inventory=0;
+        if (minusOrPlus){
+            inventory = product.getInventory() + productUpdateSingleDTO.getEstimateProduct();
+        }else {
+            inventory = product.getInventory() - productUpdateSingleDTO.getEstimateProduct();
+        }
+        product.setInventory(inventory);
+        Product saveProduct= productRepository.save(product);
+        return modelMapper.map(saveProduct, ProductDTO.class);
+    }
+
 }
