@@ -7,6 +7,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import vn.edu.fpt.be.dto.ProductCreateDTO;
 import vn.edu.fpt.be.dto.ProductDTO;
+import vn.edu.fpt.be.dto.ProductUpdateDetailDTO;
 import vn.edu.fpt.be.dto.ProductUpdateSingleDTO;
 import vn.edu.fpt.be.model.Product;
 import vn.edu.fpt.be.model.Store;
@@ -105,6 +106,43 @@ public class ProductServiceImpl implements ProductService {
             inventory = product.getInventory() - productUpdateSingleDTO.getEstimateProduct();
         }
         product.setInventory(inventory);
+        Product saveProduct= productRepository.save(product);
+        return modelMapper.map(saveProduct, ProductDTO.class);
+    }
+
+    @Override
+    public ProductDTO updateDetailProduct(Long productID, ProductUpdateDetailDTO productUpdateDetailDTO) {
+        UserPrincipal currentUserPrincipal = (UserPrincipal) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        Optional<User> currentUser = userRepository.findById(currentUserPrincipal.getId());
+        if (currentUser.isEmpty()) {
+            throw new RuntimeException("Authenticated user not found.");
+        }
+        Product product = productRepository.findById(productID).orElseThrow(() -> new RuntimeException("Product not found"));
+        product.setProductName(productUpdateDetailDTO.getProductName());
+        product.setUnit(productUpdateDetailDTO.getUnit());
+        product.setRetailPrice(productUpdateDetailDTO.getRetailPrice());
+        product.setWholesalePrice(productUpdateDetailDTO.getWholeSalePrice());
+        product.setImportPrice(productUpdateDetailDTO.getImportPrice());
+        product.setBegin_inventory(productUpdateDetailDTO.getBegin_inventory());
+        product.setInventory(productUpdateDetailDTO.getInventory());
+        product.setStorageLocation(productUpdateDetailDTO.getStorageLocation());
+        Product saveProduct= productRepository.save(product);
+        return modelMapper.map(saveProduct, ProductDTO.class);
+    }
+
+    @Override
+    public ProductDTO deactivateProduct(Long productID) {
+        UserPrincipal currentUserPrincipal = (UserPrincipal) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        Optional<User> currentUser = userRepository.findById(currentUserPrincipal.getId());
+        if (currentUser.isEmpty()) {
+            throw new RuntimeException("Authenticated user not found.");
+        }
+        Product product = productRepository.findById(productID).orElseThrow(() -> new RuntimeException("Product not found"));
+        if (product.getStatus()==Status.ACTIVE){
+            product.setStatus(Status.INACTIVE);
+        }else {
+            product.setStatus(Status.ACTIVE);
+        }
         Product saveProduct= productRepository.save(product);
         return modelMapper.map(saveProduct, ProductDTO.class);
     }
