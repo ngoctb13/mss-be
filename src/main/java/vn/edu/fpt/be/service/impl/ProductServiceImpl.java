@@ -99,7 +99,7 @@ public class ProductServiceImpl implements ProductService {
             throw new RuntimeException("Authenticated user not found.");
         }
         Product product = productRepository.findById(productID).orElseThrow(() -> new RuntimeException("Product not found"));
-        double inventory=0;
+        double inventory;
         if (minusOrPlus){
             inventory = product.getInventory() + productUpdateSingleDTO.getEstimateProduct();
         }else {
