@@ -32,12 +32,14 @@ public class ProductController {
     }
     @GetMapping("/all")
     @PreAuthorize("hasAuthority('STORE_OWNER')")
-    public ResponseEntity<?> getAllCustomers() {
+    public ResponseEntity<?> getAllCustomers(@RequestParam(defaultValue = "0") int pageNumber,
+                                             @RequestParam(defaultValue = "5") int pageSize) {
         try {
-            List<ProductDTO> products = productService.getAllProduct();
+            List<ProductDTO> products = productService.getAllProduct(pageNumber, pageSize);
             return ResponseEntity.status(HttpStatus.OK).body(products);
         } catch (Exception e) {
             return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
+
 }

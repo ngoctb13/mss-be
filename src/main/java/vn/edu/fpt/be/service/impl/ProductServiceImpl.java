@@ -3,6 +3,8 @@ package vn.edu.fpt.be.service.impl;
 import lombok.RequiredArgsConstructor;
 
 import org.modelmapper.ModelMapper;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import vn.edu.fpt.be.dto.ProductCreateDTO;
@@ -18,7 +20,7 @@ import vn.edu.fpt.be.repository.StoreRepository;
 import vn.edu.fpt.be.repository.UserRepository;
 import vn.edu.fpt.be.security.UserPrincipal;
 import vn.edu.fpt.be.service.ProductService;
-
+import org.springframework.data.domain.Pageable;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -62,12 +64,14 @@ public class ProductServiceImpl implements ProductService {
     }
 
     @Override
-    public List<ProductDTO> getAllProduct() {
-        List<Product> products = productRepository.findAll();
-        return products.stream()
-                .map(customer -> modelMapper.map(products, ProductDTO.class))
+    public List<ProductDTO> getAllProduct(int pageNumber, int pageSize) {
+        Pageable pageable = PageRequest.of(pageNumber, pageSize);
+        Page<Product> productPage = productRepository.findAll((org.springframework.data.domain.Pageable) pageable);
+        return productPage.getContent().stream()
+                .map(product -> modelMapper.map(product, ProductDTO.class))
                 .collect(Collectors.toList());
     }
+
 
     @Override
     public List<ProductDTO> getProductByStore(Long storeId) {
@@ -145,6 +149,13 @@ public class ProductServiceImpl implements ProductService {
         }
         Product saveProduct= productRepository.save(product);
         return modelMapper.map(saveProduct, ProductDTO.class);
+    }
+    @Override
+    public List<ProductDTO> findProductByName(String productName){
+        List<Product> products = productRepository.findProductByProductName(productName);
+        return products.stream()
+                .map(product -> modelMapper.map(product, ProductDTO.class))
+                .collect(Collectors.toList());
     }
 
 }
