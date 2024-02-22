@@ -2,6 +2,9 @@ package vn.edu.fpt.be.service.impl;
 
 import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -76,12 +79,15 @@ public class StaffServiceImpl implements StaffService {
     }
 
     @Override
-    public List<StaffDTO> getAllStaffs() {
-        List<Staff> staffList = staffRepository.findAll();
-        return staffList.stream()
+    public List<StaffDTO> getAllStaffs(int pageNumber, int pageSize) {
+        Pageable pageable = PageRequest.of(pageNumber, pageSize);
+        Page<Staff> staffPage = staffRepository.findAll(pageable);
+
+        return staffPage.getContent().stream()
                 .map(this::convertToDto)
                 .collect(Collectors.toList());
     }
+
 
     @Override
     public List<StaffDTO> getStaffsByStore(Long storeId) {

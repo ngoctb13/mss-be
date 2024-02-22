@@ -10,7 +10,7 @@ import java.util.List;
 public interface ProductService {
     ProductDTO createProduct(ProductCreateDTO productCreateDTO);
     List<ProductDTO> getAllProduct(int pageNumber, int pageSize);
-    List<ProductDTO> getProductByStore(Long storeId);
+    List<ProductDTO> getProductByStore(Long storeId,int pageNumber, int pageSize);
     ProductDTO updateSingleProduct(Long productID,boolean minusOrPlus, ProductUpdateSingleDTO productUpdateSingleDTO);
     ProductDTO updateDetailProduct(Long productID, ProductUpdateDetailDTO productUpdateDetailDTO);
     ProductDTO deactivateProduct(Long productID);

@@ -38,7 +38,12 @@ public class BagTypeServiceImpl implements BagTypeService {
     public BagTypeDTO deactivate(Long bagTypeId) {
         BagType existingBagType = bagTypeRepository.findById(bagTypeId)
                 .orElseThrow(() -> new IllegalArgumentException("Bag type not found"));
-        existingBagType.setStatus(Status.INACTIVE);
+        if (existingBagType.getStatus()==Status.ACTIVE){
+            existingBagType.setStatus(Status.INACTIVE);
+        }else{
+            existingBagType.setStatus(Status.ACTIVE);
+        }
+
         BagType deactivatedBagType = bagTypeRepository.save(existingBagType);
         return modelMapper.map(deactivatedBagType, BagTypeDTO.class);
     }

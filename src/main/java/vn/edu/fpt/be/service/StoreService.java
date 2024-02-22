@@ -8,6 +8,6 @@ import java.util.List;
 
 public interface StoreService {
     StoreCreateDTO createStore(StoreCreateDTO storeCreateDTO);
-    List<StoreDTO> getAllStores();
+    List<StoreDTO> getAllStores(int pageNumber, int pageSize);
     List<StoreDTO> getStoresByOwner();
 }

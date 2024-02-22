@@ -4,6 +4,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
@@ -56,16 +59,18 @@ public class StoreServiceImpl implements StoreService {
     }
 
     @Override
-    public List<StoreDTO> getAllStores() {
+    public List<StoreDTO> getAllStores(int pageNumber, int pageSize) {
         try {
-            List<Store> stores = storeRepository.findAll();
-            return stores.stream()
+            Pageable pageable = PageRequest.of(pageNumber, pageSize);
+            Page<Store> storePage = storeRepository.findAll(pageable);
+            return storePage.getContent().stream()
                     .map(store -> modelMapper.map(store, StoreDTO.class))
                     .collect(Collectors.toList());
         } catch (Exception e) {
             throw new RuntimeException("Failed to fetch all stores.", e);
         }
     }
+
 
     @Override
     public List<StoreDTO> getStoresByOwner() {

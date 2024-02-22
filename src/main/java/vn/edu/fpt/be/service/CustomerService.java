@@ -7,6 +7,6 @@ import java.util.List;
 
 public interface CustomerService {
     CustomerDTO createCustomer(CustomerCreateDTO customerCreateDTO, Long storeId);
-    List<CustomerDTO> getAllCustomers();
+    List<CustomerDTO> getAllCustomers(int pageNumber, int pageSize);
     List<CustomerDTO> getCustomersByStore(Long storeId);
 }

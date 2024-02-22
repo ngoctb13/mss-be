@@ -31,14 +31,18 @@ public class StoreController {
 
     @GetMapping("/all")
     @PreAuthorize("hasAnyAuthority('SYSTEM_ADMIN','STORE_OWNER')")
-    public ResponseEntity<?> getAllStores() {
+    public ResponseEntity<?> getAllStores(
+            @RequestParam(defaultValue = "0") int pageNumber,
+            @RequestParam(defaultValue = "10") int pageSize) {
+
         try {
-            List<StoreDTO> stores = storeService.getAllStores();
+            List<StoreDTO> stores = storeService.getAllStores(pageNumber, pageSize);
             return new ResponseEntity<>(stores, HttpStatus.OK);
         } catch (Exception e) {
             return new ResponseEntity<>(new ErrorResponse("Failed to fetch all stores: " + e.getMessage()), HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
+
 
     @GetMapping("/owner/all")
     @PreAuthorize("hasAuthority('STORE_OWNER')")

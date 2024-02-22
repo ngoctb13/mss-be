@@ -26,15 +26,24 @@ public class SupplierController {
 
     @GetMapping("/all")
     @PreAuthorize("hasAuthority('SYSTEM_ADMIN')")
-    public ResponseEntity<List<SupplierDTO>> getAllSuppliers() {
-        List<SupplierDTO> suppliers = supplierService.getAllSuppliers();
+    public ResponseEntity<List<SupplierDTO>> getAllSuppliers(
+            @RequestParam(defaultValue = "0") int pageNumber,
+            @RequestParam(defaultValue = "10") int pageSize) {
+
+        List<SupplierDTO> suppliers = supplierService.getAllSuppliers(pageNumber, pageSize);
         return new ResponseEntity<>(suppliers, HttpStatus.OK);
     }
 
+
     @GetMapping("/byStore/{storeId}")
     @PreAuthorize("hasAuthority('STORE_OWNER')")
-    public ResponseEntity<List<SupplierDTO>> getSuppliersByStore(@PathVariable Long storeId) {
-        List<SupplierDTO> suppliers = supplierService.getSuppliersByStore(storeId);
+    public ResponseEntity<List<SupplierDTO>> getSuppliersByStore(
+            @PathVariable Long storeId,
+            @RequestParam(defaultValue = "0") int pageNumber,
+            @RequestParam(defaultValue = "10") int pageSize) {
+
+        List<SupplierDTO> suppliers = supplierService.getSuppliersByStore(storeId, pageNumber, pageSize);
         return new ResponseEntity<>(suppliers, HttpStatus.OK);
     }
+
 }

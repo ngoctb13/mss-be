@@ -3,6 +3,9 @@ package vn.edu.fpt.be.service.impl;
 import lombok.NoArgsConstructor;
 import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import vn.edu.fpt.be.dto.CustomerDTO;
@@ -64,15 +67,18 @@ public class SupplierServiceImpl implements SupplierService {
     }
 
     @Override
-    public List<SupplierDTO> getAllSuppliers() {
-        List<Supplier> suppliers = supplierRepository.findAll();
-        return suppliers.stream()
+    public List<SupplierDTO> getAllSuppliers(int pageNumber, int pageSize) {
+        Pageable pageable = PageRequest.of(pageNumber, pageSize);
+        Page<Supplier> supplierPage = supplierRepository.findAll(pageable);
+
+        return supplierPage.getContent().stream()
                 .map(supplier -> modelMapper.map(supplier, SupplierDTO.class))
                 .collect(Collectors.toList());
     }
 
+
     @Override
-    public List<SupplierDTO> getSuppliersByStore(Long storeId) {
+    public List<SupplierDTO> getSuppliersByStore(Long storeId, int pageNumber, int pageSize) {
         UserPrincipal currentUserPrincipal = (UserPrincipal) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
         Optional<User> currentUser = userRepository.findById(currentUserPrincipal.getId());
         if (currentUser.isEmpty()) {
@@ -88,8 +94,16 @@ public class SupplierServiceImpl implements SupplierService {
         }
 
         List<Supplier> suppliers = supplierRepository.findByStoreId(storeId);
-        return suppliers.stream()
-                .map(supplier -> modelMapper.map(suppliers, SupplierDTO.class))
+
+        // Manually paginate the results
+        int start = pageNumber * pageSize;
+        int end = Math.min((pageNumber + 1) * pageSize, suppliers.size());
+        List<Supplier> paginatedSuppliers = suppliers.subList(start, end);
+
+        return paginatedSuppliers.stream()
+                .map(supplier -> modelMapper.map(supplier, SupplierDTO.class))
                 .collect(Collectors.toList());
     }
+
+
 }

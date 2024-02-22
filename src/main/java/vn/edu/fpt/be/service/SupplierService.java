@@ -7,6 +7,6 @@ import java.util.List;
 
 public interface SupplierService {
     SupplierDTO createSupplier(SupplierCreateDTO supplierCreateDTO, Long storeId);
-    List<SupplierDTO> getAllSuppliers();
-    List<SupplierDTO> getSuppliersByStore(Long storeId);
+    List<SupplierDTO> getAllSuppliers(int pageNumber, int pageSize);
+    List<SupplierDTO> getSuppliersByStore(Long storeId, int pageNumber, int pageSize);
 }

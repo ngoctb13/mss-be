@@ -8,6 +8,6 @@ import java.util.List;
 
 public interface StaffService {
     void createStaff(StaffCreateDTO staffCreateDTO);
-    List<StaffDTO> getAllStaffs();
+    List<StaffDTO> getAllStaffs(int pageNumber, int pageSize);
     List<StaffDTO> getStaffsByStore(Long storeId);
 }

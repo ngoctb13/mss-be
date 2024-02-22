@@ -32,14 +32,18 @@ public class StaffController {
 
     @GetMapping("/all")
     @PreAuthorize("hasAuthority('SYSTEM_ADMIN')")
-    public ResponseEntity<List<StaffDTO>> getAllStaffs() {
+    public ResponseEntity<List<StaffDTO>> getAllStaffs(
+            @RequestParam(defaultValue = "0") int pageNumber,
+            @RequestParam(defaultValue = "10") int pageSize) {
+
         try {
-            List<StaffDTO> staffs = staffService.getAllStaffs();
+            List<StaffDTO> staffs = staffService.getAllStaffs(pageNumber, pageSize);
             return ResponseEntity.ok(staffs);
         } catch (Exception e) {
             return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
+
 
     @GetMapping("/by-store/{storeId}")
     @PreAuthorize("hasAuthority('STORE_OWNER')")

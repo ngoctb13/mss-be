@@ -2,6 +2,9 @@ package vn.edu.fpt.be.service.impl;
 
 import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import vn.edu.fpt.be.dto.CustomerCreateDTO;
@@ -61,12 +64,14 @@ public class CustomerServiceImpl implements CustomerService {
     }
 
     @Override
-    public List<CustomerDTO> getAllCustomers() {
-        List<Customer> customers = customerRepository.findAll();
-        return customers.stream()
+    public List<CustomerDTO> getAllCustomers(int pageNumber, int pageSize) {
+        Pageable pageable = PageRequest.of(pageNumber, pageSize);
+        Page<Customer> customerPage = customerRepository.findAll(pageable);
+        return customerPage.getContent().stream()
                 .map(customer -> modelMapper.map(customer, CustomerDTO.class))
                 .collect(Collectors.toList());
     }
+
 
     @Override
     public List<CustomerDTO> getCustomersByStore(Long storeId) {

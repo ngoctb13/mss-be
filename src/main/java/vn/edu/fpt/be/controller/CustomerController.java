@@ -33,14 +33,16 @@ public class CustomerController {
 
     @GetMapping("/all")
     @PreAuthorize("hasAuthority('SYSTEM_ADMIN')")
-    public ResponseEntity<?> getAllCustomers() {
+    public ResponseEntity<?> getAllCustomers(@RequestParam(defaultValue = "0") int pageNumber,
+                                             @RequestParam(defaultValue = "5") int pageSize) {
         try {
-            List<CustomerDTO> customers = customerService.getAllCustomers();
+            List<CustomerDTO> customers = customerService.getAllCustomers(pageNumber, pageSize);
             return ResponseEntity.status(HttpStatus.OK).body(customers);
         } catch (Exception e) {
             return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
+
 
     @GetMapping("/by-store/{storeId}")
     @PreAuthorize("hasAuthority('STORE_OWNER')")

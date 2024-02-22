@@ -74,7 +74,7 @@ public class ProductServiceImpl implements ProductService {
 
 
     @Override
-    public List<ProductDTO> getProductByStore(Long storeId) {
+    public List<ProductDTO> getProductByStore(Long storeId, int pageNumber, int pageSize) {
         UserPrincipal currentUserPrincipal = (UserPrincipal) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
         Optional<User> currentUser = userRepository.findById(currentUserPrincipal.getId());
         if (currentUser.isEmpty()) {
@@ -89,8 +89,9 @@ public class ProductServiceImpl implements ProductService {
             throw new IllegalArgumentException("The store with ID " + storeId + " is not owned by the current user.");
         }
 
-        List<Product> products = productRepository.findByStoreId(storeId);
-        return products.stream()
+        Pageable pageable = PageRequest.of(pageNumber, pageSize);
+        Page<Product> productPage = productRepository.findByStoreId(storeId, pageable);
+        return productPage.getContent().stream()
                 .map(product -> modelMapper.map(product, ProductDTO.class))
                 .collect(Collectors.toList());
     }
