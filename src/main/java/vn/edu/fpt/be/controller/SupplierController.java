@@ -7,6 +7,7 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import vn.edu.fpt.be.dto.SupplierCreateDTO;
 import vn.edu.fpt.be.dto.SupplierDTO;
+import vn.edu.fpt.be.dto.UserProfileDTO;
 import vn.edu.fpt.be.service.SupplierService;
 
 import java.util.List;
@@ -17,24 +18,29 @@ import java.util.List;
 public class SupplierController {
     private final SupplierService supplierService;
 
-    @PostMapping("/create/{storeId}")
+    @PostMapping("/create")
     @PreAuthorize("hasAuthority('STORE_OWNER')")
-    public ResponseEntity<SupplierDTO> createSupplier(@RequestBody SupplierCreateDTO supplierCreateDTO, @PathVariable Long storeId) {
-        SupplierDTO createdSupplier = supplierService.createSupplier(supplierCreateDTO, storeId);
-        return new ResponseEntity<>(createdSupplier, HttpStatus.CREATED);
+    public ResponseEntity<?> createSupplier(@RequestBody SupplierCreateDTO supplierCreateDTO) {
+        try {
+            SupplierDTO createdSupplier = supplierService.createSupplier(supplierCreateDTO);
+            return ResponseEntity.ok().body(createdSupplier);
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.badRequest().body(e.getMessage());
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("An error occurred while creating the store.");
+        }
     }
 
     @GetMapping("/all")
-    @PreAuthorize("hasAuthority('SYSTEM_ADMIN')")
-    public ResponseEntity<List<SupplierDTO>> getAllSuppliers() {
-        List<SupplierDTO> suppliers = supplierService.getAllSuppliers();
-        return new ResponseEntity<>(suppliers, HttpStatus.OK);
-    }
-
-    @GetMapping("/byStore/{storeId}")
     @PreAuthorize("hasAuthority('STORE_OWNER')")
-    public ResponseEntity<List<SupplierDTO>> getSuppliersByStore(@PathVariable Long storeId) {
-        List<SupplierDTO> suppliers = supplierService.getSuppliersByStore(storeId);
-        return new ResponseEntity<>(suppliers, HttpStatus.OK);
+    public ResponseEntity<?> getAllSuppliers() {
+        try {
+            List<SupplierDTO> suppliers = supplierService.getAllSuppliers();
+            return ResponseEntity.ok().body(suppliers);
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.badRequest().body(e.getMessage());
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("An error occurred while fetching the store.");
+        }
     }
 }

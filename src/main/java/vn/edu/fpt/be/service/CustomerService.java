@@ -6,7 +6,7 @@ import vn.edu.fpt.be.dto.CustomerDTO;
 import java.util.List;
 
 public interface CustomerService {
-    CustomerDTO createCustomer(CustomerCreateDTO customerCreateDTO, Long storeId);
+    CustomerDTO createCustomer(CustomerCreateDTO customerCreateDTO);
     List<CustomerDTO> getAllCustomers();
-    List<CustomerDTO> getCustomersByStore(Long storeId);
+    CustomerDTO deactivate(Long customerId);
 }

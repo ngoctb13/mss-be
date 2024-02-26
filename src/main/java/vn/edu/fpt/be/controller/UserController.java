@@ -5,6 +5,8 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
+import vn.edu.fpt.be.dto.StaffCreateDTO;
+import vn.edu.fpt.be.dto.UserDTO;
 import vn.edu.fpt.be.dto.UserProfileDTO;
 import vn.edu.fpt.be.dto.UserUpdateDTO;
 import vn.edu.fpt.be.security.CurrentUser;
@@ -26,7 +28,7 @@ public class UserController {
         } catch (IllegalArgumentException e) {
             return ResponseEntity.badRequest().body(e.getMessage());
         } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("An error occurred while creating the staff member.");
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("An error occurred while update your account.");
         }
     }
 
@@ -36,6 +38,19 @@ public class UserController {
         try {
             UserProfileDTO updatedUserProfile = userService.updateUser(userId, userUpdateDTO);
             return ResponseEntity.ok(updatedUserProfile);
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.badRequest().body(e.getMessage()); // Consider a more informative error structure
+        } catch (Exception e) {
+            return ResponseEntity.internalServerError().build(); // General error handling, consider logging or a more specific error message
+        }
+    }
+
+    @PostMapping("/createStaff")
+    @PreAuthorize("hasAnyAuthority('STORE_OWNER')")
+    public ResponseEntity<?> createStaff(@RequestBody StaffCreateDTO staffCreateDTO) {
+        try {
+            UserDTO newStaff = userService.createStaffAccount(staffCreateDTO);
+            return ResponseEntity.ok(newStaff);
         } catch (IllegalArgumentException e) {
             return ResponseEntity.badRequest().body(e.getMessage()); // Consider a more informative error structure
         } catch (Exception e) {

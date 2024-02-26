@@ -18,9 +18,8 @@ public class Store extends Model{
     private String storeName;
     @Column(name = "address")
     private String address;
-    @ManyToOne
-    @JoinColumn(name = "owner", nullable = false)
-    private User owner;
+    @Column(name = "phone_number", unique = true)
+    private String phoneNumber;
     @Column(name = "status", columnDefinition = "VARCHAR(30) DEFAULT 'ACTIVE'")
     @Enumerated(EnumType.STRING)
     private Status status;

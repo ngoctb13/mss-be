@@ -8,6 +8,6 @@ import java.util.List;
 public interface StorageLocationService {
     StorageLocationDTO createStorageLocation(StorageLocationRequest storageLocationRequest);
     StorageLocationDTO updateStorageLocation(StorageLocationRequest storageLocationRequest, Long storageLocationId);
-    List<StorageLocationDTO> getByStore(Long storeId);
+    List<StorageLocationDTO> getByStore();
     StorageLocationDTO deactivate(Long storageLocationId);
 }

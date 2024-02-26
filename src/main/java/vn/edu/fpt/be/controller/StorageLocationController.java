@@ -42,18 +42,18 @@ public class StorageLocationController {
         }
     }
 
-    @GetMapping("/by-store/{storeId}")
+    @GetMapping("/by-store")
     @PreAuthorize("hasAuthority('STORE_OWNER')")
-    public ResponseEntity<?> getStorageLocationsByStore(@PathVariable Long storeId) {
+    public ResponseEntity<?> getStorageLocationsByStore() {
         try {
-            List<StorageLocationDTO> storageLocations = service.getByStore(storeId);
+            List<StorageLocationDTO> storageLocations = service.getByStore();
             if (storageLocations.isEmpty()) {
                 return ResponseEntity.noContent().build();
             }
             return ResponseEntity.status(HttpStatus.OK).body(storageLocations);
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                    .body("An error occurred while fetching the customer.");
+                    .body("An error occurred while fetching the storage location.");
         }
     }
 

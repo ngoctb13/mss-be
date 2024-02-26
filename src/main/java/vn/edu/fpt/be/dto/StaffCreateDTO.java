@@ -12,5 +12,4 @@ import lombok.NoArgsConstructor;
 public class StaffCreateDTO {
     private String username;
     private String password;
-    private Long storeId;
 }

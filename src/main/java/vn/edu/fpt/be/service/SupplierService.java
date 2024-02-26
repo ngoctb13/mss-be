@@ -6,7 +6,6 @@ import vn.edu.fpt.be.dto.SupplierDTO;
 import java.util.List;
 
 public interface SupplierService {
-    SupplierDTO createSupplier(SupplierCreateDTO supplierCreateDTO, Long storeId);
+    SupplierDTO createSupplier(SupplierCreateDTO supplierCreateDTO);
     List<SupplierDTO> getAllSuppliers();
-    List<SupplierDTO> getSuppliersByStore(Long storeId);
 }

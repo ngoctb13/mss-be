@@ -13,6 +13,8 @@ import java.util.Date;
 @AllArgsConstructor
 @Table(name = "user_profile")
 public class UserProfile extends Model {
+    @Column(name = "email", unique = true)
+    private String email;
     @Column(name = "full_name")
     private String fullName;
     @Column(name = "gender", length = 10)

@@ -13,5 +13,4 @@ public class SupplierCreateDTO {
     private String supplierName;
     private String phoneNumber;
     private String address;
-    private String note;
 }

@@ -7,7 +7,8 @@ import vn.edu.fpt.be.model.Store;
 import java.util.List;
 
 public interface StoreService {
-    StoreCreateDTO createStore(StoreCreateDTO storeCreateDTO);
+    StoreDTO createStore(StoreCreateDTO storeCreateDTO);
     List<StoreDTO> getAllStores();
-    List<StoreDTO> getStoresByOwner();
+    StoreDTO getStoreByOwner(Long ownerId);
+
 }

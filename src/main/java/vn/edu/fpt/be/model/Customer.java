@@ -23,6 +23,8 @@ public class Customer extends Model {
     private String address;
     @Column(name = "note")
     private String note;
+    @Column(name = "total_debt") //còn nợ bao tiền
+    private Double totalDebt;
     @Column(name = "status", columnDefinition = "VARCHAR(20) DEFAULT 'ACTIVE'")
     @Enumerated(EnumType.STRING)
     private Status status;

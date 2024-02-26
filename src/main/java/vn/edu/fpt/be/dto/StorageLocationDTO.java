@@ -13,7 +13,6 @@ import vn.edu.fpt.be.model.enums.Status;
 public class StorageLocationDTO {
     private Long id;
     private String locationName;
-    private int capacity;
     private String description;
     private Status status;
 }

@@ -12,6 +12,7 @@ import vn.edu.fpt.be.model.enums.Status;
 @AllArgsConstructor
 @NoArgsConstructor
 public class UserDTO {
+    private Long id;
     private String username;
     private String password;
     private Role role;

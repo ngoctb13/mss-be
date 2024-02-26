@@ -16,6 +16,6 @@ public class CustomerDTO {
     private String phoneNumber;
     private String address;
     private String note;
+    private Double totalDebt;
     private Status status;
-    private Long storeId;
 }

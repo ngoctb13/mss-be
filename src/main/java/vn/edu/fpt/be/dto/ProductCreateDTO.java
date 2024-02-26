@@ -16,8 +16,7 @@ public class ProductCreateDTO {
     private String productName;
     private String unit;
     private Double retailPrice;
-    private Double wholeSalePrice;
     private Double importPrice;
-    private Double inventory;
-    private StorageLocation storageLocation;
+    private String description;
+    private String bag_packing;
 }

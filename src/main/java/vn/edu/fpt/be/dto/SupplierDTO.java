@@ -19,6 +19,7 @@ public class SupplierDTO {
     private String phoneNumber;
     private String address;
     private String note;
+    private Double total_Debt;
     private Status status;
     private Long storeId;
 }

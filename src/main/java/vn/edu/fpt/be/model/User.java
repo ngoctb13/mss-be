@@ -21,6 +21,9 @@ public class User extends Model {
     @Column(name = "role")
     @Enumerated(EnumType.STRING)
     private Role role;
+    @OneToOne
+    @JoinColumn(name = "store_id")
+    private Store store;
     @Column(name = "status", columnDefinition = "VARCHAR(50) DEFAULT 'ACTIVE'")
     @Enumerated(EnumType.STRING)
     private Status status;

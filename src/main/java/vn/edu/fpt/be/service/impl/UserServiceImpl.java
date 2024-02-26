@@ -2,17 +2,17 @@ package vn.edu.fpt.be.service.impl;
 
 import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
-import vn.edu.fpt.be.dto.RegisterRequestDTO;
-import vn.edu.fpt.be.dto.UserProfileDTO;
-import vn.edu.fpt.be.dto.UserUpdateDTO;
+import vn.edu.fpt.be.dto.*;
 import vn.edu.fpt.be.model.User;
 import vn.edu.fpt.be.model.UserProfile;
 import vn.edu.fpt.be.model.enums.Role;
 import vn.edu.fpt.be.model.enums.Status;
 import vn.edu.fpt.be.repository.UserProfileRepository;
 import vn.edu.fpt.be.repository.UserRepository;
+import vn.edu.fpt.be.security.UserPrincipal;
 import vn.edu.fpt.be.service.UserService;
 
 import java.time.LocalDateTime;
@@ -26,6 +26,16 @@ public class UserServiceImpl implements UserService {
     private final UserProfileRepository userProfileRepository;
     private final ModelMapper modelMapper = new ModelMapper();
     private final PasswordEncoder passwordEncoder;
+
+    @Override
+    public User getCurrentUser() {
+        UserPrincipal currentUserPrincipal = (UserPrincipal) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        Optional<User> currentUser = userRepository.findById(currentUserPrincipal.getId());
+        if (currentUser.isEmpty()) {
+            throw new RuntimeException("Authenticated user not found.");
+        }
+        return currentUser.get();
+    }
     @Override
     public String getRoleByUsername(String username) {
         Optional<User> userOptional = userRepository.findByUsername(username);
@@ -34,6 +44,11 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public void registerUser(RegisterRequestDTO registerRequestDTO) {
+        String username = registerRequestDTO.getUsername();
+        if (username.matches("^\\d.*")) {
+            throw new IllegalArgumentException("Username cannot begin with a number.");
+        }
+
         Optional<User> existingUser = userRepository.findByUsername(registerRequestDTO.getUsername());
         if (existingUser.isPresent()) {
             throw new IllegalArgumentException(registerRequestDTO.getUsername() + " dã tồn tại! Hãy bấm quên mật khẩu nếu bạn không nhớ mật khẩu của mình!");
@@ -70,5 +85,26 @@ public class UserServiceImpl implements UserService {
         userProfileRepository.save(userProfile);
 
         return modelMapper.map(userProfile, UserProfileDTO.class);
+    }
+
+    @Override
+    public UserDTO createStaffAccount(StaffCreateDTO staffCreateDTO) {
+        Optional<User> existingUser = userRepository.findByUsername(staffCreateDTO.getUsername());
+        if (existingUser.isPresent()) {
+            throw new IllegalArgumentException(staffCreateDTO.getUsername() + " dã tồn tại! Hãy bấm quên mật khẩu nếu bạn không nhớ mật khẩu của mình!");
+        }
+
+        User currentUser = getCurrentUser();
+        String prefixStaffAccount = String.valueOf(currentUser.getStore().getId()) + "/";
+        User newStaff = new User();
+        newStaff.setUsername(prefixStaffAccount + staffCreateDTO.getUsername());
+        newStaff.setPassword(passwordEncoder.encode(staffCreateDTO.getPassword()));
+        newStaff.setRole(Role.STAFF);
+        newStaff.setStore(currentUser.getStore());
+        newStaff.setStatus(Status.ACTIVE);
+        newStaff.setCreatedBy(currentUser.getUsername());
+
+        User savedStaff = userRepository.save(newStaff);
+        return modelMapper.map(savedStaff, UserDTO.class);
     }
 }

@@ -46,11 +46,6 @@ public class AuthenticationController {
         UserPrincipal userPrincipal = (UserPrincipal) authentication.getPrincipal();
         String role = userService.getRoleByUsername(loginRequest.getUsername());
 
-//        List<String> roles = userPrincipal.getAuthorities().stream()
-//                .map(GrantedAuthority::getAuthority)
-//                .toList();
-
-
         return ResponseEntity.ok(new AuthResponse(token,
                 userPrincipal.getId(),
                 userPrincipal.getUsername(),
@@ -59,7 +54,7 @@ public class AuthenticationController {
 
     @PostMapping("/register")
     public ResponseEntity<?> registerUser(@RequestBody RegisterRequestDTO registerRequestDTO) {
-            userService.registerUser(registerRequestDTO);
+        userService.registerUser(registerRequestDTO);
         Authentication authentication = authenticationManager.authenticate(
                 new UsernamePasswordAuthenticationToken(
                         registerRequestDTO.getUsername(),
@@ -68,29 +63,6 @@ public class AuthenticationController {
         );
         SecurityContextHolder.getContext().setAuthentication(authentication);
         return ResponseEntity.ok(new MessageResponse("User registered successfully!"));
-
-//        try {
-//            userService.registerUser(registrationRequest);
-//
-//            // Generate verification token
-//            String verificationToken = emailService.generateVerificationToken();
-//
-//            // After registering the user, send a verification email
-//            emailService.sendVerificationEmail(registrationRequest.getEmail(), verificationToken);
-//
-//            // Authenticate the user to generate the access token
-//            Authentication authentication = authenticationManager.authenticate(
-//                    new UsernamePasswordAuthenticationToken(
-//                            registrationRequest.getEmail(),
-//                            registrationRequest.getPassword()
-//                    )
-//            );
-//
-//            SecurityContextHolder.getContext().setAuthentication(authentication);
-//            return ResponseEntity.ok("Đăng ký thành công!. Vui lòng kiểm tra email của bạn để xác nhận tài khoản của bạn.");
-//        } catch (Exception e) {
-//            return new ResponseEntity<>(e.getMessage(), HttpStatus.BAD_REQUEST);
-//        }
     }
 
 }
