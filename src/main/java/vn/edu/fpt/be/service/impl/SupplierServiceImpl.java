@@ -18,6 +18,7 @@ import vn.edu.fpt.be.repository.SupplierRepository;
 import vn.edu.fpt.be.repository.UserRepository;
 import vn.edu.fpt.be.security.UserPrincipal;
 import vn.edu.fpt.be.service.SupplierService;
+import vn.edu.fpt.be.service.UserService;
 
 import java.util.List;
 import java.util.Optional;
@@ -29,32 +30,18 @@ public class SupplierServiceImpl implements SupplierService {
     private final StoreRepository storeRepository;
     private final UserRepository userRepository;
     private final SupplierRepository supplierRepository;
+    private final UserService userService;
     private final ModelMapper modelMapper = new ModelMapper();
     @Override
-    public SupplierDTO createSupplier(SupplierCreateDTO supplierCreateDTO, Long storeId) {
-        UserPrincipal currentUserPrincipal = (UserPrincipal) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-        Optional<User> currentUser = userRepository.findById(currentUserPrincipal.getId());
-        if (currentUser.isEmpty()) {
-            throw new RuntimeException("Authenticated user not found.");
-        }
+    public SupplierDTO createSupplier(SupplierCreateDTO supplierCreateDTO) {
+        User currentUser = userService.getCurrentUser();
 
-        List<Store> ownedStores = storeRepository.findByOwnerId(currentUser.get().getId());
-        // Check if the provided storeId is in the list of ownedStores
-        boolean isStoreOwnedByCurrentUser = ownedStores.stream()
-                .anyMatch(store -> store.getId().equals(storeId));
-        if (!isStoreOwnedByCurrentUser) {
-            throw new IllegalArgumentException("The store with ID " + storeId + " is not owned by the current user.");
-        }
-
-        // Retrieve the store based on the provided storeId
-        Store store = storeRepository.findById(storeId)
-                .orElseThrow(() -> new RuntimeException("Store not found"));
+        Store store = currentUser.getStore();
 
         Supplier supplier = new Supplier();
         supplier.setSupplierName(supplierCreateDTO.getSupplierName());
         supplier.setPhoneNumber(supplierCreateDTO.getPhoneNumber());
         supplier.setAddress(supplierCreateDTO.getAddress());
-        supplier.setNote(supplierCreateDTO.getNote());
         supplier.setStatus(Status.ACTIVE);
         supplier.setStore(store);
 
@@ -65,31 +52,10 @@ public class SupplierServiceImpl implements SupplierService {
 
     @Override
     public List<SupplierDTO> getAllSuppliers() {
-        List<Supplier> suppliers = supplierRepository.findAll();
+        User currentUser = userService.getCurrentUser();
+        List<Supplier> suppliers = supplierRepository.findByStoreId(currentUser.getStore().getId());
         return suppliers.stream()
                 .map(supplier -> modelMapper.map(supplier, SupplierDTO.class))
-                .collect(Collectors.toList());
-    }
-
-    @Override
-    public List<SupplierDTO> getSuppliersByStore(Long storeId) {
-        UserPrincipal currentUserPrincipal = (UserPrincipal) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-        Optional<User> currentUser = userRepository.findById(currentUserPrincipal.getId());
-        if (currentUser.isEmpty()) {
-            throw new RuntimeException("Authenticated user not found.");
-        }
-
-        List<Store> ownedStores = storeRepository.findByOwnerId(currentUser.get().getId());
-        // Check if the provided storeId is in the list of ownedStores
-        boolean isStoreOwnedByCurrentUser = ownedStores.stream()
-                .anyMatch(store -> store.getId().equals(storeId));
-        if (!isStoreOwnedByCurrentUser) {
-            throw new IllegalArgumentException("The store with ID " + storeId + " is not owned by the current user.");
-        }
-
-        List<Supplier> suppliers = supplierRepository.findByStoreId(storeId);
-        return suppliers.stream()
-                .map(supplier -> modelMapper.map(suppliers, SupplierDTO.class))
                 .collect(Collectors.toList());
     }
 }

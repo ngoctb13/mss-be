@@ -30,7 +30,7 @@ public class StoreController {
     }
 
     @GetMapping("/all")
-    @PreAuthorize("hasAnyAuthority('SYSTEM_ADMIN','STORE_OWNER')")
+    @PreAuthorize("hasAnyAuthority('SYSTEM_ADMIN')")
     public ResponseEntity<?> getAllStores() {
         try {
             List<StoreDTO> stores = storeService.getAllStores();
@@ -40,14 +40,14 @@ public class StoreController {
         }
     }
 
-    @GetMapping("/owner/all")
-    @PreAuthorize("hasAuthority('STORE_OWNER')")
-    public ResponseEntity<?> getStoresByOwner() {
+    @GetMapping("/by-owner/{ownerId}")
+    @PreAuthorize("hasAuthority('SYSTEM_ADMIN')")
+    public ResponseEntity<?> getStoresByOwner(@PathVariable Long ownerId) {
         try {
-            List<StoreDTO> stores = storeService.getStoresByOwner();
-            return new ResponseEntity<>(stores, HttpStatus.OK);
+            StoreDTO store = storeService.getStoreByOwner(ownerId);
+            return new ResponseEntity<>(store, HttpStatus.OK);
         } catch (Exception e) {
-            return new ResponseEntity<>(new ErrorResponse("Failed to fetch stores by owner: " + e.getMessage()), HttpStatus.INTERNAL_SERVER_ERROR);
+            return new ResponseEntity<>(new ErrorResponse("Failed to fetch store by owner: " + e.getMessage()), HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 }

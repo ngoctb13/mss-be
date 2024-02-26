@@ -11,7 +11,5 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 public class StorageLocationRequest {
     private String locationName;
-    private int capacity;
     private String description;
-    private Long storeId;
 }

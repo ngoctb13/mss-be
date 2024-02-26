@@ -13,5 +13,5 @@ import vn.edu.fpt.be.model.enums.Status;
 public class StoreCreateDTO {
     private String storeName;
     private String address;
-    private Status status;
+    private String phoneNumber;
 }

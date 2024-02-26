@@ -16,6 +16,7 @@ import vn.edu.fpt.be.repository.StoreRepository;
 import vn.edu.fpt.be.repository.UserRepository;
 import vn.edu.fpt.be.security.UserPrincipal;
 import vn.edu.fpt.be.service.StoreService;
+import vn.edu.fpt.be.service.UserService;
 
 import java.time.LocalDateTime;
 import java.util.Collection;
@@ -29,27 +30,30 @@ import java.util.stream.Collectors;
 public class StoreServiceImpl implements StoreService {
     private final UserRepository userRepository;
     private final StoreRepository storeRepository;
+    private final UserService userService;
     private final ModelMapper modelMapper = new ModelMapper();
-    private static final Logger logger = LoggerFactory.getLogger(StoreServiceImpl.class);
     @Override
-    public StoreCreateDTO createStore(StoreCreateDTO storeCreateDTO) {
+    public StoreDTO createStore(StoreCreateDTO storeCreateDTO) {
         try {
-            UserPrincipal currentUserPrincipal = (UserPrincipal) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-            Optional<User> currentUser = userRepository.findById(currentUserPrincipal.getId());
+            User currentUser = userService.getCurrentUser();
 
-            if (currentUser.isEmpty()) {
-                throw new RuntimeException("Authenticated user not found.");
-            }
+            Store newStore = new Store();
+            newStore.setStoreName(storeCreateDTO.getStoreName());
+            newStore.setAddress(storeCreateDTO.getAddress());
+            newStore.setPhoneNumber(storeCreateDTO.getPhoneNumber());
+            newStore.setStatus(Status.ACTIVE);
+            newStore.setCreatedBy(currentUser.getUsername());
 
-            Store store = new Store();
-            store.setStoreName(storeCreateDTO.getStoreName());
-            store.setAddress(storeCreateDTO.getAddress());
-            store.setOwner(currentUser.get());
-            store.setStatus(Status.ACTIVE);
-            store.setCreatedAt(LocalDateTime.now());
-            store.setCreatedBy(currentUser.get().getUsername());
+            Store savedStore = storeRepository.save(newStore);
+            currentUser.setStore(savedStore);
 
-            return modelMapper.map(storeRepository.save(store), StoreCreateDTO.class);
+            StoreDTO savedStoreDTO = new StoreDTO();
+            savedStoreDTO.setStoreName(savedStore.getStoreName());
+            savedStoreDTO.setId(savedStore.getId());
+            savedStoreDTO.setAddress(savedStore.getAddress());
+            savedStoreDTO.setStatus(savedStoreDTO.getStatus());
+            savedStoreDTO.setOwner(currentUser);
+            return savedStoreDTO;
         } catch (Exception e) {
             throw new RuntimeException("Fail to create store: " + e.getMessage());
         }
@@ -60,7 +64,7 @@ public class StoreServiceImpl implements StoreService {
         try {
             List<Store> stores = storeRepository.findAll();
             return stores.stream()
-                    .map(store -> modelMapper.map(store, StoreDTO.class))
+                    .map(this::convertToDto)
                     .collect(Collectors.toList());
         } catch (Exception e) {
             throw new RuntimeException("Failed to fetch all stores.", e);
@@ -68,29 +72,33 @@ public class StoreServiceImpl implements StoreService {
     }
 
     @Override
-    public List<StoreDTO> getStoresByOwner() {
+    public StoreDTO getStoreByOwner(Long ownerId) {
         try {
-            UserPrincipal currentUserPrincipal = (UserPrincipal) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-
-            Collection<? extends GrantedAuthority> authorities = currentUserPrincipal.getAuthorities();
-            for (GrantedAuthority authority : authorities) {
-                // Log each authority
-                logger.info("User has authority: {}", authority.getAuthority());
-            }
-
-
-            Optional<User> currentUser = userRepository.findById(currentUserPrincipal.getId());
-
+            Optional<User> currentUser = userRepository.findById(ownerId);
             if (currentUser.isEmpty()) {
-                throw new RuntimeException("Authenticated user not found.");
+                throw new RuntimeException("User not found with id " + ownerId);
             }
+            Store store = currentUser.get().getStore();
 
-            List<Store> stores = storeRepository.findByOwnerId(currentUser.get().getId());
-            return stores.stream()
-                    .map(store -> modelMapper.map(store, StoreDTO.class))
-                    .collect(Collectors.toList());
+            StoreDTO storeDTO = new StoreDTO();
+            storeDTO.setStoreName(store.getStoreName());
+            storeDTO.setId(store.getId());
+            storeDTO.setAddress(store.getAddress());
+            storeDTO.setStatus(String.valueOf(store.getStatus()));
+            storeDTO.setOwner(currentUser.get());
+            return storeDTO;
         } catch (Exception e) {
-            throw new RuntimeException("Failed to fetch stores by owner.", e);
+            throw new RuntimeException("Failed to fetch store by owner.", e);
         }
+    }
+
+    private StoreDTO convertToDto(Store store) {
+        return StoreDTO.builder()
+                .id(store.getId())
+                .storeName(store.getStoreName())
+                .address(store.getAddress())
+                .owner(userRepository.findByStoreId(store.getId()))
+                .status(store.getStatus().toString()) // Convert Status enum to String
+                .build();
     }
 }

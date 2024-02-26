@@ -4,15 +4,14 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import vn.edu.fpt.be.model.Store;
-import vn.edu.fpt.be.model.User;
-import vn.edu.fpt.be.model.enums.Status;
+import vn.edu.fpt.be.model.Product;
 
 @Data
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-public class StaffDTO {
-    private User user;
-    private Store store;
+public class SaleInvoiceDetailRequest {
+    private Long productId;
+    private Double quantity;
+    private Double unitPrice;
 }

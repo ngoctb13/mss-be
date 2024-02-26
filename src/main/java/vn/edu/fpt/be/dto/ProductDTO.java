@@ -13,13 +13,15 @@ import vn.edu.fpt.be.model.enums.Status;
 @AllArgsConstructor
 @NoArgsConstructor
 public class ProductDTO {
+    private Long id;
     private String productName;
     private String unit;
     private Double retailPrice;
-    private Double wholeSalePrice;
     private Double importPrice;
+    private String description;
     private Double inventory;
-    private Status status ;
+    private String bag_packing;
+    private Status status;
     private Store store;
     private StorageLocation storageLocation;
 }

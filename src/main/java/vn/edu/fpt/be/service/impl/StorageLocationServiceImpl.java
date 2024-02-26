@@ -15,6 +15,7 @@ import vn.edu.fpt.be.repository.StoreRepository;
 import vn.edu.fpt.be.repository.UserRepository;
 import vn.edu.fpt.be.security.UserPrincipal;
 import vn.edu.fpt.be.service.StorageLocationService;
+import vn.edu.fpt.be.service.UserService;
 
 import java.util.List;
 import java.util.Optional;
@@ -26,53 +27,33 @@ public class StorageLocationServiceImpl implements StorageLocationService {
     private final StorageLocationRepository repo;
     private final UserRepository userRepository;
     private final StoreRepository storeRepository;
+    private final UserService userService;
     private final ModelMapper modelMapper = new ModelMapper();
 
     @Override
     public StorageLocationDTO createStorageLocation(StorageLocationRequest storageLocationRequest) {
-        UserPrincipal currentUserPrincipal = (UserPrincipal) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-        Optional<User> currentUser = userRepository.findById(currentUserPrincipal.getId());
-        if (currentUser.isEmpty()) {
-            throw new RuntimeException("Authenticated user not found.");
-        }
-        List<Store> ownedStores = storeRepository.findByOwnerId(currentUser.get().getId());
-        // Check if the provided storeId is in the list of ownedStores
-        boolean isStoreOwnedByCurrentUser = ownedStores.stream()
-                .anyMatch(store -> store.getId().equals(storageLocationRequest.getStoreId()));
-        if (!isStoreOwnedByCurrentUser) {
-            throw new IllegalArgumentException("The store with ID " + storageLocationRequest.getStoreId() + " is not owned by the current user.");
-        }
-        // Retrieve the store based on the provided storeId
-        Store store = storeRepository.findById(storageLocationRequest.getStoreId())
-                .orElseThrow(() -> new RuntimeException("Store not found"));
+        User currentUser = userService.getCurrentUser();
+        Store ownedStore = currentUser.getStore();
 
-//        StorageLocation storageLocation = modelMapper.map(storageLocationRequest, StorageLocation.class);
-        StorageLocation storageLocation = new StorageLocation();
-        storageLocation.setLocationName(storageLocationRequest.getLocationName());
-        storageLocation.setCapacity(storageLocationRequest.getCapacity());
-        storageLocation.setDescription(storageLocationRequest.getDescription());
-        storageLocation.setStatus(Status.ACTIVE);
-        storageLocation.setStore(store);
-        storageLocation.setCreatedBy(currentUser.get().getUsername());
-        StorageLocation savedStorageLocation = repo.save(storageLocation);
+        StorageLocation newStorageLocation = new StorageLocation();
+        newStorageLocation.setLocationName(storageLocationRequest.getLocationName());
+        newStorageLocation.setDescription(storageLocationRequest.getDescription());
+        newStorageLocation.setStatus(Status.ACTIVE);
+        newStorageLocation.setStore(ownedStore);
+        newStorageLocation.setCreatedBy(currentUser.getUsername());
+        StorageLocation savedStorageLocation = repo.save(newStorageLocation);
         return modelMapper.map(savedStorageLocation, StorageLocationDTO.class);
     }
 
     @Override
     public StorageLocationDTO updateStorageLocation(StorageLocationRequest storageLocationRequest, Long storageLocationId) {
-        UserPrincipal currentUserPrincipal = (UserPrincipal) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-        Optional<User> currentUser = userRepository.findById(currentUserPrincipal.getId());
-        if (currentUser.isEmpty()) {
-            throw new RuntimeException("Authenticated user not found.");
-        }
+        User currentUser = userService.getCurrentUser();
         StorageLocation existingStorageLocation = repo.findById(storageLocationId)
                 .orElseThrow(() -> new IllegalArgumentException("Storage location not found"));
         // Retrieve the store based on the provided storeId
-        Store store = storeRepository.findById(storageLocationRequest.getStoreId())
-                .orElseThrow(() -> new RuntimeException("Store not found"));
+        Store store = currentUser.getStore();
 
         existingStorageLocation.setLocationName(storageLocationRequest.getLocationName());
-        existingStorageLocation.setCapacity(storageLocationRequest.getCapacity());
         existingStorageLocation.setDescription(storageLocationRequest.getDescription());
         existingStorageLocation.setStatus(Status.ACTIVE);
         existingStorageLocation.setStore(store);
@@ -82,8 +63,10 @@ public class StorageLocationServiceImpl implements StorageLocationService {
     }
 
     @Override
-    public List<StorageLocationDTO> getByStore(Long storeId) {
-        List<StorageLocation> storageLocations = repo.findByStoreId(storeId);
+    public List<StorageLocationDTO> getByStore() {
+        User currentUser = userService.getCurrentUser();
+        Store store = currentUser.getStore();
+        List<StorageLocation> storageLocations = repo.findByStoreId(store.getId());
         return storageLocations.stream()
                 .map(storageLocation -> modelMapper.map(storageLocation, StorageLocationDTO.class))
                 .collect(Collectors.toList());

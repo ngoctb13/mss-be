@@ -22,14 +22,12 @@ public class Model {
     private Long id;
 
     @Column(name = "created_at", columnDefinition = "DATETIME(0)")
-    //@Temporal(TemporalType.TIMESTAMP)
     private LocalDateTime createdAt;
 
     @Column(name = "created_by")
     private String createdBy;
 
     @Column(name = "updated_at", columnDefinition = "DATETIME(0)")
-//    @Temporal(TemporalType.TIMESTAMP)
     private LocalDateTime updatedAt;
     @PrePersist
     protected void onCreate() {

@@ -17,8 +17,6 @@ import javax.persistence.*;
 public class StorageLocation extends Model {
     @Column(name = "location_name")
     private String locationName;
-    @Column(name = "capacity")
-    private int capacity;
     @Column(name = "description")
     private String description;
     @Column(name = "status", columnDefinition = "VARCHAR(50) DEFAULT 'ACTIVE'")
@@ -26,4 +24,7 @@ public class StorageLocation extends Model {
     @ManyToOne
     @JoinColumn(name = "store_id")
     private Store store;
+    @ManyToOne
+    @JoinColumn(name = "product_id")
+    private Product product;
 }
