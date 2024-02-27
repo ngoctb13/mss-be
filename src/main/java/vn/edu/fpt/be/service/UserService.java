@@ -8,5 +8,6 @@ public interface UserService {
     void registerUser(RegisterRequestDTO registerRequestDTO);
     UserProfileDTO updateUser(Long userId, UserUpdateDTO userUpdateDTO);
     UserDTO createStaffAccount(StaffCreateDTO staffCreateDTO);
+    UserDTO getUserById(Long storeId);
     User getCurrentUser();
 }
