@@ -1,6 +1,7 @@
 package vn.edu.fpt.be.controller;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -9,7 +10,9 @@ import vn.edu.fpt.be.dto.StaffCreateDTO;
 import vn.edu.fpt.be.dto.UserDTO;
 import vn.edu.fpt.be.dto.UserProfileDTO;
 import vn.edu.fpt.be.dto.UserUpdateDTO;
+import vn.edu.fpt.be.model.User;
 import vn.edu.fpt.be.security.CurrentUser;
+import vn.edu.fpt.be.security.TokenProvider;
 import vn.edu.fpt.be.security.UserPrincipal;
 import vn.edu.fpt.be.service.UserService;
 
@@ -18,6 +21,7 @@ import vn.edu.fpt.be.service.UserService;
 @RequiredArgsConstructor
 public class UserController {
     private final UserService userService;
+    private final TokenProvider tokenProvider;
 
     @PutMapping("/me")
     @PreAuthorize("hasAnyAuthority('STORE_OWNER', 'STAFF')")
@@ -55,6 +59,18 @@ public class UserController {
             return ResponseEntity.badRequest().body(e.getMessage()); // Consider a more informative error structure
         } catch (Exception e) {
             return ResponseEntity.internalServerError().build(); // General error handling, consider logging or a more specific error message
+        }
+    }
+
+    @GetMapping("/getUserById/{userId}")
+    @PreAuthorize("hasAuthority('STORE_OWNER')")
+    public ResponseEntity<?> getUserById(@PathVariable Long userId) {
+        try {
+//            Long userId = tokenProvider.getUserIdFromToken(jwt);
+            UserDTO currentUser = userService.getUserById(userId);
+            return ResponseEntity.ok(currentUser);
+        } catch (Exception e) {
+            return ResponseEntity.internalServerError().build();
         }
     }
 }

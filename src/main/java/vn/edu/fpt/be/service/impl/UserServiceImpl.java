@@ -107,4 +107,13 @@ public class UserServiceImpl implements UserService {
         User savedStaff = userRepository.save(newStaff);
         return modelMapper.map(savedStaff, UserDTO.class);
     }
+
+    @Override
+    public UserDTO getUserById(Long storeId) {
+        Optional<User> user = userRepository.findById(storeId);
+        if (user.isEmpty()) {
+            throw new IllegalArgumentException("User not found!");
+        }
+        return modelMapper.map(user.get(),UserDTO.class);
+    }
 }
