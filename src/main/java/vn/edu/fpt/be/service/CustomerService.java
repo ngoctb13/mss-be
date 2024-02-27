@@ -7,6 +7,6 @@ import java.util.List;
 
 public interface CustomerService {
     CustomerDTO createCustomer(CustomerCreateDTO customerCreateDTO);
-    List<CustomerDTO> getAllCustomers();
+    List<CustomerDTO> getAllCustomers(int pageNumber, int pageSize);
     CustomerDTO deactivate(Long customerId);
 }
