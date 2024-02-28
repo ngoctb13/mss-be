@@ -75,7 +75,8 @@ public class SupplierServiceImpl implements SupplierService {
         SupplierDebtDetail inItDebtDetail = new SupplierDebtDetail();
         inItDebtDetail.setSupplier(supplier.get());
         inItDebtDetail.setCreatedBy(currentUser.getUsername());
-        List<SupplierDetailDTO> supplierDetailDTOS =
+        List<SupplierDetailDTO> supplierDetailDTOS ;
+                return null;
     }
 
 }
