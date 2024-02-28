@@ -1,17 +1,14 @@
 package vn.edu.fpt.be.service.impl;
 
-import lombok.NoArgsConstructor;
 import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
-import vn.edu.fpt.be.dto.CustomerDTO;
 import vn.edu.fpt.be.dto.SupplierCreateDTO;
 import vn.edu.fpt.be.dto.SupplierDTO;
-import vn.edu.fpt.be.model.Customer;
-import vn.edu.fpt.be.model.Store;
-import vn.edu.fpt.be.model.Supplier;
-import vn.edu.fpt.be.model.User;
+import vn.edu.fpt.be.dto.SupplierDetailDTO;
+import vn.edu.fpt.be.dto.SupplierDetailRequest;
+import vn.edu.fpt.be.model.*;
 import vn.edu.fpt.be.model.enums.Status;
 import vn.edu.fpt.be.repository.StoreRepository;
 import vn.edu.fpt.be.repository.SupplierRepository;
@@ -32,6 +29,14 @@ public class SupplierServiceImpl implements SupplierService {
     private final SupplierRepository supplierRepository;
     private final UserService userService;
     private final ModelMapper modelMapper = new ModelMapper();
+    public User getCurrentUser() {
+        UserPrincipal currentUserPrincipal = (UserPrincipal) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        Optional<User> currentUser = userRepository.findById(currentUserPrincipal.getId());
+        if (currentUser.isEmpty()) {
+            throw new RuntimeException("Authenticated user not found.");
+        }
+        return currentUser.get();
+    }
     @Override
     public SupplierDTO createSupplier(SupplierCreateDTO supplierCreateDTO) {
         User currentUser = userService.getCurrentUser();
@@ -58,4 +63,19 @@ public class SupplierServiceImpl implements SupplierService {
                 .map(supplier -> modelMapper.map(supplier, SupplierDTO.class))
                 .collect(Collectors.toList());
     }
+
+    @Override
+    public SupplierDTO createDebtForSupplier(Long supplierId,SupplierDetailRequest supplierDetailRequest) {
+        User currentUser = getCurrentUser();
+        //
+        Optional<Supplier> supplier = supplierRepository.findById(supplierId);
+        if (supplier.isEmpty()) {
+            throw new RuntimeException("Supplier not found.");
+        }
+        SupplierDebtDetail inItDebtDetail = new SupplierDebtDetail();
+        inItDebtDetail.setSupplier(supplier.get());
+        inItDebtDetail.setCreatedBy(currentUser.getUsername());
+        List<SupplierDetailDTO> supplierDetailDTOS =
+    }
+
 }
