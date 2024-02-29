@@ -24,10 +24,12 @@ public class SupplierDebtDetail  extends Model{
     @ManyToOne
     @JoinColumn(name = "zoneId", referencedColumnName = "id", nullable = false)
     private Zone zone;
-    @Column(name = "quanlity")
+    @Column(name = "quantity")
     private Double quantity;
     @Column(name = "distance") //khoảng cách
     private Double distance;
-    @Column(name = "total_price") // tong tien cua mot đơn v = distance * distance
+    @Column(name = "unit_price_per_distance") //đơn giá trên khoảng cách
+    private Double unitPricePerDistance;
+    @Column(name = "total_price") // tong tien cua mot đơn v = distance * unit_price_per_distance  *quanlity
     private Double totalPrice;
 }

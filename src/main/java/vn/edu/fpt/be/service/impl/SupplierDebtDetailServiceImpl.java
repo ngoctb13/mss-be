@@ -4,6 +4,7 @@ import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
+import vn.edu.fpt.be.dto.SaleInvoiceDetailDTO;
 import vn.edu.fpt.be.dto.SupplierDebtDetailDTO;
 import vn.edu.fpt.be.dto.SupplierDebtDetailRequest;
 import vn.edu.fpt.be.model.Product;
@@ -45,13 +46,14 @@ public class SupplierDebtDetailServiceImpl implements SupplierDebtDetailService 
                 .orElseThrow(() -> new IllegalArgumentException("Product not found with ID: " + supplierDebtDetailRequest.getProductId()));
         SupplierDebtDetail supplierDebtDetail = new SupplierDebtDetail();
         supplierDebtDetail.setProduct(product);
-//        supplierDebtDetail.setSupplier(supplierDebtDetailRequest);
-        supplierDebtDetail.setProduct(product);
-        supplierDebtDetail.setProduct(product);
-        supplierDebtDetail.setProduct(product);
+        supplierDebtDetail.setDistance(supplierDebtDetailRequest.getDistance());
+        supplierDebtDetail.setQuantity(supplierDebtDetail.getQuantity());
+        supplierDebtDetail.setTotalPrice(supplierDebtDetailRequest.getDistance() * supplierDebtDetail.getQuantity()* supplierDebtDetailRequest.getUnitPricePerDistance());
+        supplierDebtDetail.setCreatedBy(currentUser.getUsername());
+        SupplierDebtDetail saveSupplierDebtDetail = supplierDebtDetailRepository.save(supplierDebtDetail);
 
 
-        return null;
+        return modelMapper.map(saveSupplierDebtDetail, SupplierDebtDetailDTO.class);
 
     }
 }

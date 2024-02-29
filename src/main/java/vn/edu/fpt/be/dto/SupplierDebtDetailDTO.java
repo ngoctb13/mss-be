@@ -19,6 +19,7 @@ public class SupplierDebtDetailDTO {
     private Supplier supplier;
     private Double quantity;
     private Double unitPrice;
+    private Double unitPricePerDistance;
     private Double totalPrice;
     private Zone zone;
 }

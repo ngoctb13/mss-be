@@ -13,5 +13,6 @@ public class SupplierDebtDetailRequest {
     private Long productId;
     private Double quantity;
     private Double distance;
+    private Double unitPricePerDistance;
     private Long zoneId;
 }
