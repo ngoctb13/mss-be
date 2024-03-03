@@ -20,6 +20,7 @@ import vn.edu.fpt.be.repository.StoreRepository;
 import vn.edu.fpt.be.repository.UserRepository;
 import vn.edu.fpt.be.security.UserPrincipal;
 import vn.edu.fpt.be.service.CustomerService;
+import vn.edu.fpt.be.service.UserService;
 
 import java.util.List;
 import java.util.Optional;
@@ -31,26 +32,19 @@ public class CustomerServiceImpl implements CustomerService {
     private final StoreRepository storeRepository;
     private final UserRepository userRepository;
     private final CustomerRepository customerRepository;
+    private final UserService userService;
     private final ModelMapper modelMapper = new ModelMapper();
     @Override
     public CustomerDTO createCustomer(CustomerCreateDTO customerCreateDTO) {
-        UserPrincipal currentUserPrincipal = (UserPrincipal) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-        Optional<User> currentUser = userRepository.findById(currentUserPrincipal.getId());
-        if (currentUser.isEmpty()) {
-            throw new RuntimeException("Authenticated user not found.");
-        }
+        User currentUser = userService.getCurrentUser();
         Customer customer = new Customer();
         customer.setCustomerName(customerCreateDTO.getCustomerName());
         customer.setPhoneNumber(customerCreateDTO.getPhoneNumber());
         customer.setAddress(customerCreateDTO.getAddress());
-        customer.setNote(customerCreateDTO.getNote());
+        customer.setTotalDebt(0.0);
         customer.setStatus(Status.ACTIVE);
-        Optional<Store> ownedStores = storeRepository.findStoreById(currentUser.get().getId());
-        Store store = ownedStores.stream()
-                .filter(s -> s.getId().equals(currentUser.get().getId()))
-                .findFirst()
-                .orElseThrow(() -> new IllegalStateException("Store not found with id: " + currentUser.get().getId())); // This should theoretically never happen due to the previous check
-        customer.setStore(store);
+        customer.setStore(currentUser.getStore());
+        customer.setCreatedBy(currentUser.getUsername());
         Customer saveCustomer= customerRepository.save(customer);
         return modelMapper.map(saveCustomer, CustomerDTO.class);
     }
@@ -66,11 +60,6 @@ public class CustomerServiceImpl implements CustomerService {
 
     @Override
     public CustomerDTO deactivate(Long customerId) {
-        UserPrincipal currentUserPrincipal = (UserPrincipal) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-        Optional<User> currentUser = userRepository.findById(currentUserPrincipal.getId());
-        if (currentUser.isEmpty()) {
-            throw new RuntimeException("Authenticated user not found.");
-        }
         Customer customer = customerRepository.findById(customerId).orElseThrow(() -> new RuntimeException("Customer not found"));
         if (customer.getStatus().equals(Status.ACTIVE)){
             customer.setStatus(Status.INACTIVE);

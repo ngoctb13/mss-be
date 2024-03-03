@@ -5,13 +5,8 @@ import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
-import vn.edu.fpt.be.dto.CustomerDTO;
-import vn.edu.fpt.be.dto.SupplierCreateDTO;
-import vn.edu.fpt.be.dto.SupplierDTO;
-import vn.edu.fpt.be.model.Customer;
-import vn.edu.fpt.be.model.Store;
-import vn.edu.fpt.be.model.Supplier;
-import vn.edu.fpt.be.model.User;
+import vn.edu.fpt.be.dto.*;
+import vn.edu.fpt.be.model.*;
 import vn.edu.fpt.be.model.enums.Status;
 import vn.edu.fpt.be.repository.StoreRepository;
 import vn.edu.fpt.be.repository.SupplierRepository;
@@ -57,5 +52,33 @@ public class SupplierServiceImpl implements SupplierService {
         return suppliers.stream()
                 .map(supplier -> modelMapper.map(supplier, SupplierDTO.class))
                 .collect(Collectors.toList());
+    }
+
+    @Override
+    public SupplierDTO deactivate(Long supplierId) {
+        Supplier deactivatedSupplier = supplierRepository.findById(supplierId).orElseThrow(() -> new RuntimeException("Supplier not found"));
+        if (deactivatedSupplier.getStatus()==Status.ACTIVE){
+            deactivatedSupplier.setStatus(Status.INACTIVE);
+        }else {
+            deactivatedSupplier.setStatus(Status.ACTIVE);
+        }
+        Supplier savedSupplier= supplierRepository.save(deactivatedSupplier);
+        return modelMapper.map(savedSupplier, SupplierDTO.class);
+    }
+
+    @Override
+    public SupplierDTO updateSupplier(SupplierUpdateRequest request, Long supplierId) {
+        User currentUser = userService.getCurrentUser();
+        Optional<Supplier> supplier = supplierRepository.findById(supplierId);
+        if (supplier.isEmpty()) {
+            throw new RuntimeException("Supplier not found!");
+        }
+        Supplier currentSupplier = supplier.get();
+        currentSupplier.setSupplierName(request.getSupplierName());
+        currentSupplier.setPhoneNumber(request.getPhoneNumber());
+        currentSupplier.setAddress(request.getAddress());
+        currentSupplier.setNote(request.getNote());
+        Supplier updatedSupplier= supplierRepository.save(currentSupplier);
+        return modelMapper.map(updatedSupplier, SupplierDTO.class);
     }
 }

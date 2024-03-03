@@ -16,7 +16,6 @@ public class ProductCreateDTO {
     private String productName;
     private String unit;
     private Double retailPrice;
-    private Double importPrice;
     private String description;
     private String bag_packing;
 }
