@@ -16,6 +16,8 @@ import vn.edu.fpt.be.security.TokenProvider;
 import vn.edu.fpt.be.security.UserPrincipal;
 import vn.edu.fpt.be.service.UserService;
 
+import java.util.List;
+
 @RestController
 @RequestMapping("/api/users")
 @RequiredArgsConstructor
@@ -50,7 +52,7 @@ public class UserController {
     }
 
     @PostMapping("/createStaff")
-    @PreAuthorize("hasAnyAuthority('STORE_OWNER')")
+    @PreAuthorize("hasAuthority('STORE_OWNER')")
     public ResponseEntity<?> createStaff(@RequestBody StaffCreateDTO staffCreateDTO) {
         try {
             UserDTO newStaff = userService.createStaffAccount(staffCreateDTO);
@@ -69,6 +71,18 @@ public class UserController {
 //            Long userId = tokenProvider.getUserIdFromToken(jwt);
             UserDTO currentUser = userService.getUserById(userId);
             return ResponseEntity.ok(currentUser);
+        } catch (Exception e) {
+            return ResponseEntity.internalServerError().build();
+        }
+    }
+
+    @GetMapping("/all-staff")
+    @PreAuthorize("hasAuthority('STORE_OWNER')")
+    public ResponseEntity<?> getUserById() {
+        try {
+//            Long userId = tokenProvider.getUserIdFromToken(jwt);
+            List<UserDTO> listStaff = userService.getAllStaffOfStore();
+            return ResponseEntity.ok(listStaff);
         } catch (Exception e) {
             return ResponseEntity.internalServerError().build();
         }

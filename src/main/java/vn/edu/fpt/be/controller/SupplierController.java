@@ -7,6 +7,7 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import vn.edu.fpt.be.dto.SupplierCreateDTO;
 import vn.edu.fpt.be.dto.SupplierDTO;
+import vn.edu.fpt.be.dto.SupplierUpdateRequest;
 import vn.edu.fpt.be.dto.UserProfileDTO;
 import vn.edu.fpt.be.service.SupplierService;
 
@@ -27,7 +28,7 @@ public class SupplierController {
         } catch (IllegalArgumentException e) {
             return ResponseEntity.badRequest().body(e.getMessage());
         } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("An error occurred while creating the store.");
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("An error occurred while creating the supplier.");
         }
     }
 
@@ -40,7 +41,34 @@ public class SupplierController {
         } catch (IllegalArgumentException e) {
             return ResponseEntity.badRequest().body(e.getMessage());
         } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("An error occurred while fetching the store.");
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("An error occurred while fetching the supplier.");
         }
     }
+
+    @PutMapping("/deactivate/{supplierId}")
+    @PreAuthorize("hasAuthority('STORE_OWNER')")
+    public ResponseEntity<?> deactivate(@PathVariable Long supplierId) {
+        try {
+            SupplierDTO deactivateSupplier = supplierService.deactivate(supplierId);
+            return ResponseEntity.ok().body(deactivateSupplier);
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.badRequest().body(e.getMessage());
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("An error occurred while deactivate the supplier.");
+        }
+    }
+
+    @PutMapping("/update/{supplierId}")
+    @PreAuthorize("hasAuthority('STORE_OWNER')")
+    public ResponseEntity<?> updateSupplier(@RequestBody SupplierUpdateRequest request, @PathVariable Long supplierId) {
+        try {
+            SupplierDTO updatedSupplier = supplierService.updateSupplier(request,supplierId);
+            return ResponseEntity.ok().body(updatedSupplier);
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.badRequest().body(e.getMessage());
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("An error occurred while deactivate the supplier.");
+        }
+    }
+
 }

@@ -17,7 +17,9 @@ import vn.edu.fpt.be.service.UserService;
 
 import java.time.LocalDateTime;
 import java.util.Date;
+import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -106,6 +108,16 @@ public class UserServiceImpl implements UserService {
 
         User savedStaff = userRepository.save(newStaff);
         return modelMapper.map(savedStaff, UserDTO.class);
+    }
+
+    @Override
+    public List<UserDTO> getAllStaffOfStore() {
+        User currentUser = getCurrentUser();
+        List<User> listStaff = userRepository.findByStoreIdAndRole(currentUser.getStore().getId(), Role.STAFF);
+
+        return listStaff.stream()
+                .map(staff -> modelMapper.map(staff, UserDTO.class))
+                .collect(Collectors.toList());
     }
 
     @Override

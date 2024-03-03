@@ -9,8 +9,9 @@ import lombok.NoArgsConstructor;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-public class CustomerCreateDTO {
-    private String customerName;
+public class SupplierUpdateRequest {
+    private String supplierName;
     private String phoneNumber;
     private String address;
+    private String note;
 }

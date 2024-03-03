@@ -9,9 +9,9 @@ import java.util.List;
 
 public interface ProductService {
     ProductDTO createProduct(ProductCreateDTO productCreateDTO);
-    List<ProductDTO> getAllProduct(int pageNumber, int pageSize);
+    List<ProductDTO> getAllProduct();
     List<ProductDTO> getProductByStore(Long storeId, int pageNumber, int pageSize);
-    ProductDTO updateProduct(ProductUpdateDTO ProductUpdateDTO);
+    ProductDTO updateProduct(ProductUpdateDTO ProductUpdateDTO, Long productId);
     ProductDTO changeStatusProduct(Long productID);
     List<ProductDTO> findProductByName(String productName);
 }

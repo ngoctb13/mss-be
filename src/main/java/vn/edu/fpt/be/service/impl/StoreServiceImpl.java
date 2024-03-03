@@ -46,6 +46,7 @@ public class StoreServiceImpl implements StoreService {
 
             Store savedStore = storeRepository.save(newStore);
             currentUser.setStore(savedStore);
+            userRepository.save(currentUser);
 
             StoreDTO savedStoreDTO = new StoreDTO();
             savedStoreDTO.setStoreName(savedStore.getStoreName());
