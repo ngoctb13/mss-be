@@ -20,7 +20,6 @@ import java.util.List;
 public class SaleInvoiceServiceImpl implements SaleInvoiceService {
     private final SaleInvoiceRepository saleInvoiceRepository;
     private final CustomerRepository customerRepository;
-    private final ProductRepository productRepository;
     private final SaleInvoiceDetailService saleInvoiceDetailService;
     private final UserService userService;
     private final ModelMapper modelMapper = new ModelMapper();
