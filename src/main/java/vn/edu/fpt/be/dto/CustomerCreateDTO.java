@@ -24,6 +24,4 @@ public class CustomerCreateDTO {
 
     @Size(min = 1, message = "Address cannot be empty")
     private String address;
-
-    private String note;
 }

@@ -46,7 +46,7 @@ public class ProductServiceImpl implements ProductService {
         product.setProductName(productCreateDTO.getProductName());
         product.setUnit(productCreateDTO.getUnit());
         product.setRetailPrice(productCreateDTO.getRetailPrice());
-        product.setImportPrice(productCreateDTO.getImportPrice());
+//        product.setImportPrice(productCreateDTO.getImportPrice());
         product.setDescription(productCreateDTO.getDescription());
         product.setBag_packing(productCreateDTO.getBag_packing());
         Optional<Store> ownedStores = storeRepository.findStoreById(currentUser.get().getId());
