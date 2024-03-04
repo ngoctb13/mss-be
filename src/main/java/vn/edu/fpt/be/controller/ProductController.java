@@ -32,10 +32,9 @@ public class ProductController {
     }
     @GetMapping("/all")
     @PreAuthorize("hasAuthority('STORE_OWNER')")
-    public ResponseEntity<?> getAllCustomers(@RequestParam(defaultValue = "0") int pageNumber,
-                                             @RequestParam(defaultValue = "5") int pageSize) {
+    public ResponseEntity<?> getAllCustomers() {
         try {
-            List<ProductDTO> products = productService.getAllProduct(pageNumber, pageSize);
+            List<ProductDTO> products = productService.getAllProduct();
             return ResponseEntity.status(HttpStatus.OK).body(products);
         } catch (Exception e) {
             return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
@@ -53,10 +52,11 @@ public class ProductController {
             return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
-    @PutMapping("/update")
-    public ResponseEntity<?> updateProduct(@RequestBody ProductUpdateDTO productUpdateDTO) {
+    @PutMapping("/update/{productId}")
+    @PreAuthorize("hasAuthority('STORE_OWNER')")
+    public ResponseEntity<?> updateProduct(@RequestBody ProductUpdateDTO productUpdateDTO, @PathVariable Long productId) {
         try {
-            ProductDTO updateProduct = productService.updateProduct(productUpdateDTO);
+            ProductDTO updateProduct = productService.updateProduct(productUpdateDTO, productId);
             return ResponseEntity.status(HttpStatus.OK).body(updateProduct);
         } catch (Exception e) {
             return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);

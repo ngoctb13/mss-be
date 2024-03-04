@@ -21,7 +21,6 @@ public class CustomerController {
     private final CustomerService customerService;
     @PostMapping("/create")
     @PreAuthorize("hasAuthority('STORE_OWNER')")
-
     public ResponseEntity<?> createCustomer(@RequestBody CustomerCreateDTO customerCreateDTO) {
         try {
             CustomerDTO createdProduct = customerService.createCustomer(customerCreateDTO);
@@ -42,10 +41,9 @@ public class CustomerController {
             return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
-    @PutMapping("/change-status")
+    @PutMapping("/change-status/{customerId}")
     @PreAuthorize("hasAuthority('STORE_OWNER')")
-
-    public ResponseEntity<?> createCustomer(@PathVariable Long customerId) {
+    public ResponseEntity<?> deactivate(@PathVariable Long customerId) {
         try {
             CustomerDTO changeStatusCustomer = customerService.deactivate(customerId);
             return ResponseEntity.status(HttpStatus.OK).body(changeStatusCustomer);
