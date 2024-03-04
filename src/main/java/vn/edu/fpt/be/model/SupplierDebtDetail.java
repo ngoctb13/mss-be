@@ -24,6 +24,9 @@ public class SupplierDebtDetail  extends Model{
     @ManyToOne
     @JoinColumn(name = "zoneId", referencedColumnName = "id", nullable = false)
     private Zone zone;
+    @ManyToOne
+    @JoinColumn(name = "sale_invoice_id", referencedColumnName = "id", nullable = false)
+    private SupplierDebtInvoice supplierDebtInvoice;
     @Column(name = "quantity")
     private Double quantity;
     @Column(name = "distance") //khoảng cách

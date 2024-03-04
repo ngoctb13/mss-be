@@ -18,6 +18,7 @@ import vn.edu.fpt.be.security.UserPrincipal;
 import vn.edu.fpt.be.service.ProductService;
 import vn.edu.fpt.be.service.SupplierDebtDetailService;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 @Service
@@ -37,23 +38,31 @@ public class SupplierDebtDetailServiceImpl implements SupplierDebtDetailService 
         return currentUser.get();
     }
     @Override
-    public List<SupplierDebtDetail> createDebtDetail(List<SupplierDebtDetailRequest> supplierDebtDetailRequests) {
-        return null;
+    public List<SupplierDebtDetailDTO> createDebtDetail(List<SupplierDebtDetailRequest> supplierDebtDetailRequests) {
+        List<SupplierDebtDetailDTO> createDetails= new ArrayList<>();
+        for (SupplierDebtDetailRequest supplierDebtDetailRequest: supplierDebtDetailRequests){
+            SupplierDebtDetailDTO createDetail = creatSingleDebtDetail(supplierDebtDetailRequest);
+            createDetails.add(createDetail);
+        }
+        return createDetails;
     }
     private SupplierDebtDetailDTO creatSingleDebtDetail(SupplierDebtDetailRequest supplierDebtDetailRequest){
         User currentUser = getCurrentUser();
         Product product = productRepository.findById(supplierDebtDetailRequest.getProductId())
                 .orElseThrow(() -> new IllegalArgumentException("Product not found with ID: " + supplierDebtDetailRequest.getProductId()));
+        SupplierDebtDetail supplierDebtDetail = getSupplierDebtDetail(supplierDebtDetailRequest, product, currentUser);
+        SupplierDebtDetail saveSupplierDebtDetail = supplierDebtDetailRepository.save(supplierDebtDetail);
+        return modelMapper.map(saveSupplierDebtDetail, SupplierDebtDetailDTO.class);
+
+    }
+
+    private static SupplierDebtDetail getSupplierDebtDetail(SupplierDebtDetailRequest supplierDebtDetailRequest, Product product, User currentUser) {
         SupplierDebtDetail supplierDebtDetail = new SupplierDebtDetail();
         supplierDebtDetail.setProduct(product);
         supplierDebtDetail.setDistance(supplierDebtDetailRequest.getDistance());
         supplierDebtDetail.setQuantity(supplierDebtDetail.getQuantity());
         supplierDebtDetail.setTotalPrice(supplierDebtDetailRequest.getDistance() * supplierDebtDetail.getQuantity()* supplierDebtDetailRequest.getUnitPricePerDistance());
         supplierDebtDetail.setCreatedBy(currentUser.getUsername());
-        SupplierDebtDetail saveSupplierDebtDetail = supplierDebtDetailRepository.save(supplierDebtDetail);
-
-
-        return modelMapper.map(saveSupplierDebtDetail, SupplierDebtDetailDTO.class);
-
+        return supplierDebtDetail;
     }
 }
