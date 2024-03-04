@@ -27,7 +27,6 @@ public class ProductCreateDTO {
     @Min(value = 0, message = "Retail price cannot be negative")
     private Double retailPrice;
 
-
     private String description;
 
     private String bag_packing;

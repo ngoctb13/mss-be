@@ -43,7 +43,7 @@ public class CustomerServiceImpl implements CustomerService {
         customer.setCustomerName(customerCreateDTO.getCustomerName());
         customer.setPhoneNumber(customerCreateDTO.getPhoneNumber());
         customer.setAddress(customerCreateDTO.getAddress());
-//        customer.setNote(customerCreateDTO.getNote());
+        customer.setTotalDebt(0.0);
         customer.setStatus(Status.ACTIVE);
         Optional<Store> ownedStores = storeRepository.findStoreById(currentUser.get().getId());
         Store store = ownedStores.stream()
