@@ -28,7 +28,6 @@ public class ImportProductInvoiceServiceImpl implements ImportProductInvoiceServ
     private final ImportProductInvoiceDetailService detailService;
     private final UserService userService;
     private final ModelMapper modelMapper = new ModelMapper();
-    private final ImportProductInvoiceDetailRepository importProductInvoiceDetailRepository;
 
     @Override
     @Transactional

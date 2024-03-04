@@ -1,19 +1,25 @@
 package vn.edu.fpt.be.service.impl;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
+import vn.edu.fpt.be.dto.ImportProductDetailResponse;
 import vn.edu.fpt.be.dto.SaleInvoiceDetailDTO;
 import vn.edu.fpt.be.dto.SaleInvoiceDetailRequest;
-import vn.edu.fpt.be.model.Product;
-import vn.edu.fpt.be.model.SaleInvoiceDetail;
-import vn.edu.fpt.be.model.User;
+import vn.edu.fpt.be.exception.CustomServiceException;
+import vn.edu.fpt.be.exception.EntityNotFoundException;
+import vn.edu.fpt.be.model.*;
+import vn.edu.fpt.be.model.jsonDetail.ProductDetailJson;
 import vn.edu.fpt.be.repository.ProductRepository;
 import vn.edu.fpt.be.repository.SaleInvoiceDetailRepository;
+import vn.edu.fpt.be.repository.SaleInvoiceRepository;
 import vn.edu.fpt.be.repository.UserRepository;
 import vn.edu.fpt.be.security.UserPrincipal;
 import vn.edu.fpt.be.service.SaleInvoiceDetailService;
+import vn.edu.fpt.be.service.UserService;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -24,42 +30,56 @@ import java.util.Optional;
 public class SaleInvoiceDetailServiceImpl implements SaleInvoiceDetailService {
     private final SaleInvoiceDetailRepository saleInvoiceDetailRepository;
     private final ProductRepository productRepository;
-    private final UserRepository userRepository;
+    private final UserService userService;
+    private final ObjectMapper objectMapper = new ObjectMapper();
     private final ModelMapper modelMapper = new ModelMapper();
-    public User getCurrentUser() {
-        UserPrincipal currentUserPrincipal = (UserPrincipal) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-        Optional<User> currentUser = userRepository.findById(currentUserPrincipal.getId());
-        if (currentUser.isEmpty()) {
-            throw new RuntimeException("Authenticated user not found.");
-        }
-        return currentUser.get();
-    }
+
     @Override
-    public List<SaleInvoiceDetailDTO> createSaleInvoiceDetail(List<SaleInvoiceDetailRequest> requests) {
-        List<SaleInvoiceDetailDTO> createdDetails = new ArrayList<>();
+    public void saveSaleInvoiceDetail(List<SaleInvoiceDetailRequest> request, SaleInvoice invoice) {
 
-        for (SaleInvoiceDetailRequest request : requests) {
-            SaleInvoiceDetailDTO createdDetail = createSingleSaleInvoiceDetail(request);
-            createdDetails.add(createdDetail);
+    }
+
+    private SaleInvoiceDetailRequest saveSingleSaleInvoiceDetailRequest(SaleInvoiceDetailRequest saleInvoiceDetailRequest, SaleInvoice saleInvoice) {
+        try {
+            User currentUser = userService.getCurrentUser();
+            Product product = productRepository.findById(saleInvoiceDetailRequest.getProductId())
+                    .orElseThrow(() -> new EntityNotFoundException("Product not found with ID: " + saleInvoiceDetailRequest.getProductId()));
+            SaleInvoiceDetail saleInvoiceDetail = new SaleInvoiceDetail();
+            saleInvoiceDetail.setCreatedBy(currentUser.getUsername());
+            saleInvoiceDetail.setProductDetailsAtTimeOfImport(convertToJson(product));
+            saleInvoiceDetail.setProduct(product);
+            saleInvoiceDetail.setQuantity(saleInvoiceDetailRequest.getQuantity());
+            saleInvoiceDetail.setUnitPrice(saleInvoiceDetailRequest.getUnitPrice());
+            saleInvoiceDetail.setTotalPrice(saleInvoiceDetailRequest.getQuantity() * saleInvoiceDetailRequest.getUnitPrice());
+            saleInvoiceDetail.setSaleInvoice(saleInvoice);
+            SaleInvoiceDetail saveSaleInvoiceDetail = saleInvoiceDetailRepository.save(saleInvoiceDetail);
+            updateProductInventory(product, saleInvoiceDetail.getQuantity());
+            return modelMapper.map(saveSaleInvoiceDetail, SaleInvoiceDetailRequest.class);
+        } catch (EntityNotFoundException e) {
+            throw new CustomServiceException(e.getMessage(), e);
+        } catch (Exception e) {
+            throw new CustomServiceException("An error occurred while saving the invoice detail: " + e.getMessage(), e);
         }
-        return createdDetails;
     }
 
-    private SaleInvoiceDetailDTO createSingleSaleInvoiceDetail(SaleInvoiceDetailRequest request) {
-        User currentUser = getCurrentUser();
+    private void updateProductInventory(Product product, double quantity) {
+        double currentInventory = product.getInventory() == null ? 0 : product.getInventory();
 
-        Product product = productRepository.findById(request.getProductId())
-                .orElseThrow(() -> new IllegalArgumentException("Product not found with ID: " + request.getProductId()));
+        product.setInventory(currentInventory - quantity);
 
-        SaleInvoiceDetail saleInvoiceDetail = new SaleInvoiceDetail();
-        saleInvoiceDetail.setProduct(product);
-        saleInvoiceDetail.setQuantity(request.getQuantity());
-        saleInvoiceDetail.setUnitPrice(request.getUnitPrice());
-        saleInvoiceDetail.setTotalPrice(request.getQuantity() * request.getUnitPrice());
-        saleInvoiceDetail.setCreatedBy(currentUser.getUsername());
-
-        SaleInvoiceDetail savedDetail = saleInvoiceDetailRepository.save(saleInvoiceDetail);
-
-        return modelMapper.map(savedDetail, SaleInvoiceDetailDTO.class);
+        productRepository.save(product);
     }
+
+    private String convertToJson(Product product) {
+        ProductDetailJson productDetailJson = modelMapper.map(product, ProductDetailJson.class);
+        String jsonString = null;
+        try {
+            jsonString = objectMapper.writeValueAsString(productDetailJson);
+            return jsonString;
+        } catch (JsonProcessingException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+
 }
