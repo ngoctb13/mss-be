@@ -5,9 +5,9 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
-import vn.edu.fpt.be.dto.StoreCreateDTO;
-import vn.edu.fpt.be.dto.StoreDTO;
+import vn.edu.fpt.be.dto.*;
 import vn.edu.fpt.be.exception.ErrorResponse;
+import vn.edu.fpt.be.service.ImportProductInvoiceService;
 import vn.edu.fpt.be.service.StoreService;
 
 import java.util.List;
@@ -18,6 +18,7 @@ import java.util.List;
 public class StoreController {
 
     private final StoreService storeService;
+    private final ImportProductInvoiceService importProductInvoiceService;
 
     @PostMapping("/create")
     @PreAuthorize("hasAuthority('STORE_OWNER')")
@@ -48,6 +49,22 @@ public class StoreController {
             return new ResponseEntity<>(store, HttpStatus.OK);
         } catch (Exception e) {
             return new ResponseEntity<>(new ErrorResponse("Failed to fetch store by owner: " + e.getMessage()), HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
+    @PostMapping("/import-invoice")
+    @PreAuthorize("hasAuthority('STORE_OWNER')")
+    public ResponseEntity<?> createImportInvoice(@RequestBody CreateImportProductInvoiceRequest request) {
+        try {
+            ImportProductInvoiceResponse response = importProductInvoiceService.importProduct(
+                    request.getSupplierId(),
+                    request.getProductDetails(),
+                    request.getPricePaid()
+            );
+            return ResponseEntity.ok(response);
+        } catch (Exception e) {
+            // You might want to handle different exceptions differently
+            return ResponseEntity.badRequest().body(e);
         }
     }
 }

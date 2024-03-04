@@ -28,4 +28,7 @@ public class ImportProductInvoice extends Model{
     @ManyToOne
     @JoinColumn(name = "supplier_id")
     private Supplier supplier;
+    @ManyToOne
+    @JoinColumn(name = "store_id")
+    private Store store;
 }
