@@ -18,5 +18,5 @@ public class ImportProductDetailResponse {
     private Double importPrice;
     private Double totalPrice;
     private StorageLocation storageLocation;
-//    private String productDetailsAtTimeOfImport;
+    private String productDetailsAtTimeOfImport;
 }
