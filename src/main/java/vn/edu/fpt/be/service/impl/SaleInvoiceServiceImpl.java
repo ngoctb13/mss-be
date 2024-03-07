@@ -10,6 +10,7 @@ import vn.edu.fpt.be.dto.ImportProductDetailRequest;
 import vn.edu.fpt.be.dto.SaleInvoiceDTO;
 import vn.edu.fpt.be.dto.SaleInvoiceDetailDTO;
 import vn.edu.fpt.be.dto.SaleInvoiceDetailRequest;
+import vn.edu.fpt.be.dto.response.CustomerSaleInvoiceResponse;
 import vn.edu.fpt.be.exception.CustomServiceException;
 import vn.edu.fpt.be.exception.EntityNotFoundException;
 import vn.edu.fpt.be.model.*;
@@ -19,6 +20,7 @@ import vn.edu.fpt.be.service.SaleInvoiceService;
 import vn.edu.fpt.be.service.UserService;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -83,6 +85,34 @@ public class SaleInvoiceServiceImpl implements SaleInvoiceService {
             customerRepository.save(customer);
         } catch (DataAccessException e) {
             throw new CustomServiceException("Fail to update customer: " + e.getMessage(), e);
+        }
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public List<CustomerSaleInvoiceResponse> getSaleInvoiceByCustomer(Long customerId) {
+        try {
+            User currentUser = userService.getCurrentUser();
+
+            List<SaleInvoice> saleInvoices = saleInvoiceRepository.findByCustomerIdAndStoreIdOrderByCreatedAtDesc(customerId, currentUser.getStore().getId());
+
+            // Convert SaleInvoice entities to CustomerSaleInvoiceResponse DTOs
+            return saleInvoices.stream().map(saleInvoice -> CustomerSaleInvoiceResponse.builder()
+                            .id(saleInvoice.getId())
+                            .createdAt(saleInvoice.getCreatedAt())
+                            .totalPrice(saleInvoice.getTotalPrice())
+                            .oldDebt(saleInvoice.getOldDebt())
+                            .totalPayment(saleInvoice.getTotalPayment())
+                            .pricePaid(saleInvoice.getPricePaid())
+                            .newDebt(saleInvoice.getNewDebt())
+                            .build())
+                    .collect(Collectors.toList());
+        } catch (Exception e) {
+            // Handle the exception based on your application's requirement
+            // For example, log the error and throw a custom exception or return an error response
+            // Log the error (using a logging framework like SLF4J)
+            // Logger.error("Error retrieving sale invoices for customer: {}", customerId, e);
+            throw new RuntimeException("Error retrieving sale invoices for customer: " + customerId, e);
         }
     }
 }
