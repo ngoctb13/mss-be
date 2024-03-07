@@ -31,7 +31,7 @@ public class SupplierDTO {
 
     private String note;
 
-    private Double total_Debt;
+    private Double totalDebt;
 
     private Status status;
 

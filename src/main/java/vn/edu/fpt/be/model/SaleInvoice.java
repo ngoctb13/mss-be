@@ -27,4 +27,7 @@ public class SaleInvoice extends Model{
     @ManyToOne
     @JoinColumn(name = "customer_id")
     private Customer customer;
+    @ManyToOne
+    @JoinColumn(name = "store_id")
+    private Store store;
 }

@@ -3,10 +3,15 @@ package vn.edu.fpt.be.service.impl;
 import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
 import org.springframework.dao.DataAccessException;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import vn.edu.fpt.be.dto.*;
+import vn.edu.fpt.be.dto.ImportProductDetailRequest;
+import vn.edu.fpt.be.dto.SaleInvoiceDTO;
+import vn.edu.fpt.be.dto.SaleInvoiceDetailDTO;
+import vn.edu.fpt.be.dto.SaleInvoiceDetailRequest;
 import vn.edu.fpt.be.exception.CustomServiceException;
+import vn.edu.fpt.be.exception.EntityNotFoundException;
 import vn.edu.fpt.be.model.*;
 import vn.edu.fpt.be.repository.*;
 import vn.edu.fpt.be.service.SaleInvoiceDetailService;
@@ -21,41 +26,47 @@ public class SaleInvoiceServiceImpl implements SaleInvoiceService {
     private final SaleInvoiceRepository saleInvoiceRepository;
     private final CustomerRepository customerRepository;
     private final SaleInvoiceDetailService saleInvoiceDetailService;
+    private final UserRepository userRepository;
     private final UserService userService;
     private final ModelMapper modelMapper = new ModelMapper();
 
+
     @Override
     @Transactional
-    public SaleInvoiceResponse saveSaleInvoice(Long customerId, List<SaleInvoiceDetailRequest> requests, Double pricePaid) {
-        try {
-            Customer customer = customerRepository.findById(customerId).orElseThrow(() -> new IllegalArgumentException("Supplier not found with ID: " + customerId));
-            User currentUser = userService.getCurrentUser();
-
-            SaleInvoice saleInvoice = new SaleInvoice();
-            saleInvoice.setCreatedBy(currentUser.getUsername());
-            saleInvoice.setCustomer(customer);
-            saleInvoice.setPricePaid(pricePaid);
-            double totalInvoicePrice = calculateTotalInvoicePrice(requests);
-            saleInvoice.setTotalPayment(totalInvoicePrice);
-            double totalPayment;
-            if (customer.getTotalDebt() == null) {
-                totalPayment = totalInvoicePrice;
-            } else {
-                totalPayment = totalInvoicePrice + customer.getTotalDebt();
-            }
-            saleInvoice.setTotalPayment(totalPayment);
-            double newDebt = totalPayment - pricePaid;
-            saleInvoice.setNewDebt(newDebt);
-            SaleInvoice saveInvoice= saleInvoiceRepository.save(saleInvoice);
-            saveNewDebtForCustomer(customer, saveInvoice.getNewDebt());
-            saleInvoiceDetailService.saveSaleInvoiceDetail(requests, saveInvoice);
-            return modelMapper.map(saveInvoice, SaleInvoiceResponse.class);
-        } catch (ArithmeticException e) {
-            throw new CustomServiceException("Arithmetic error: " + e.getMessage(), e);
-        } catch (Exception e) {
-            // Handle unexpected exceptions
-            throw new CustomServiceException("An unexpected error occurred: " + e.getMessage(), e);
+    public SaleInvoiceDTO createSaleInvoice(Long customerId, List<SaleInvoiceDetailRequest> requests, double pricePaid) {
+        Customer customer = customerRepository.findById(customerId)
+                .orElseThrow(() -> new EntityNotFoundException("Customer not found with ID: " + customerId));
+        User currentUser = userService.getCurrentUser();
+        Store currentStore = currentUser.getStore();
+        if (currentStore == null) {
+            throw new IllegalArgumentException("Current user does not have an associated store.");
         }
+        //
+        SaleInvoice initSaleInvoice = new SaleInvoice();
+        initSaleInvoice.setCustomer(customer);
+        initSaleInvoice.setStore(currentStore);
+        initSaleInvoice.setPricePaid(pricePaid);
+        initSaleInvoice.setOldDebt(customer.getTotalDebt());
+        initSaleInvoice.setCreatedBy(currentUser.getUsername());
+        double totalPrice = calculateTotalInvoicePrice(requests);
+        initSaleInvoice.setTotalPrice(totalPrice);
+
+        double totalPayment;
+        if (customer.getTotalDebt() == null) {
+            totalPayment = totalPrice;
+        } else {
+            totalPayment = totalPrice + customer.getTotalDebt();
+        }
+        initSaleInvoice.setTotalPayment(totalPayment);
+
+        double newDebt = totalPayment - pricePaid;
+        initSaleInvoice.setNewDebt(newDebt);
+
+        SaleInvoice savedSaleInvoice = saleInvoiceRepository.save(initSaleInvoice);
+        saveNewDebtForCustomer(customer, newDebt);
+        saleInvoiceDetailService.saveSaleInvoiceDetail(requests, savedSaleInvoice);
+
+        return modelMapper.map(initSaleInvoice, SaleInvoiceDTO.class);
     }
 
     private double calculateTotalInvoicePrice(List<SaleInvoiceDetailRequest> details) {
@@ -71,7 +82,7 @@ public class SaleInvoiceServiceImpl implements SaleInvoiceService {
             customer.setTotalDebt(newDebt);
             customerRepository.save(customer);
         } catch (DataAccessException e) {
-            throw new CustomServiceException("Fail to update supplier: " + e.getMessage(), e);
+            throw new CustomServiceException("Fail to update customer: " + e.getMessage(), e);
         }
     }
 }

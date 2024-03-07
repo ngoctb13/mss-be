@@ -4,15 +4,17 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
+import org.springframework.dao.DataAccessException;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import vn.edu.fpt.be.dto.ImportProductDetailResponse;
 import vn.edu.fpt.be.dto.SaleInvoiceDetailDTO;
 import vn.edu.fpt.be.dto.SaleInvoiceDetailRequest;
 import vn.edu.fpt.be.exception.CustomServiceException;
-import vn.edu.fpt.be.exception.EntityNotFoundException;
-import vn.edu.fpt.be.model.*;
-import vn.edu.fpt.be.model.jsonDetail.ProductDetailJson;
+import vn.edu.fpt.be.model.Product;
+import vn.edu.fpt.be.model.SaleInvoice;
+import vn.edu.fpt.be.model.SaleInvoiceDetail;
+import vn.edu.fpt.be.model.User;
 import vn.edu.fpt.be.repository.ProductRepository;
 import vn.edu.fpt.be.repository.SaleInvoiceDetailRepository;
 import vn.edu.fpt.be.repository.SaleInvoiceRepository;
@@ -30,56 +32,60 @@ import java.util.Optional;
 public class SaleInvoiceDetailServiceImpl implements SaleInvoiceDetailService {
     private final SaleInvoiceDetailRepository saleInvoiceDetailRepository;
     private final ProductRepository productRepository;
+    private final UserRepository userRepository;
     private final UserService userService;
-    private final ObjectMapper objectMapper = new ObjectMapper();
     private final ModelMapper modelMapper = new ModelMapper();
-
     @Override
-    public void saveSaleInvoiceDetail(List<SaleInvoiceDetailRequest> request, SaleInvoice invoice) {
-
+    public void saveSaleInvoiceDetail(List<SaleInvoiceDetailRequest> requests, SaleInvoice invoice) {
+        for (SaleInvoiceDetailRequest request : requests) {
+            SaleInvoiceDetailDTO createdDetail = saveSingleSaleInvoiceDetail(request, invoice);
+        }
     }
 
-    private SaleInvoiceDetailRequest saveSingleSaleInvoiceDetailRequest(SaleInvoiceDetailRequest saleInvoiceDetailRequest, SaleInvoice saleInvoice) {
+    private SaleInvoiceDetailDTO saveSingleSaleInvoiceDetail(SaleInvoiceDetailRequest request, SaleInvoice invoice) {
         try {
             User currentUser = userService.getCurrentUser();
-            Product product = productRepository.findById(saleInvoiceDetailRequest.getProductId())
-                    .orElseThrow(() -> new EntityNotFoundException("Product not found with ID: " + saleInvoiceDetailRequest.getProductId()));
+            Product product = productRepository.findById(request.getProductId())
+                    .orElseThrow(() -> new IllegalArgumentException("Product not found with ID: " + request.getProductId()));
+            if (invoice == null) {
+                throw new IllegalArgumentException("Invoice cannot be null");
+            }
+            // Check if the requested quantity is available
+            if (request.getQuantity() > product.getInventory()) {
+                throw new CustomServiceException("Requested quantity exceeds available stock for product ID: " + request.getProductId());
+            }
+
             SaleInvoiceDetail saleInvoiceDetail = new SaleInvoiceDetail();
             saleInvoiceDetail.setCreatedBy(currentUser.getUsername());
-            saleInvoiceDetail.setProductDetailsAtTimeOfImport(convertToJson(product));
             saleInvoiceDetail.setProduct(product);
-            saleInvoiceDetail.setQuantity(saleInvoiceDetailRequest.getQuantity());
-            saleInvoiceDetail.setUnitPrice(saleInvoiceDetailRequest.getUnitPrice());
-            saleInvoiceDetail.setTotalPrice(saleInvoiceDetailRequest.getQuantity() * saleInvoiceDetailRequest.getUnitPrice());
-            saleInvoiceDetail.setSaleInvoice(saleInvoice);
-            SaleInvoiceDetail saveSaleInvoiceDetail = saleInvoiceDetailRepository.save(saleInvoiceDetail);
-            updateProductInventory(product, saleInvoiceDetail.getQuantity());
-            return modelMapper.map(saveSaleInvoiceDetail, SaleInvoiceDetailRequest.class);
-        } catch (EntityNotFoundException e) {
-            throw new CustomServiceException(e.getMessage(), e);
+            saleInvoiceDetail.setSaleInvoice(invoice);
+            saleInvoiceDetail.setQuantity(request.getQuantity());
+            saleInvoiceDetail.setUnitPrice(request.getUnitPrice());
+            saleInvoiceDetail.setTotalPrice(request.getQuantity() * request.getUnitPrice());
+
+            SaleInvoiceDetail savedDetail = saleInvoiceDetailRepository.save(saleInvoiceDetail);
+            updateProductQuantity(product, savedDetail.getQuantity());
+
+            return modelMapper.map(savedDetail, SaleInvoiceDetailDTO.class);
         } catch (Exception e) {
             throw new CustomServiceException("An error occurred while saving the invoice detail: " + e.getMessage(), e);
         }
     }
 
-    private void updateProductInventory(Product product, double quantity) {
-        double currentInventory = product.getInventory() == null ? 0 : product.getInventory();
-
-        product.setInventory(currentInventory - quantity);
-
-        productRepository.save(product);
-    }
-
-    private String convertToJson(Product product) {
-        ProductDetailJson productDetailJson = modelMapper.map(product, ProductDetailJson.class);
-        String jsonString = null;
+    private void updateProductQuantity(Product product, double quantity) {
         try {
-            jsonString = objectMapper.writeValueAsString(productDetailJson);
-            return jsonString;
-        } catch (JsonProcessingException e) {
-            throw new RuntimeException(e);
+            double updatedQuantity = product.getInventory() - quantity;
+            if (updatedQuantity < 0) {
+                throw new CustomServiceException("Insufficient stock after sale.");
+            }
+            product.setInventory(updatedQuantity);
+            productRepository.save(product);
+        } catch (DataAccessException e) {
+            // Handle database access related exceptions
+            throw new CustomServiceException("Error accessing database: " + e.getMessage(), e);
+        } catch (Exception e) {
+            // Handle any other unexpected exceptions
+            throw new RuntimeException("An unexpected error occurred while updating product quantity: " + e.getMessage(), e);
         }
     }
-
-
 }
