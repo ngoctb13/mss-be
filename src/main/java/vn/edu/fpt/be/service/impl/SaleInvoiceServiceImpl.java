@@ -14,21 +14,17 @@ import vn.edu.fpt.be.exception.CustomServiceException;
 import vn.edu.fpt.be.exception.EntityNotFoundException;
 import vn.edu.fpt.be.model.*;
 import vn.edu.fpt.be.repository.*;
-import vn.edu.fpt.be.security.UserPrincipal;
 import vn.edu.fpt.be.service.SaleInvoiceDetailService;
 import vn.edu.fpt.be.service.SaleInvoiceService;
 import vn.edu.fpt.be.service.UserService;
 
 import java.util.List;
-import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
 public class SaleInvoiceServiceImpl implements SaleInvoiceService {
     private final SaleInvoiceRepository saleInvoiceRepository;
     private final CustomerRepository customerRepository;
-    private final SaleInvoiceDetailRepository saleInvoiceDetailRepository;
-    private final ProductRepository productRepository;
     private final SaleInvoiceDetailService saleInvoiceDetailService;
     private final UserRepository userRepository;
     private final UserService userService;

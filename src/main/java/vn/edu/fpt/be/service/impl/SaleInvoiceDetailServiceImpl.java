@@ -1,10 +1,13 @@
 package vn.edu.fpt.be.service.impl;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
 import org.springframework.dao.DataAccessException;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
+import vn.edu.fpt.be.dto.ImportProductDetailResponse;
 import vn.edu.fpt.be.dto.SaleInvoiceDetailDTO;
 import vn.edu.fpt.be.dto.SaleInvoiceDetailRequest;
 import vn.edu.fpt.be.exception.CustomServiceException;
@@ -14,6 +17,7 @@ import vn.edu.fpt.be.model.SaleInvoiceDetail;
 import vn.edu.fpt.be.model.User;
 import vn.edu.fpt.be.repository.ProductRepository;
 import vn.edu.fpt.be.repository.SaleInvoiceDetailRepository;
+import vn.edu.fpt.be.repository.SaleInvoiceRepository;
 import vn.edu.fpt.be.repository.UserRepository;
 import vn.edu.fpt.be.security.UserPrincipal;
 import vn.edu.fpt.be.service.SaleInvoiceDetailService;
