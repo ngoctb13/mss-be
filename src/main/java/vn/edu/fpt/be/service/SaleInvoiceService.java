@@ -8,5 +8,5 @@ import vn.edu.fpt.be.model.SaleInvoice;
 import java.util.List;
 
 public interface SaleInvoiceService {
-    SaleInvoiceResponse saveSaleInvoice(Long customerId, List<SaleInvoiceDetailRequest> requests, Double pricePaid);
+    SaleInvoiceDTO createSaleInvoice(Long customerId, List<SaleInvoiceDetailRequest> requests, double pricePaid);
 }
