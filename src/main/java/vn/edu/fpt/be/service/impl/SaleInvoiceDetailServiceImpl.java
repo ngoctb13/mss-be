@@ -2,11 +2,14 @@ package vn.edu.fpt.be.service.impl;
 
 import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
+import org.springframework.dao.DataAccessException;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import vn.edu.fpt.be.dto.SaleInvoiceDetailDTO;
 import vn.edu.fpt.be.dto.SaleInvoiceDetailRequest;
+import vn.edu.fpt.be.exception.CustomServiceException;
 import vn.edu.fpt.be.model.Product;
+import vn.edu.fpt.be.model.SaleInvoice;
 import vn.edu.fpt.be.model.SaleInvoiceDetail;
 import vn.edu.fpt.be.model.User;
 import vn.edu.fpt.be.repository.ProductRepository;
@@ -14,6 +17,7 @@ import vn.edu.fpt.be.repository.SaleInvoiceDetailRepository;
 import vn.edu.fpt.be.repository.UserRepository;
 import vn.edu.fpt.be.security.UserPrincipal;
 import vn.edu.fpt.be.service.SaleInvoiceDetailService;
+import vn.edu.fpt.be.service.UserService;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -25,41 +29,59 @@ public class SaleInvoiceDetailServiceImpl implements SaleInvoiceDetailService {
     private final SaleInvoiceDetailRepository saleInvoiceDetailRepository;
     private final ProductRepository productRepository;
     private final UserRepository userRepository;
+    private final UserService userService;
     private final ModelMapper modelMapper = new ModelMapper();
-    public User getCurrentUser() {
-        UserPrincipal currentUserPrincipal = (UserPrincipal) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-        Optional<User> currentUser = userRepository.findById(currentUserPrincipal.getId());
-        if (currentUser.isEmpty()) {
-            throw new RuntimeException("Authenticated user not found.");
-        }
-        return currentUser.get();
-    }
     @Override
-    public List<SaleInvoiceDetailDTO> createSaleInvoiceDetail(List<SaleInvoiceDetailRequest> requests) {
-        List<SaleInvoiceDetailDTO> createdDetails = new ArrayList<>();
-
+    public void saveSaleInvoiceDetail(List<SaleInvoiceDetailRequest> requests, SaleInvoice invoice) {
         for (SaleInvoiceDetailRequest request : requests) {
-            SaleInvoiceDetailDTO createdDetail = createSingleSaleInvoiceDetail(request);
-            createdDetails.add(createdDetail);
+            SaleInvoiceDetailDTO createdDetail = saveSingleSaleInvoiceDetail(request, invoice);
         }
-        return createdDetails;
     }
 
-    private SaleInvoiceDetailDTO createSingleSaleInvoiceDetail(SaleInvoiceDetailRequest request) {
-        User currentUser = getCurrentUser();
+    private SaleInvoiceDetailDTO saveSingleSaleInvoiceDetail(SaleInvoiceDetailRequest request, SaleInvoice invoice) {
+        try {
+            User currentUser = userService.getCurrentUser();
+            Product product = productRepository.findById(request.getProductId())
+                    .orElseThrow(() -> new IllegalArgumentException("Product not found with ID: " + request.getProductId()));
+            if (invoice == null) {
+                throw new IllegalArgumentException("Invoice cannot be null");
+            }
+            // Check if the requested quantity is available
+            if (request.getQuantity() > product.getInventory()) {
+                throw new CustomServiceException("Requested quantity exceeds available stock for product ID: " + request.getProductId());
+            }
 
-        Product product = productRepository.findById(request.getProductId())
-                .orElseThrow(() -> new IllegalArgumentException("Product not found with ID: " + request.getProductId()));
+            SaleInvoiceDetail saleInvoiceDetail = new SaleInvoiceDetail();
+            saleInvoiceDetail.setCreatedBy(currentUser.getUsername());
+            saleInvoiceDetail.setProduct(product);
+            saleInvoiceDetail.setSaleInvoice(invoice);
+            saleInvoiceDetail.setQuantity(request.getQuantity());
+            saleInvoiceDetail.setUnitPrice(request.getUnitPrice());
+            saleInvoiceDetail.setTotalPrice(request.getQuantity() * request.getUnitPrice());
 
-        SaleInvoiceDetail saleInvoiceDetail = new SaleInvoiceDetail();
-        saleInvoiceDetail.setProduct(product);
-        saleInvoiceDetail.setQuantity(request.getQuantity());
-        saleInvoiceDetail.setUnitPrice(request.getUnitPrice());
-        saleInvoiceDetail.setTotalPrice(request.getQuantity() * request.getUnitPrice());
-        saleInvoiceDetail.setCreatedBy(currentUser.getUsername());
+            SaleInvoiceDetail savedDetail = saleInvoiceDetailRepository.save(saleInvoiceDetail);
+            updateProductQuantity(product, savedDetail.getQuantity());
 
-        SaleInvoiceDetail savedDetail = saleInvoiceDetailRepository.save(saleInvoiceDetail);
+            return modelMapper.map(savedDetail, SaleInvoiceDetailDTO.class);
+        } catch (Exception e) {
+            throw new CustomServiceException("An error occurred while saving the invoice detail: " + e.getMessage(), e);
+        }
+    }
 
-        return modelMapper.map(savedDetail, SaleInvoiceDetailDTO.class);
+    private void updateProductQuantity(Product product, double quantity) {
+        try {
+            double updatedQuantity = product.getInventory() - quantity;
+            if (updatedQuantity < 0) {
+                throw new CustomServiceException("Insufficient stock after sale.");
+            }
+            product.setInventory(updatedQuantity);
+            productRepository.save(product);
+        } catch (DataAccessException e) {
+            // Handle database access related exceptions
+            throw new CustomServiceException("Error accessing database: " + e.getMessage(), e);
+        } catch (Exception e) {
+            // Handle any other unexpected exceptions
+            throw new RuntimeException("An unexpected error occurred while updating product quantity: " + e.getMessage(), e);
+        }
     }
 }

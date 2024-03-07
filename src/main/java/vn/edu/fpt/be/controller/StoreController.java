@@ -8,6 +8,7 @@ import org.springframework.web.bind.annotation.*;
 import vn.edu.fpt.be.dto.*;
 import vn.edu.fpt.be.exception.ErrorResponse;
 import vn.edu.fpt.be.service.ImportProductInvoiceService;
+import vn.edu.fpt.be.service.SaleInvoiceService;
 import vn.edu.fpt.be.service.StoreService;
 
 import java.util.List;
@@ -19,6 +20,7 @@ public class StoreController {
 
     private final StoreService storeService;
     private final ImportProductInvoiceService importProductInvoiceService;
+    private final SaleInvoiceService saleInvoiceService;
 
     @PostMapping("/create")
     @PreAuthorize("hasAuthority('STORE_OWNER')")
@@ -58,6 +60,22 @@ public class StoreController {
         try {
             ImportProductInvoiceResponse response = importProductInvoiceService.importProduct(
                     request.getSupplierId(),
+                    request.getProductDetails(),
+                    request.getPricePaid()
+            );
+            return ResponseEntity.ok(response);
+        } catch (Exception e) {
+            // You might want to handle different exceptions differently
+            return ResponseEntity.badRequest().body(e);
+        }
+    }
+
+    @PostMapping("/create-sale-invoice")
+    @PreAuthorize("hasAuthority('STORE_OWNER')")
+    public ResponseEntity<?> createSaleInvoice(@RequestBody CreateSaleInvoiceRequest request) {
+        try {
+            SaleInvoiceDTO response = saleInvoiceService.createSaleInvoice(
+                    request.getCustomerId(),
                     request.getProductDetails(),
                     request.getPricePaid()
             );

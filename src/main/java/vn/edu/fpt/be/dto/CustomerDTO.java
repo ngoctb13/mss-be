@@ -19,15 +19,15 @@ import javax.validation.constraints.Min;
 public class CustomerDTO {
     private Long id;
 
-    @NotNull(message = "Customer name cannot be null")
-    @Size(min = 1, message = "Customer name cannot be empty")
+//    @NotNull(message = "Customer name cannot be null")
+//    @Size(min = 1, message = "Customer name cannot be empty")
     private String customerName;
 
-    @NotNull(message = "Phone number cannot be null")
-    @Pattern(regexp = "[0-9]{10,15}", message = "Phone number must be between 10 and 15 digits")
+//    @NotNull(message = "Phone number cannot be null")
+//    @Pattern(regexp = "[0-9]{10,15}", message = "Phone number must be between 10 and 15 digits")
     private String phoneNumber;
 
-    @Size(min = 1, message = "Address cannot be empty")
+//    @Size(min = 1, message = "Address cannot be empty")
     private String address;
 
     private String note;
