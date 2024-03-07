@@ -31,7 +31,7 @@ public class SaleInvoiceServiceImpl implements SaleInvoiceService {
     private final ProductRepository productRepository;
     private final SaleInvoiceDetailService saleInvoiceDetailService;
     private final UserRepository userRepository;
-    private UserService userService;
+    private final UserService userService;
     private final ModelMapper modelMapper = new ModelMapper();
 
 
