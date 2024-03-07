@@ -5,6 +5,7 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import vn.edu.fpt.be.model.Customer;
+import vn.edu.fpt.be.model.Store;
 
 @Data
 @Builder
@@ -18,4 +19,5 @@ public class SaleInvoiceDTO {
     private Double pricePaid;
     private Double newDebt;
     private Customer customer;
+    private Store store;
 }
