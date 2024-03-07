@@ -10,10 +10,8 @@ import org.springframework.stereotype.Service;
 import vn.edu.fpt.be.dto.CustomerCreateDTO;
 import vn.edu.fpt.be.dto.CustomerDTO;
 import vn.edu.fpt.be.dto.ProductDTO;
-import vn.edu.fpt.be.model.Customer;
-import vn.edu.fpt.be.model.Product;
-import vn.edu.fpt.be.model.Store;
-import vn.edu.fpt.be.model.User;
+import vn.edu.fpt.be.dto.response.CustomerSaleInvoiceResponse;
+import vn.edu.fpt.be.model.*;
 import vn.edu.fpt.be.model.enums.Status;
 import vn.edu.fpt.be.repository.CustomerRepository;
 import vn.edu.fpt.be.repository.StoreRepository;
@@ -56,6 +54,24 @@ public class CustomerServiceImpl implements CustomerService {
         return customerPage.getContent().stream()
                 .map(customer -> modelMapper.map(customer, CustomerDTO.class))
                 .collect(Collectors.toList());
+    }
+
+    @Override
+    public List<CustomerDTO> getCustomersTotalDebtGreaterThan(double totalDebt) {
+        try {
+            User currentUser = userService.getCurrentUser();
+            List<Customer> customers = customerRepository.findByStoreIdAndTotalDebtGreaterThan(currentUser.getStore().getId(), totalDebt);
+            // Convert SaleInvoice entities to CustomerSaleInvoiceResponse DTOs
+            return customers.stream()
+                    .map(customer -> modelMapper.map(customer, CustomerDTO.class))
+                    .collect(Collectors.toList());
+        } catch (Exception e) {
+            // Handle the exception based on your application's requirement
+            // For example, log the error and throw a custom exception or return an error response
+            // Log the error (using a logging framework like SLF4J)
+            // Logger.error("Error retrieving sale invoices for customer: {}", customerId, e);
+            throw new RuntimeException("Error retrieving sale invoices for customer");
+        }
     }
 
     @Override
