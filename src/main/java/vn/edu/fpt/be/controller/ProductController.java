@@ -62,11 +62,11 @@ public class ProductController {
             return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
-    @GetMapping("/products")
+    @GetMapping("/by-name/{nameInput}")
     public ResponseEntity<List<ProductDTO>> findProductByName(
-            @RequestParam("productName") String productName) {
+            @PathVariable String nameInput) {
         try {
-            List<ProductDTO> products = productService.findProductByName(productName);
+            List<ProductDTO> products = productService.findProductByName(nameInput);
             return ResponseEntity.ok(products);
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(null);

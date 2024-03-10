@@ -5,10 +5,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
-import vn.edu.fpt.be.dto.SupplierCreateDTO;
-import vn.edu.fpt.be.dto.SupplierDTO;
-import vn.edu.fpt.be.dto.SupplierUpdateRequest;
-import vn.edu.fpt.be.dto.UserProfileDTO;
+import vn.edu.fpt.be.dto.*;
 import vn.edu.fpt.be.service.SupplierService;
 
 import java.util.List;
@@ -71,4 +68,15 @@ public class SupplierController {
         }
     }
 
+    @GetMapping("/all/supplier-have-debt")
+    @PreAuthorize("hasAnyAuthority('SYSTEM_ADMIN','STORE_OWNER')")
+    public ResponseEntity<?> getAllSuppliersHaveDebt() {
+        try {
+            double totalDebt = 0.0;
+            List<SupplierDTO> suppliers = supplierService.getSuppliersTotalDebtGreaterThan(totalDebt);
+            return ResponseEntity.status(HttpStatus.OK).body(suppliers);
+        } catch (Exception e) {
+            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
 }

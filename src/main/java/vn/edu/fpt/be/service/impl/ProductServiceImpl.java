@@ -121,10 +121,17 @@ public class ProductServiceImpl implements ProductService {
     }
 
     @Override
-    public List<ProductDTO> findProductByName(String productName) {
-        List<Product> products = productRepository.findByProductName(productName);
-        return products.stream()
-                .map(product -> modelMapper.map(product, ProductDTO.class))
-                .collect(Collectors.toList());
+    public List<ProductDTO> findProductByName(String nameInput) {
+        try {
+            User currentUser = userService.getCurrentUser();
+            Store currentStore = currentUser.getStore();
+            List<Product> products = productRepository.findByStoreIdAndProductNameContaining(currentStore.getId(), nameInput);
+
+            return products.stream()
+                    .map(product -> modelMapper.map(product, ProductDTO.class))
+                    .collect(Collectors.toList());
+        } catch (Exception e) {
+            throw new RuntimeException("Error retrieving product: ", e);
+        }
     }
 }
