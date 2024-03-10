@@ -6,6 +6,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import vn.edu.fpt.be.dto.*;
+import vn.edu.fpt.be.model.Customer;
 import vn.edu.fpt.be.model.User;
 import vn.edu.fpt.be.model.UserProfile;
 import vn.edu.fpt.be.model.enums.Role;
@@ -118,6 +119,19 @@ public class UserServiceImpl implements UserService {
         return listStaff.stream()
                 .map(staff -> modelMapper.map(staff, UserDTO.class))
                 .collect(Collectors.toList());
+    }
+
+    @Override
+    public List<UserDTO> getUserOfStore() {
+        try {
+            User currentUser = getCurrentUser();
+            List<User> users = userRepository.findByStoreId(currentUser.getStore().getId());
+            return users.stream()
+                    .map(user -> modelMapper.map(user, UserDTO.class))
+                    .collect(Collectors.toList());
+        } catch (Exception e) {
+            throw new RuntimeException("Error retrieving user");
+        }
     }
 
     @Override

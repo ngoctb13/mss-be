@@ -62,14 +62,15 @@ public class StoreServiceImpl implements StoreService {
 
     @Override
     public List<StoreDTO> getAllStores() {
-        try {
-            List<Store> stores = storeRepository.findAll();
-            return stores.stream()
-                    .map(this::convertToDto)
-                    .collect(Collectors.toList());
-        } catch (Exception e) {
-            throw new RuntimeException("Failed to fetch all stores.", e);
-        }
+//        try {
+//            List<Store> stores = storeRepository.findAll();
+//            return stores.stream()
+//                    .map(this::convertToDto)
+//                    .collect(Collectors.toList());
+//        } catch (Exception e) {
+//            throw new RuntimeException("Failed to fetch all stores.", e);
+//        }
+        return null;
     }
 
     @Override
@@ -94,12 +95,13 @@ public class StoreServiceImpl implements StoreService {
     }
 
     private StoreDTO convertToDto(Store store) {
-        return StoreDTO.builder()
-                .id(store.getId())
-                .storeName(store.getStoreName())
-                .address(store.getAddress())
-                .owner(userRepository.findByStoreId(store.getId()))
-                .status(store.getStatus().toString()) // Convert Status enum to String
-                .build();
+//        return StoreDTO.builder()
+//                .id(store.getId())
+//                .storeName(store.getStoreName())
+//                .address(store.getAddress())
+//                .owner(userRepository.findByStoreId(store.getId()))
+//                .status(store.getStatus().toString()) // Convert Status enum to String
+//                .build();
+        return null;
     }
 }

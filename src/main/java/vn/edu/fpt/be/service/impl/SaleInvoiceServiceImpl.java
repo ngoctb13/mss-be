@@ -11,6 +11,7 @@ import vn.edu.fpt.be.dto.SaleInvoiceDTO;
 import vn.edu.fpt.be.dto.SaleInvoiceDetailDTO;
 import vn.edu.fpt.be.dto.SaleInvoiceDetailRequest;
 import vn.edu.fpt.be.dto.response.CustomerSaleInvoiceResponse;
+import vn.edu.fpt.be.dto.response.SaleInvoiceReportResponse;
 import vn.edu.fpt.be.exception.CustomServiceException;
 import vn.edu.fpt.be.exception.EntityNotFoundException;
 import vn.edu.fpt.be.model.*;
@@ -19,6 +20,7 @@ import vn.edu.fpt.be.service.SaleInvoiceDetailService;
 import vn.edu.fpt.be.service.SaleInvoiceService;
 import vn.edu.fpt.be.service.UserService;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -113,6 +115,36 @@ public class SaleInvoiceServiceImpl implements SaleInvoiceService {
             // Log the error (using a logging framework like SLF4J)
             // Logger.error("Error retrieving sale invoices for customer: {}", customerId, e);
             throw new RuntimeException("Error retrieving sale invoices for customer: " + customerId, e);
+        }
+    }
+
+    @Override
+    public List<SaleInvoiceReportResponse> getSaleInvoicesByFilter(LocalDateTime startDate, LocalDateTime endDate, String createdBy, Long customerId) {
+        try {
+            User currentUser = userService.getCurrentUser();
+            Store currentStore = currentUser.getStore();
+            if (startDate == null) {
+                // Trả về danh sách rỗng hoặc ném lỗi nếu startDate không được cung cấp
+                throw new IllegalArgumentException("Start date must be provided");
+            }
+            if (endDate == null) {
+                endDate = LocalDateTime.now();
+            }
+            List<SaleInvoice> invoices = saleInvoiceRepository.findInvoicesByCriteria(startDate, endDate, createdBy, customerId, currentStore.getId());
+            return invoices.stream().map(invoice -> SaleInvoiceReportResponse.builder()
+                            .id(invoice.getId())
+                            .createdAt(invoice.getCreatedAt())
+                            .createdBy(invoice.getCreatedBy())
+                            .totalPrice(invoice.getTotalPrice())
+                            .oldDebt(invoice.getOldDebt())
+                            .totalPayment(invoice.getTotalPayment())
+                            .pricePaid(invoice.getPricePaid())
+                            .newDebt(invoice.getNewDebt())
+                            .customer(invoice.getCustomer())
+                            .build())
+                    .collect(Collectors.toList());
+        } catch (Exception e) {
+            throw new CustomServiceException("Error accessing the database", e);
         }
     }
 }
