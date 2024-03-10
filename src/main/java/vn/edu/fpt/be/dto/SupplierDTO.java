@@ -18,22 +18,10 @@ import javax.validation.constraints.Min;
 @NoArgsConstructor
 public class SupplierDTO {
     private Long id;
-
-    @NotNull(message = "Supplier name cannot be null")
-    @Size(min = 1, message = "Supplier name cannot be empty")
     private String supplierName;
-
-    @Pattern(regexp = "[0-9]{10,15}", message = "Phone number must be between 10 and 15 digits")
-    private String phoneNumber;
-
-    @Size(min = 1, message = "Address cannot be empty")
     private String address;
-
     private String note;
-
     private Double totalDebt;
-
     private Status status;
-
     private Long storeId;
 }

@@ -7,6 +7,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import vn.edu.fpt.be.dto.ImportProductDetailRequest;
 import vn.edu.fpt.be.dto.ImportProductInvoiceResponse;
+import vn.edu.fpt.be.dto.response.CustomerSaleInvoiceResponse;
+import vn.edu.fpt.be.dto.response.SupplierImportInvoiceResponse;
 import vn.edu.fpt.be.exception.CustomServiceException;
 import vn.edu.fpt.be.model.*;
 import vn.edu.fpt.be.repository.ImportProductInvoiceRepository;
@@ -16,6 +18,7 @@ import vn.edu.fpt.be.service.ImportProductInvoiceService;
 import vn.edu.fpt.be.service.UserService;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -71,6 +74,34 @@ public class ImportProductInvoiceServiceImpl implements ImportProductInvoiceServ
         } catch (Exception e) {
             // Handle unexpected exceptions
             throw new CustomServiceException("An unexpected error occurred: " + e.getMessage(), e);
+        }
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public List<SupplierImportInvoiceResponse> getImportInvoiceBySupplier(Long supplierId) {
+        try {
+            User currentUser = userService.getCurrentUser();
+
+            List<ImportProductInvoice> importInvoices = invoiceRepository.findBySupplierIdAndStoreIdOrderByCreatedAtDesc(supplierId, currentUser.getStore().getId());
+
+            // Convert SaleInvoice entities to CustomerSaleInvoiceResponse DTOs
+            return importInvoices.stream().map(importInvoice -> SupplierImportInvoiceResponse.builder()
+                            .id(importInvoice.getId())
+                            .createdAt(importInvoice.getCreatedAt())
+                            .totalPrice(importInvoice.getTotalInvoicePrice())
+                            .oldDebt(importInvoice.getOldDebt())
+                            .totalPayment(importInvoice.getTotalPayment())
+                            .pricePaid(importInvoice.getPricePaid())
+                            .newDebt(importInvoice.getNewDebt())
+                            .build())
+                    .collect(Collectors.toList());
+        } catch (Exception e) {
+            // Handle the exception based on your application's requirement
+            // For example, log the error and throw a custom exception or return an error response
+            // Log the error (using a logging framework like SLF4J)
+            // Logger.error("Error retrieving sale invoices for customer: {}", customerId, e);
+            throw new RuntimeException("Error retrieving import invoices for supplier: " + supplierId, e);
         }
     }
 

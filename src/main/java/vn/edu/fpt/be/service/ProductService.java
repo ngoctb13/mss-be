@@ -13,5 +13,5 @@ public interface ProductService {
     List<ProductDTO> getProductByStore(Long storeId, int pageNumber, int pageSize);
     ProductDTO updateProduct(ProductUpdateDTO ProductUpdateDTO, Long productId);
     ProductDTO changeStatusProduct(Long productID);
-    List<ProductDTO> findProductByName(String productName);
+    List<ProductDTO> findProductByName(String nameInput);
 }

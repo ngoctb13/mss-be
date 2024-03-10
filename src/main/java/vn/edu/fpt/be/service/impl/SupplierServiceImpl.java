@@ -81,4 +81,22 @@ public class SupplierServiceImpl implements SupplierService {
         Supplier updatedSupplier= supplierRepository.save(currentSupplier);
         return modelMapper.map(updatedSupplier, SupplierDTO.class);
     }
+
+    @Override
+    public List<SupplierDTO> getSuppliersTotalDebtGreaterThan(double totalDebt) {
+        try {
+            User currentUser = userService.getCurrentUser();
+            List<Supplier> suppliers = supplierRepository.findByStoreIdAndTotalDebtGreaterThan(currentUser.getStore().getId(), totalDebt);
+            // Convert SaleInvoice entities to CustomerSaleInvoiceResponse DTOs
+            return suppliers.stream()
+                    .map(supplier -> modelMapper.map(supplier, SupplierDTO.class))
+                    .collect(Collectors.toList());
+        } catch (Exception e) {
+            // Handle the exception based on your application's requirement
+            // For example, log the error and throw a custom exception or return an error response
+            // Log the error (using a logging framework like SLF4J)
+            // Logger.error("Error retrieving sale invoices for customer: {}", customerId, e);
+            throw new RuntimeException("Error retrieving supplier");
+        }
+    }
 }
