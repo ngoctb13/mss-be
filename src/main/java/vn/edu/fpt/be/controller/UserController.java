@@ -87,4 +87,15 @@ public class UserController {
             return ResponseEntity.internalServerError().build();
         }
     }
+
+    @GetMapping("/all/by-store")
+    @PreAuthorize("hasAnyAuthority('STAFF', 'STORE_OWNER')")
+    public ResponseEntity<?> getUsersByStore() {
+        try {
+            List<UserDTO> users = userService.getUserOfStore();
+            return ResponseEntity.ok(users);
+        } catch (Exception e) {
+            return ResponseEntity.internalServerError().build();
+        }
+    }
 }

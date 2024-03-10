@@ -1,17 +1,17 @@
 package vn.edu.fpt.be.controller;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 import vn.edu.fpt.be.dto.SupplierDTO;
 import vn.edu.fpt.be.dto.response.CustomerSaleInvoiceResponse;
+import vn.edu.fpt.be.dto.response.SaleInvoiceReportResponse;
 import vn.edu.fpt.be.service.SaleInvoiceService;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 @RestController
@@ -25,6 +25,22 @@ public class SaleInvoiceController {
     public ResponseEntity<?> getSaleInvoiceByCustomer(@PathVariable Long customerId) {
         try {
             List<CustomerSaleInvoiceResponse> invoices = saleInvoiceService.getSaleInvoiceByCustomer(customerId);
+            return ResponseEntity.ok().body(invoices);
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.badRequest().body(e.getMessage());
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("An error occurred while fetching those sale invoices!");
+        }
+    }
+
+    @GetMapping("/filter")
+    @PreAuthorize("hasAnyAuthority('STAFF','STORE_OWNER')")
+    public ResponseEntity<?> getSaleInvoicesByFilter(@RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime startDate,
+                                                     @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime endDate,
+                                                     @RequestParam(required = false) String createdBy,
+                                                     @RequestParam(required = false) Long customerId) {
+        try {
+            List<SaleInvoiceReportResponse> invoices = saleInvoiceService.getSaleInvoicesByFilter(startDate, endDate, createdBy, customerId);
             return ResponseEntity.ok().body(invoices);
         } catch (IllegalArgumentException e) {
             return ResponseEntity.badRequest().body(e.getMessage());

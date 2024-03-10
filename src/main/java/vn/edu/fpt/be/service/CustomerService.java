@@ -8,6 +8,7 @@ import java.util.List;
 public interface CustomerService {
     CustomerDTO createCustomer(CustomerCreateDTO customerCreateDTO);
     List<CustomerDTO> getAllCustomers(int pageNumber, int pageSize);
+    List<CustomerDTO> getCustomersByStore();
     List<CustomerDTO> getCustomersTotalDebtGreaterThan(double totalDebt);
     CustomerDTO deactivate(Long customerId);
 }

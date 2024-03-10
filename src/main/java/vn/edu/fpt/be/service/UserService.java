@@ -11,6 +11,7 @@ public interface UserService {
     UserProfileDTO updateUser(Long userId, UserUpdateDTO userUpdateDTO);
     UserDTO createStaffAccount(StaffCreateDTO staffCreateDTO);
     List<UserDTO> getAllStaffOfStore();
+    List<UserDTO> getUserOfStore();
     UserDTO getUserById(Long storeId);
     User getCurrentUser();
 }

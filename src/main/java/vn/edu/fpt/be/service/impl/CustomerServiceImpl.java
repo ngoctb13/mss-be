@@ -57,6 +57,19 @@ public class CustomerServiceImpl implements CustomerService {
     }
 
     @Override
+    public List<CustomerDTO> getCustomersByStore() {
+        try {
+            User currentUser = userService.getCurrentUser();
+            List<Customer> customers = customerRepository.findByStoreId(currentUser.getStore().getId());
+            return customers.stream()
+                    .map(customer -> modelMapper.map(customer, CustomerDTO.class))
+                    .collect(Collectors.toList());
+        } catch (Exception e) {
+            throw new RuntimeException("Error retrieving customer");
+        }
+    }
+
+    @Override
     public List<CustomerDTO> getCustomersTotalDebtGreaterThan(double totalDebt) {
         try {
             User currentUser = userService.getCurrentUser();
