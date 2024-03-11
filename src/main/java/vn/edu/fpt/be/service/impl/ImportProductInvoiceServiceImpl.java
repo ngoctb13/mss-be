@@ -8,6 +8,7 @@ import org.springframework.transaction.annotation.Transactional;
 import vn.edu.fpt.be.dto.ImportProductDetailRequest;
 import vn.edu.fpt.be.dto.ImportProductInvoiceResponse;
 import vn.edu.fpt.be.dto.response.CustomerSaleInvoiceResponse;
+import vn.edu.fpt.be.dto.response.ImportInvoiceReportResponse;
 import vn.edu.fpt.be.dto.response.SupplierImportInvoiceResponse;
 import vn.edu.fpt.be.exception.CustomServiceException;
 import vn.edu.fpt.be.model.*;
@@ -17,6 +18,7 @@ import vn.edu.fpt.be.service.ImportProductInvoiceDetailService;
 import vn.edu.fpt.be.service.ImportProductInvoiceService;
 import vn.edu.fpt.be.service.UserService;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -102,6 +104,36 @@ public class ImportProductInvoiceServiceImpl implements ImportProductInvoiceServ
             // Log the error (using a logging framework like SLF4J)
             // Logger.error("Error retrieving sale invoices for customer: {}", customerId, e);
             throw new RuntimeException("Error retrieving import invoices for supplier: " + supplierId, e);
+        }
+    }
+
+    @Override
+    public List<ImportInvoiceReportResponse> getImportInvoicesByFilter(LocalDateTime startDate, LocalDateTime endDate, String createdBy, Long supplierId) {
+        try {
+            User currentUser = userService.getCurrentUser();
+            Store currentStore = currentUser.getStore();
+            if (startDate == null) {
+                // Trả về danh sách rỗng hoặc ném lỗi nếu startDate không được cung cấp
+                throw new IllegalArgumentException("Start date must be provided");
+            }
+            if (endDate == null) {
+                endDate = LocalDateTime.now();
+            }
+            List<ImportProductInvoice> invoices = invoiceRepository.findInvoicesByCriteria(startDate, endDate, createdBy, supplierId, currentStore.getId());
+            return invoices.stream().map(invoice -> ImportInvoiceReportResponse.builder()
+                            .id(invoice.getId())
+                            .createdAt(invoice.getCreatedAt())
+                            .createdBy(invoice.getCreatedBy())
+                            .totalPrice(invoice.getTotalInvoicePrice())
+                            .oldDebt(invoice.getOldDebt())
+                            .totalPayment(invoice.getTotalPayment())
+                            .pricePaid(invoice.getPricePaid())
+                            .newDebt(invoice.getNewDebt())
+                            .supplier(invoice.getSupplier())
+                            .build())
+                    .collect(Collectors.toList());
+        } catch (Exception e) {
+            throw new CustomServiceException("Error accessing the database", e);
         }
     }
 
