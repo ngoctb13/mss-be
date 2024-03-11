@@ -9,4 +9,5 @@ import java.util.List;
 public interface SupplierRepository extends JpaRepository<Supplier, Long> {
     List<Supplier> findByStoreId(Long storeId);
     List<Supplier> findByStoreIdAndTotalDebtGreaterThan(Long storeId, double totalDebt);
+
 }
