@@ -1,6 +1,7 @@
 package vn.edu.fpt.be.service.impl;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
@@ -10,11 +11,10 @@ import org.springframework.stereotype.Service;
 import vn.edu.fpt.be.dto.ImportProductDetailResponse;
 import vn.edu.fpt.be.dto.SaleInvoiceDetailDTO;
 import vn.edu.fpt.be.dto.SaleInvoiceDetailRequest;
+import vn.edu.fpt.be.dto.response.ProductExportResponse;
 import vn.edu.fpt.be.exception.CustomServiceException;
-import vn.edu.fpt.be.model.Product;
-import vn.edu.fpt.be.model.SaleInvoice;
-import vn.edu.fpt.be.model.SaleInvoiceDetail;
-import vn.edu.fpt.be.model.User;
+import vn.edu.fpt.be.model.*;
+import vn.edu.fpt.be.model.jsonDetail.ProductDetailJson;
 import vn.edu.fpt.be.repository.ProductRepository;
 import vn.edu.fpt.be.repository.SaleInvoiceDetailRepository;
 import vn.edu.fpt.be.repository.SaleInvoiceRepository;
@@ -23,9 +23,8 @@ import vn.edu.fpt.be.security.UserPrincipal;
 import vn.edu.fpt.be.service.SaleInvoiceDetailService;
 import vn.edu.fpt.be.service.UserService;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
+import java.time.LocalDateTime;
+import java.util.*;
 
 @Service
 @RequiredArgsConstructor
@@ -34,12 +33,59 @@ public class SaleInvoiceDetailServiceImpl implements SaleInvoiceDetailService {
     private final ProductRepository productRepository;
     private final UserRepository userRepository;
     private final UserService userService;
+    private final ObjectMapper objectMapper = new ObjectMapper();
     private final ModelMapper modelMapper = new ModelMapper();
     @Override
     public void saveSaleInvoiceDetail(List<SaleInvoiceDetailRequest> requests, SaleInvoice invoice) {
         for (SaleInvoiceDetailRequest request : requests) {
             SaleInvoiceDetailDTO createdDetail = saveSingleSaleInvoiceDetail(request, invoice);
         }
+    }
+
+    @Override
+    public List<ProductExportResponse> productExportReport(Long customerId, LocalDateTime startDate, LocalDateTime endDate) {
+        try {
+            User currentUser = userService.getCurrentUser();
+            Long currentStoreId = currentUser.getStore().getId();
+            if (currentStoreId == null) {
+                throw new RuntimeException("Current user not have store yet!");
+            }
+
+            List<SaleInvoiceDetail> details = saleInvoiceDetailRepository.findByCriteria(customerId, startDate, endDate, currentStoreId);
+            Map<Long, ProductExportResponse> responseMap = new HashMap<>();
+
+            for (SaleInvoiceDetail detail : details) {
+                Long productId = detail.getProduct().getId();
+                ProductExportResponse response = responseMap.getOrDefault(productId, new ProductExportResponse(detail.getProduct(), 0.0, 0.0, 0.0, 0.0));
+
+                double quantity = detail.getQuantity();
+                double unitPrice = detail.getUnitPrice();
+                double importPrice = extractImportPrice(detail.getProductDetailsAtTimeOfBuy()); // Giả sử bạn có phương thức này để lấy giá nhập từ JSON
+
+                response.setTotalExportQuantity(response.getTotalExportQuantity() + quantity);
+                response.setTotalExportPrice(response.getTotalExportPrice() + (quantity * unitPrice));
+                response.setTotalFunds(response.getTotalFunds() + (quantity * importPrice));
+                response.setTotalProfit(response.getTotalExportPrice() - response.getTotalFunds());
+
+                responseMap.put(productId, response);
+            }
+            return new ArrayList<>(responseMap.values());
+        } catch (Exception e) {
+            throw new RuntimeException("An unexpected error occurred while fetching data: " + e.getMessage(), e);
+        }
+    }
+
+    private double extractImportPrice(String productDetailsAtTimeOfBuy) {
+        try {
+            JsonNode rootNode = objectMapper.readTree(productDetailsAtTimeOfBuy);
+            JsonNode importPriceNode = rootNode.path("importPrice");
+            if (!importPriceNode.isMissingNode()) {
+                return importPriceNode.asDouble();
+            }
+        } catch (JsonProcessingException e) {
+            throw new RuntimeException(e);
+        }
+        return 0;
     }
 
     private SaleInvoiceDetailDTO saveSingleSaleInvoiceDetail(SaleInvoiceDetailRequest request, SaleInvoice invoice) {
@@ -57,6 +103,7 @@ public class SaleInvoiceDetailServiceImpl implements SaleInvoiceDetailService {
 
             SaleInvoiceDetail saleInvoiceDetail = new SaleInvoiceDetail();
             saleInvoiceDetail.setCreatedBy(currentUser.getUsername());
+            saleInvoiceDetail.setProductDetailsAtTimeOfBuy(convertToJson(product));
             saleInvoiceDetail.setProduct(product);
             saleInvoiceDetail.setSaleInvoice(invoice);
             saleInvoiceDetail.setQuantity(request.getQuantity());
@@ -86,6 +133,17 @@ public class SaleInvoiceDetailServiceImpl implements SaleInvoiceDetailService {
         } catch (Exception e) {
             // Handle any other unexpected exceptions
             throw new RuntimeException("An unexpected error occurred while updating product quantity: " + e.getMessage(), e);
+        }
+    }
+
+    private String convertToJson(Product product) {
+        ProductDetailJson productDetailJson =  modelMapper.map(product, ProductDetailJson.class);
+        String jsonString = null;
+        try {
+            jsonString = objectMapper.writeValueAsString(productDetailJson);
+            return jsonString;
+        } catch (JsonProcessingException e) {
+            throw new RuntimeException(e);
         }
     }
 }

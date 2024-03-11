@@ -28,6 +28,6 @@ public class SaleInvoiceDetail extends Model {
     private Double unitPrice;
     @Column(name = "total_price") // tong tien cua mot san pham = quantity * unit price
     private Double totalPrice;
-    @Column(name = "product_details_at_time_of_import", columnDefinition = "json")
-    private String productDetailsAtTimeOfImport;
+    @Column(name = "product_details_at_time_of_buy", columnDefinition = "json")
+    private String productDetailsAtTimeOfBuy;
 }
