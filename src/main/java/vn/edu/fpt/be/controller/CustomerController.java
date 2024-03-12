@@ -31,7 +31,7 @@ public class CustomerController {
         }
     }
     @GetMapping("/all")
-    @PreAuthorize("hasAnyAuthority('SYSTEM_ADMIN','STORE_OWNER')")
+    @PreAuthorize("hasAnyAuthority('STAFF','STORE_OWNER')")
     public ResponseEntity<?> getAllCustomers(@RequestParam(defaultValue = "0") int pageNumber,
                                              @RequestParam(defaultValue = "5") int pageSize) {
         try {
