@@ -97,8 +97,6 @@ public class SaleInvoiceServiceImpl implements SaleInvoiceService {
             User currentUser = userService.getCurrentUser();
 
             List<SaleInvoice> saleInvoices = saleInvoiceRepository.findByCustomerIdAndStoreIdOrderByCreatedAtDesc(customerId, currentUser.getStore().getId());
-
-            // Convert SaleInvoice entities to CustomerSaleInvoiceResponse DTOs
             return saleInvoices.stream().map(saleInvoice -> CustomerSaleInvoiceResponse.builder()
                             .id(saleInvoice.getId())
                             .createdAt(saleInvoice.getCreatedAt())
@@ -110,10 +108,6 @@ public class SaleInvoiceServiceImpl implements SaleInvoiceService {
                             .build())
                     .collect(Collectors.toList());
         } catch (Exception e) {
-            // Handle the exception based on your application's requirement
-            // For example, log the error and throw a custom exception or return an error response
-            // Log the error (using a logging framework like SLF4J)
-            // Logger.error("Error retrieving sale invoices for customer: {}", customerId, e);
             throw new RuntimeException("Error retrieving sale invoices for customer: " + customerId, e);
         }
     }

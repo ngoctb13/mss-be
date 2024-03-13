@@ -6,6 +6,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import vn.edu.fpt.be.dto.*;
+import vn.edu.fpt.be.dto.response.StoreResponse;
 import vn.edu.fpt.be.exception.ErrorResponse;
 import vn.edu.fpt.be.service.ImportProductInvoiceService;
 import vn.edu.fpt.be.service.SaleInvoiceService;
@@ -83,6 +84,18 @@ public class StoreController {
         } catch (Exception e) {
             // You might want to handle different exceptions differently
             return ResponseEntity.badRequest().body(e);
+        }
+    }
+    @GetMapping("/filter")
+    public ResponseEntity<?> getStoresByFilter(@RequestParam(required = false) String storeName,
+                                               @RequestParam(required = false) String address,
+                                               @RequestParam(required = false) String phoneNumber,
+                                               @RequestParam(required = false) String status) {
+        try {
+            List<StoreResponse> stores = storeService.getStoreByFilter(storeName, address, phoneNumber, status);
+            return new ResponseEntity<>(stores, HttpStatus.OK);
+        } catch (Exception e) {
+            return new ResponseEntity<>(new ErrorResponse("Failed to fetch stores: " + e.getMessage()), HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 }

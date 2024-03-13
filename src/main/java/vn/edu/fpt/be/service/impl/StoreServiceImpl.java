@@ -7,8 +7,14 @@ import org.modelmapper.ModelMapper;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import vn.edu.fpt.be.dto.StoreCreateDTO;
 import vn.edu.fpt.be.dto.StoreDTO;
+import vn.edu.fpt.be.dto.response.CustomerSaleInvoiceResponse;
+import vn.edu.fpt.be.dto.response.SaleInvoiceReportResponse;
+import vn.edu.fpt.be.dto.response.StoreResponse;
+import vn.edu.fpt.be.exception.CustomServiceException;
+import vn.edu.fpt.be.model.SaleInvoice;
 import vn.edu.fpt.be.model.Store;
 import vn.edu.fpt.be.model.User;
 import vn.edu.fpt.be.model.enums.Status;
@@ -94,6 +100,43 @@ public class StoreServiceImpl implements StoreService {
         }
     }
 
+//    @Override
+//    @Transactional(readOnly = true)
+    public List<StoreResponse> getStoreByFilter(String storeName, String address, String phoneNumber, String status) {
+        try {
+            User currentUser = userService.getCurrentUser();
+            Store currentStore = currentUser.getStore();
+            List<Store> storeDTOS = storeRepository.findByCriteria(storeName, address, phoneNumber, status);
+            return storeDTOS.stream().map(stores -> StoreResponse.builder()
+                            .id(stores.getId())
+                            .createdAt(stores.getCreatedAt())
+                            .createdBy(stores.getCreatedBy())
+                            .storeName(stores.getStoreName())
+                            .address(stores.getAddress())
+                            .phoneNumber(stores.getPhoneNumber())
+                            .status(stores.getStatus())
+                            .owner(currentUser)
+                            .build())
+                    .collect(Collectors.toList());
+        } catch (Exception e) {
+            throw new CustomServiceException("Error accessing the database", e);
+        }
+    }
+
+    private StoreDTO convertToStoreDto(Long ownerId,Store store) {
+        Optional<User> currentUser = userRepository.findById(ownerId);
+        // Assuming you have a method to convert Store to StoreDTO. Adjust the fields as per your StoreDTO class.
+        return new StoreDTO(
+                store.getId(),
+                store.getStoreName(),
+                store.getAddress(),
+                currentUser.get(),
+                store.getStatus().toString() // Assuming status is an enum and needs to be converted to string
+        );
+    }
+
+
+
     private StoreDTO convertToDto(Store store) {
 //        return StoreDTO.builder()
 //                .id(store.getId())
@@ -104,4 +147,5 @@ public class StoreServiceImpl implements StoreService {
 //                .build();
         return null;
     }
+
 }

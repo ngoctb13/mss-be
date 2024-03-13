@@ -7,4 +7,5 @@ import java.util.List;
 
 public interface StorageLocationRepository extends JpaRepository<StorageLocation, Long> {
     List<StorageLocation> findByStoreId(Long storeId);
+
 }
