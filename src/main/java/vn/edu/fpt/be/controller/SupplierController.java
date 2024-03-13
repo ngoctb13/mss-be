@@ -30,7 +30,7 @@ public class SupplierController {
     }
 
     @GetMapping("/all")
-    @PreAuthorize("hasAuthority('STORE_OWNER')")
+    @PreAuthorize("hasAnyAuthority('STORE_OWNER','STAFF')")
     public ResponseEntity<?> getAllSuppliers() {
         try {
             List<SupplierDTO> suppliers = supplierService.getAllSuppliers();

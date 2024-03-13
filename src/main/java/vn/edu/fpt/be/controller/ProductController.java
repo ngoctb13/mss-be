@@ -31,7 +31,7 @@ public class ProductController {
         }
     }
     @GetMapping("/all")
-    @PreAuthorize("hasAuthority('STORE_OWNER')")
+    @PreAuthorize("hasAnyAuthority('STORE_OWNER', 'STAFF')")
     public ResponseEntity<?> getAllCustomers() {
         try {
             List<ProductDTO> products = productService.getAllProduct();
@@ -41,6 +41,7 @@ public class ProductController {
         }
     }
     @GetMapping("/{storeId}")
+    @PreAuthorize("hasAnyAuthority('STORE_OWNER', 'STAFF')")
     public ResponseEntity<?> getProductsByStore(
             @PathVariable Long storeId,
             @RequestParam(defaultValue = "0") int pageNumber,
@@ -63,6 +64,7 @@ public class ProductController {
         }
     }
     @GetMapping("/by-name/{nameInput}")
+    @PreAuthorize("hasAnyAuthority('STORE_OWNER', 'STAFF')")
     public ResponseEntity<List<ProductDTO>> findProductByName(
             @PathVariable String nameInput) {
         try {
@@ -73,6 +75,7 @@ public class ProductController {
         }
     }
     @PutMapping("/change-status/{productId}")
+    @PreAuthorize("hasAuthority('STORE_OWNER')")
     public ResponseEntity<ProductDTO> changeStatusProduct(@PathVariable Long productId) {
         try {
             ProductDTO updatedProduct = productService.changeStatusProduct(productId);
