@@ -1,32 +1,20 @@
 package vn.edu.fpt.be.service.impl;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+
 import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
-import org.springframework.security.core.GrantedAuthority;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 import vn.edu.fpt.be.dto.StoreCreateDTO;
 import vn.edu.fpt.be.dto.StoreDTO;
-import vn.edu.fpt.be.dto.response.CustomerSaleInvoiceResponse;
-import vn.edu.fpt.be.dto.response.SaleInvoiceReportResponse;
 import vn.edu.fpt.be.dto.response.StoreResponse;
 import vn.edu.fpt.be.exception.CustomServiceException;
-import vn.edu.fpt.be.model.SaleInvoice;
 import vn.edu.fpt.be.model.Store;
 import vn.edu.fpt.be.model.User;
 import vn.edu.fpt.be.model.enums.Status;
 import vn.edu.fpt.be.repository.StoreRepository;
 import vn.edu.fpt.be.repository.UserRepository;
-import vn.edu.fpt.be.security.UserPrincipal;
 import vn.edu.fpt.be.service.StoreService;
 import vn.edu.fpt.be.service.UserService;
-
-import java.time.LocalDateTime;
-import java.util.Collection;
-import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -125,13 +113,12 @@ public class StoreServiceImpl implements StoreService {
 
     private StoreDTO convertToStoreDto(Long ownerId,Store store) {
         Optional<User> currentUser = userRepository.findById(ownerId);
-        // Assuming you have a method to convert Store to StoreDTO. Adjust the fields as per your StoreDTO class.
         return new StoreDTO(
                 store.getId(),
                 store.getStoreName(),
                 store.getAddress(),
                 currentUser.get(),
-                store.getStatus().toString() // Assuming status is an enum and needs to be converted to string
+                store.getStatus().toString()
         );
     }
 
