@@ -63,15 +63,12 @@ public class StorageLocationServiceImpl implements StorageLocationService {
     }
 
     @Override
-    public List<StorageLocationDTO> getByStore() {
-        User currentUser = userService.getCurrentUser();
-        Store store = currentUser.getStore();
-        List<StorageLocation> storageLocations = repo.findByStoreId(store.getId());
+    public List<StorageLocationDTO> getByStore(Long storeId) {
+        List<StorageLocation> storageLocations = repo.findByStoreId(storeId);
         return storageLocations.stream()
                 .map(storageLocation -> modelMapper.map(storageLocation, StorageLocationDTO.class))
                 .collect(Collectors.toList());
     }
-
     @Override
     public StorageLocationDTO deactivate(Long storageLocationId) {
         StorageLocation existingStorageLocation = repo.findById(storageLocationId)
