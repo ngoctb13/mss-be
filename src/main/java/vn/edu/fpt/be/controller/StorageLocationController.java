@@ -42,20 +42,22 @@ public class StorageLocationController {
         }
     }
 
-    @GetMapping("/by-store")
+    // In StorageLocationController.java
+    @GetMapping("/by-store/{storeId}")
     @PreAuthorize("hasAuthority('STORE_OWNER')")
-    public ResponseEntity<?> getStorageLocationsByStore() {
+    public ResponseEntity<?> getStorageLocationsByStore(@PathVariable Long storeId) {
         try {
-            List<StorageLocationDTO> storageLocations = service.getByStore();
+            List<StorageLocationDTO> storageLocations = service.getByStore(storeId);
             if (storageLocations.isEmpty()) {
                 return ResponseEntity.noContent().build();
             }
             return ResponseEntity.status(HttpStatus.OK).body(storageLocations);
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                    .body("An error occurred while fetching the storage location.");
+                    .body("An error occurred while fetching the storage locations.");
         }
     }
+
 
     @PutMapping("/deactivate/{storageLocationId}")
     @PreAuthorize("hasAuthority('STORE_OWNER')")
