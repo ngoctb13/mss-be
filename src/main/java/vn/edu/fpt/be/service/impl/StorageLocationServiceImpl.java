@@ -64,6 +64,13 @@ public class StorageLocationServiceImpl implements StorageLocationService {
 
     @Override
     public List<StorageLocationDTO> getByStore(Long storeId) {
+        if (storeId == null || storeId <= 0) {
+            throw new IllegalArgumentException("Invalid store ID provided.");
+        }
+
+        if (!storeRepository.existsById(storeId)) {
+            throw new IllegalArgumentException("Store with ID " + storeId + " does not exist.");
+        }
         List<StorageLocation> storageLocations = repo.findByStoreId(storeId);
         return storageLocations.stream()
                 .map(storageLocation -> modelMapper.map(storageLocation, StorageLocationDTO.class))
