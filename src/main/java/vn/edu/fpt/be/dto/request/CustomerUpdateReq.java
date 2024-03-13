@@ -9,7 +9,7 @@ import lombok.NoArgsConstructor;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-public class CustomerUpdateDTO {
+public class CustomerUpdateReq {
     private String customerName;
     private String phoneNumber;
     private String address;

@@ -8,6 +8,7 @@ import java.util.List;
 
 public interface SupplierRepository extends JpaRepository<Supplier, Long> {
     List<Supplier> findByStoreId(Long storeId);
+    Supplier findByIdAndStoreId(Long supplierId, Long storeId);
     List<Supplier> findByStoreIdAndTotalDebtGreaterThan(Long storeId, double totalDebt);
 
 }

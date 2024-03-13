@@ -19,6 +19,7 @@ import javax.validation.constraints.Min;
 public class SupplierDTO {
     private Long id;
     private String supplierName;
+    private String phoneNumber;
     private String address;
     private String note;
     private Double totalDebt;

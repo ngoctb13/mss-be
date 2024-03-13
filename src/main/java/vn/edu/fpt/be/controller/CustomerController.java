@@ -9,6 +9,7 @@ import vn.edu.fpt.be.dto.CustomerCreateDTO;
 import vn.edu.fpt.be.dto.CustomerDTO;
 import vn.edu.fpt.be.dto.ProductCreateDTO;
 import vn.edu.fpt.be.dto.ProductDTO;
+import vn.edu.fpt.be.dto.request.CustomerUpdateReq;
 import vn.edu.fpt.be.service.CustomerService;
 import vn.edu.fpt.be.service.ProductService;
 
@@ -71,6 +72,18 @@ public class CustomerController {
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                     .body("An error occurred while creating the product.");
+        }
+    }
+
+    @PutMapping("/update/{customerId}")
+    @PreAuthorize("hasAuthority('STORE_OWNER')")
+    public ResponseEntity<?> updateCustomer(@RequestBody CustomerUpdateReq req, @PathVariable Long customerId) {
+        try {
+            CustomerDTO updatedCustomer = customerService.updateCustomer(req, customerId);
+            return ResponseEntity.status(HttpStatus.OK).body(updatedCustomer);
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body("An error occurred while updating the product.");
         }
     }
 }

@@ -123,10 +123,6 @@ public class SaleInvoiceServiceImpl implements SaleInvoiceService {
         try {
             User currentUser = userService.getCurrentUser();
             Store currentStore = currentUser.getStore();
-            if (startDate == null) {
-                // Trả về danh sách rỗng hoặc ném lỗi nếu startDate không được cung cấp
-                throw new IllegalArgumentException("Start date must be provided");
-            }
             if (endDate == null) {
                 endDate = LocalDateTime.now();
             }

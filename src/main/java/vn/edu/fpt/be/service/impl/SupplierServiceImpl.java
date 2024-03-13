@@ -69,16 +69,22 @@ public class SupplierServiceImpl implements SupplierService {
     @Override
     public SupplierDTO updateSupplier(SupplierUpdateRequest request, Long supplierId) {
         User currentUser = userService.getCurrentUser();
-        Optional<Supplier> supplier = supplierRepository.findById(supplierId);
-        if (supplier.isEmpty()) {
-            throw new RuntimeException("Supplier not found!");
+        Long currentStoreId = currentUser.getStore().getId();
+        if (currentStoreId == null) {
+            throw new RuntimeException("Store can not be null!");
         }
-        Supplier currentSupplier = supplier.get();
-        currentSupplier.setSupplierName(request.getSupplierName());
-        currentSupplier.setPhoneNumber(request.getPhoneNumber());
-        currentSupplier.setAddress(request.getAddress());
-        currentSupplier.setNote(request.getNote());
-        Supplier updatedSupplier= supplierRepository.save(currentSupplier);
+
+        Supplier supplier = supplierRepository.findByIdAndStoreId(supplierId, currentStoreId);
+        if (supplier == null) {
+            throw new RuntimeException("Supplier not belong to this store!");
+        }
+
+        supplier.setSupplierName(request.getSupplierName());
+        supplier.setPhoneNumber(request.getPhoneNumber());
+        supplier.setAddress(request.getAddress());
+        supplier.setNote(request.getNote());
+
+        Supplier updatedSupplier= supplierRepository.save(supplier);
         return modelMapper.map(updatedSupplier, SupplierDTO.class);
     }
 
