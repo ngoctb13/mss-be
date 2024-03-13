@@ -76,7 +76,11 @@ public class StorageLocationServiceImpl implements StorageLocationService {
     public StorageLocationDTO deactivate(Long storageLocationId) {
         StorageLocation existingStorageLocation = repo.findById(storageLocationId)
                 .orElseThrow(() -> new IllegalArgumentException("Storage location not found"));
-        existingStorageLocation.setStatus(Status.INACTIVE);
+        if (existingStorageLocation.getStatus()== Status.INACTIVE){
+            existingStorageLocation.setStatus(Status.ACTIVE);
+        }else {
+            existingStorageLocation.setStatus(Status.INACTIVE);
+        }
         StorageLocation deactivatedStorageLocation = repo.save(existingStorageLocation);
         return modelMapper.map(deactivatedStorageLocation, StorageLocationDTO.class);
     }
