@@ -10,6 +10,7 @@ import org.springframework.stereotype.Service;
 import vn.edu.fpt.be.dto.CustomerCreateDTO;
 import vn.edu.fpt.be.dto.CustomerDTO;
 import vn.edu.fpt.be.dto.ProductDTO;
+import vn.edu.fpt.be.dto.request.CustomerUpdateReq;
 import vn.edu.fpt.be.dto.response.CustomerSaleInvoiceResponse;
 import vn.edu.fpt.be.model.*;
 import vn.edu.fpt.be.model.enums.Status;
@@ -45,6 +46,27 @@ public class CustomerServiceImpl implements CustomerService {
         customer.setCreatedBy(currentUser.getUsername());
         Customer saveCustomer= customerRepository.save(customer);
         return modelMapper.map(saveCustomer, CustomerDTO.class);
+    }
+
+    @Override
+    public CustomerDTO updateCustomer(CustomerUpdateReq req, Long customerId) {
+        User currentUser = userService.getCurrentUser();
+        Long currentStoreId = currentUser.getStore().getId();
+        if (currentStoreId == null) {
+            throw new RuntimeException("Store id can not be null!");
+        }
+        Customer customer = customerRepository.findByIdAndStoreId(customerId,currentStoreId);
+        if (customer == null) {
+            throw new RuntimeException("Customer not be in this store");
+        }
+        customer.setCustomerName(req.getCustomerName());
+        customer.setPhoneNumber(req.getPhoneNumber());
+        customer.setAddress(req.getAddress());
+        customer.setNote(req.getNote());
+
+        Customer updatedCustomer = customerRepository.save(customer);
+
+        return modelMapper.map(updatedCustomer, CustomerDTO.class);
     }
 
     @Override

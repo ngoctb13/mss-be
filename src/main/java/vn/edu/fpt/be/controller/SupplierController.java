@@ -64,12 +64,12 @@ public class SupplierController {
         } catch (IllegalArgumentException e) {
             return ResponseEntity.badRequest().body(e.getMessage());
         } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("An error occurred while deactivate the supplier.");
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("An error occurred while updating the supplier.");
         }
     }
 
     @GetMapping("/all/supplier-have-debt")
-    @PreAuthorize("hasAnyAuthority('SYSTEM_ADMIN','STORE_OWNER')")
+    @PreAuthorize("hasAuthority('STORE_OWNER')")
     public ResponseEntity<?> getAllSuppliersHaveDebt() {
         try {
             double totalDebt = 0.0;
