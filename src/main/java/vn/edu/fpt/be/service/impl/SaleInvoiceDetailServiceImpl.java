@@ -25,6 +25,7 @@ import vn.edu.fpt.be.service.UserService;
 
 import java.time.LocalDateTime;
 import java.util.*;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -32,6 +33,7 @@ public class SaleInvoiceDetailServiceImpl implements SaleInvoiceDetailService {
     private final SaleInvoiceDetailRepository saleInvoiceDetailRepository;
     private final ProductRepository productRepository;
     private final UserRepository userRepository;
+    private final SaleInvoiceRepository saleInvoiceRepository;
     private final UserService userService;
     private final ObjectMapper objectMapper = new ObjectMapper();
     private final ModelMapper modelMapper = new ModelMapper();
@@ -70,6 +72,34 @@ public class SaleInvoiceDetailServiceImpl implements SaleInvoiceDetailService {
                 responseMap.put(productId, response);
             }
             return new ArrayList<>(responseMap.values());
+        } catch (Exception e) {
+            throw new RuntimeException("An unexpected error occurred while fetching data: " + e.getMessage(), e);
+        }
+    }
+
+    @Override
+    public List<SaleInvoiceDetailDTO> getDetailsOfSaleInvoice(Long saleInvoiceId) {
+        try {
+            User currentUser = userService.getCurrentUser();
+            Optional<SaleInvoice> saleInvoice = saleInvoiceRepository.findById(saleInvoiceId);
+            if (saleInvoice.isEmpty()) {
+                throw new IllegalArgumentException("Sale invoice cannot be null!");
+            }
+            if (!saleInvoice.get().getStore().equals(currentUser.getStore())) {
+                throw new IllegalArgumentException("Sale invoice not belong to current store");
+            }
+
+            List<SaleInvoiceDetail> details = saleInvoiceDetailRepository.findBySaleInvoiceId(saleInvoiceId);
+
+            return details.stream().map(detail -> SaleInvoiceDetailDTO.builder()
+                            .id(detail.getId())
+                            .product(detail.getProduct())
+                            .saleInvoice(detail.getSaleInvoice())
+                            .quantity(detail.getQuantity())
+                            .unitPrice(detail.getUnitPrice())
+                            .totalPrice(detail.getTotalPrice())
+                            .build())
+                    .collect(Collectors.toList());
         } catch (Exception e) {
             throw new RuntimeException("An unexpected error occurred while fetching data: " + e.getMessage(), e);
         }
