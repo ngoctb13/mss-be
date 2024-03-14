@@ -12,4 +12,5 @@ import java.util.List;
 public interface SaleInvoiceDetailService {
     void saveSaleInvoiceDetail(List<SaleInvoiceDetailRequest> request, SaleInvoice invoice);
     List<ProductExportResponse> productExportReport(Long customerId, LocalDateTime startDate, LocalDateTime endDate);
+    List<SaleInvoiceDetailDTO> getDetailsOfSaleInvoice(Long saleInvoiceId);
 }
