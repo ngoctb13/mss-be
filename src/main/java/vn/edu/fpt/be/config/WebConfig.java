@@ -9,8 +9,8 @@ public class WebConfig implements WebMvcConfigurer {
     @Override
     public void addCorsMappings(CorsRegistry registry) {
         registry.addMapping("/**") // Apply CORS to all endpoints
-                .allowedOrigins("http://178.128.89.58") // Allowed origin(s)
-//                .allowedOrigins("http://mss.mom") // Allowed origin(s)
+//                .allowedOrigins("http://178.128.89.58") // Allowed origin(s)
+                .allowedOrigins("http://mss.io.vn") // Allowed origin(s)
                 .allowedMethods("GET", "POST", "PUT", "DELETE", "OPTIONS") // Allowed methods
                 .allowedHeaders("*") // Allowed headers
                 .allowCredentials(true) // If you need cookies or authorization headers
