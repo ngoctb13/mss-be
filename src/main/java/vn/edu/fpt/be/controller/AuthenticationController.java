@@ -79,4 +79,34 @@ public class AuthenticationController {
             return ResponseEntity.internalServerError().build(); // General error handling, consider logging or a more specific error message
         }
     }
+
+    @PostMapping("/reset-password")
+    public ResponseEntity<?> resetPassword(@RequestParam("token") String token, @RequestParam("newPassword") String newPassword) {
+        try {
+            if (forgotPasswordService.checkIsUsed(token)) {
+                return ResponseEntity.badRequest().body("Token của bạn đã được dùng!");
+            } else if (forgotPasswordService.isExpired(token)) {
+                return ResponseEntity.badRequest().body("Token của bạn đã hết hạn! Vui lòng thử lại.");
+            } else {
+                forgotPasswordService.resetPassword(token, newPassword);
+                return ResponseEntity.ok("Đặt lại mật khẩu thành công! Hãy đăng nhập lại.");
+            }
+        } catch (Exception e) {
+            return ResponseEntity.internalServerError().build(); // General error handling, consider logging or a more specific error message
+        }
+    }
+
+    @GetMapping("/check-token-valid")
+    public ResponseEntity<?> checkTokenValid(@RequestParam("token") String token) {
+        boolean isExpired = forgotPasswordService.isExpired(token);
+        boolean isUsed = forgotPasswordService.checkIsUsed(token);
+
+        if (isExpired) {
+            return ResponseEntity.badRequest().body("Token đã hết hạn");
+        } else if (isUsed) {
+            return ResponseEntity.badRequest().body("Token đã được sử dụng");
+        } else {
+            return ResponseEntity.ok().body("Token hợp lệ");
+        }
+    }
 }
