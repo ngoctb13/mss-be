@@ -25,7 +25,7 @@ public class UserController {
     private final UserService userService;
     private final TokenProvider tokenProvider;
 
-    @PutMapping("/me")
+    @PostMapping("/me")
     @PreAuthorize("hasAnyAuthority('STORE_OWNER', 'STAFF')")
     public ResponseEntity<?> updateCurrentUser(@CurrentUser UserPrincipal userPrincipal, @RequestBody UserUpdateDTO userUpdateDTO) {
         try {

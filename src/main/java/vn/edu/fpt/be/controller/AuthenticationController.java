@@ -12,6 +12,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
 import vn.edu.fpt.be.dto.RegisterRequestDTO;
+import vn.edu.fpt.be.dto.UserProfileDTO;
 import vn.edu.fpt.be.model.User;
 import vn.edu.fpt.be.payload.request.LoginRequest;
 import vn.edu.fpt.be.payload.response.AuthResponse;
@@ -19,6 +20,7 @@ import vn.edu.fpt.be.payload.response.MessageResponse;
 import vn.edu.fpt.be.repository.UserRepository;
 import vn.edu.fpt.be.security.TokenProvider;
 import vn.edu.fpt.be.security.UserPrincipal;
+import vn.edu.fpt.be.service.ForgotPasswordService;
 import vn.edu.fpt.be.service.UserService;
 
 import java.util.List;
@@ -31,6 +33,7 @@ public class AuthenticationController {
     private final AuthenticationManager authenticationManager;
     private final TokenProvider tokenProvider;
     private final UserService userService;
+    private final ForgotPasswordService forgotPasswordService;
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
 
@@ -65,4 +68,15 @@ public class AuthenticationController {
         return ResponseEntity.ok(new MessageResponse("User registered successfully!"));
     }
 
+    @PostMapping("/forgot-password")
+    public ResponseEntity<?> forgotPassword(@RequestParam("email") String email) {
+        try {
+            forgotPasswordService.requestForgotPassword(email);
+            return ResponseEntity.ok("hihi");
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.badRequest().body(e.getMessage()); // Consider a more informative error structure
+        } catch (Exception e) {
+            return ResponseEntity.internalServerError().build(); // General error handling, consider logging or a more specific error message
+        }
+    }
 }
