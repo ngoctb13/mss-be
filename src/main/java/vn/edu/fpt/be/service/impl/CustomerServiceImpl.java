@@ -11,6 +11,7 @@ import vn.edu.fpt.be.dto.CustomerCreateDTO;
 import vn.edu.fpt.be.dto.CustomerDTO;
 import vn.edu.fpt.be.dto.ProductDTO;
 import vn.edu.fpt.be.dto.request.CustomerUpdateReq;
+import vn.edu.fpt.be.dto.response.CustomerResponse;
 import vn.edu.fpt.be.dto.response.CustomerSaleInvoiceResponse;
 import vn.edu.fpt.be.model.*;
 import vn.edu.fpt.be.model.enums.Status;
@@ -119,5 +120,10 @@ public class CustomerServiceImpl implements CustomerService {
         }
         Customer saveCustomer= customerRepository.save(customer);
         return modelMapper.map(saveCustomer, CustomerDTO.class);
+    }
+
+    @Override
+    public List<CustomerResponse> getCustomerByFilter(String customerName, String phoneNumber, String address, Double minDebt, Double maxDebt, Status status) {
+        return null;
     }
 }

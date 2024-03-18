@@ -11,7 +11,8 @@ import java.util.List;
 
 public interface ImportProductInvoiceRepository extends JpaRepository<ImportProductInvoice, Long> {
     List<ImportProductInvoice> findBySupplierIdAndStoreIdOrderByCreatedAtDesc(Long supplierId, Long storeId);
-    @Query("SELECT si FROM ImportProductInvoice si WHERE (:startDate IS NULL OR si.createdAt >= :startDate) " +
+    @Query("SELECT si FROM ImportProductInvoice si WHERE " +
+            "(:startDate IS NULL OR si.createdAt >= :startDate) " +
             "AND (:endDate IS NULL OR si.createdAt <= :endDate) " +
             "AND (:createdBy IS NULL OR si.createdBy = :createdBy) " +
             "AND (:supplierId IS NULL OR si.supplier.id = :supplierId) " +
