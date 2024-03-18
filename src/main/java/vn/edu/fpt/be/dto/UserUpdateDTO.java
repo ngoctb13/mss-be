@@ -15,7 +15,5 @@ import java.util.Date;
 public class UserUpdateDTO {
     private String fullName;
     private Gender gender;
-    private Date dateOfBirth;
-    private String phoneNumber;
-    private String identityNumber;
+    private String email;
 }

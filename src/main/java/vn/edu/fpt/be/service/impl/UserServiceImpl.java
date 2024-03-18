@@ -80,9 +80,7 @@ public class UserServiceImpl implements UserService {
         }
         userProfile.setFullName(userUpdateDTO.getFullName());
         userProfile.setGender(userUpdateDTO.getGender());
-        userProfile.setDateOfBirth(userUpdateDTO.getDateOfBirth());
-        userProfile.setPhoneNumber(userUpdateDTO.getPhoneNumber());
-        userProfile.setIdentityNumber(userUpdateDTO.getIdentityNumber());
+        userProfile.setEmail(userUpdateDTO.getEmail());
 //        user.get().setUpdatedAt(new Date());
         userRepository.save(user.get());
         userProfileRepository.save(userProfile);
