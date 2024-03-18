@@ -20,7 +20,7 @@ public class ForgotPasswordToken extends Model{
     @ManyToOne(targetEntity = User.class, fetch = FetchType.EAGER)
     @JoinColumn(name = "user_id", nullable = false)
     private User user;
-    @Column(nullable = false)
+    @Column(nullable = false, columnDefinition = "DATETIME(0)")
     private LocalDateTime expireTime;
     @Column(nullable = false)
     private boolean isUsed;
