@@ -39,6 +39,33 @@ public class UserServiceImpl implements UserService {
         }
         return currentUser.get();
     }
+
+    @Override
+    public List<User> getAllUser() {
+        try {
+            User currentUser = getCurrentUser();
+            if (currentUser.getRole() != Role.SYSTEM_ADMIN){
+                throw new RuntimeException("Error retrieving user");
+            }else {
+                List<User> users = userRepository.findAll();
+                return users;
+            }
+        }catch (Exception e){
+            throw new IllegalArgumentException("Bạn không có quyền xem thông tin này");
+        }
+    }
+
+    @Override
+    public User deactivateUser(Long id) {
+        User user = userRepository.findById(id).orElseThrow();
+        if (user.getStatus() ==Status.ACTIVE){
+            user.setStatus(Status.INACTIVE);
+        }else {
+            user.setStatus(Status.ACTIVE);
+        }
+        return userRepository.save(user);
+    }
+
     @Override
     public String getRoleByUsername(String username) {
         Optional<User> userOptional = userRepository.findByUsername(username);
