@@ -98,4 +98,26 @@ public class UserController {
             return ResponseEntity.internalServerError().build();
         }
     }
+    @GetMapping("/all-user")
+    @PreAuthorize("hasAuthority('SYSTEM_ADMIN')")
+    public ResponseEntity<?> getAllUser() {
+        try {
+            List<User> users = userService.getAllUser();
+            return ResponseEntity.ok(users);
+        } catch (Exception e) {
+            return ResponseEntity.internalServerError().build();
+        }
+    }
+    @PutMapping("/deactivate/{userId}")
+    @PreAuthorize("hasAuthority('SYSTEM_ADMIN')")
+    public ResponseEntity<?> deactivate(@PathVariable Long userId){
+        try{
+            User deactivateUser = userService.deactivateUser(userId);
+            return ResponseEntity.ok().body(deactivateUser);
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.badRequest().body(e.getMessage());
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("An error occurred while deactivate the supplier.");
+        }
+    }
 }

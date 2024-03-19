@@ -14,4 +14,6 @@ public interface UserService {
     List<UserDTO> getUserOfStore();
     UserDTO getUserById(Long storeId);
     User getCurrentUser();
+    List<User> getAllUser();
+    User deactivateUser(Long id);
 }
