@@ -13,6 +13,7 @@ public interface UserService {
     List<UserDTO> getAllStaffOfStore();
     List<UserDTO> getUserOfStore();
     UserDTO getUserById(Long storeId);
+    boolean checkUsernameExists(String username);
     User getCurrentUser();
     List<User> getAllUser();
     User deactivateUser(Long id);

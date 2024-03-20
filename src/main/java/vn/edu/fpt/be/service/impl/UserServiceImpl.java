@@ -84,13 +84,20 @@ public class UserServiceImpl implements UserService {
             throw new IllegalArgumentException(registerRequestDTO.getUsername() + " dã tồn tại! Hãy bấm quên mật khẩu nếu bạn không nhớ mật khẩu của mình!");
         }
 
+        UserProfile userProfile = userProfileRepository.findByEmail(registerRequestDTO.getEmail());
+        if (userProfile != null) {
+            throw new IllegalArgumentException("Email has been registered");
+        }
+
+        UserProfile newUserProfile = new UserProfile();
         User user = modelMapper.map(registerRequestDTO, User.class);
         user.setPassword(passwordEncoder.encode(registerRequestDTO.getPassword()));
         user.setRole(Role.STORE_OWNER);
         user.setStatus(Status.ACTIVE);
-        user.setCreatedAt(LocalDateTime.now());
-
-        userRepository.save(user);
+        User createdUser = userRepository.save(user);
+        newUserProfile.setEmail(registerRequestDTO.getEmail());
+        newUserProfile.setUser(createdUser);
+        userProfileRepository.save(newUserProfile);
     }
 
     @Override
@@ -166,5 +173,10 @@ public class UserServiceImpl implements UserService {
             throw new IllegalArgumentException("User not found!");
         }
         return modelMapper.map(user.get(),UserDTO.class);
+    }
+
+    @Override
+    public boolean checkUsernameExists(String username) {
+        return userRepository.existsByUsername(username);
     }
 }

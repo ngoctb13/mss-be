@@ -25,7 +25,7 @@ public class StorageLocationController {
             return ResponseEntity.status(HttpStatus.CREATED).body(createdStorageLocation);
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                    .body("An error occurred while creating the customer.");
+                    .body("An error occurred while creating the storage location.");
         }
     }
 
@@ -42,11 +42,11 @@ public class StorageLocationController {
         }
     }
 
-    @GetMapping("/by-store/{storeId}")
-    @PreAuthorize("hasAuthority('STORE_OWNER')")
-    public ResponseEntity<?> getStorageLocationsByStore(@PathVariable Long storeId) {
+    @GetMapping("/by-store")
+    @PreAuthorize("hasAnyAuthority('STORE_OWNER','STAFF')")
+    public ResponseEntity<?> getStorageLocationsByStore() {
         try {
-            List<StorageLocationDTO> storageLocations = service.getByStore(storeId);
+            List<StorageLocationDTO> storageLocations = service.getByStore();
             if (storageLocations.isEmpty()) {
                 return ResponseEntity.noContent().build();
             }

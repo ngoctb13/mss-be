@@ -21,6 +21,7 @@ import vn.edu.fpt.be.repository.UserRepository;
 import vn.edu.fpt.be.security.TokenProvider;
 import vn.edu.fpt.be.security.UserPrincipal;
 import vn.edu.fpt.be.service.ForgotPasswordService;
+import vn.edu.fpt.be.service.UserProfileService;
 import vn.edu.fpt.be.service.UserService;
 
 import java.util.List;
@@ -33,6 +34,7 @@ public class AuthenticationController {
     private final AuthenticationManager authenticationManager;
     private final TokenProvider tokenProvider;
     private final UserService userService;
+    private final UserProfileService userProfileService;
     private final ForgotPasswordService forgotPasswordService;
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
@@ -108,5 +110,17 @@ public class AuthenticationController {
         } else {
             return ResponseEntity.ok().body("Token hợp lệ");
         }
+    }
+
+    @GetMapping("/check-username")
+    public ResponseEntity<?> checkUsername(@RequestParam("username") String username) {
+        boolean exists = userService.checkUsernameExists(username);
+        return ResponseEntity.ok(exists);
+    }
+
+    @GetMapping("/check-email")
+    public ResponseEntity<?> checkEmail(@RequestParam("email") String email) {
+        boolean exists = userProfileService.checkEmailExists(email);
+        return ResponseEntity.ok(exists);
     }
 }
