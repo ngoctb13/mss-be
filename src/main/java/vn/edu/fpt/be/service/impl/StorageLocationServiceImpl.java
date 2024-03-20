@@ -34,7 +34,9 @@ public class StorageLocationServiceImpl implements StorageLocationService {
     public StorageLocationDTO createStorageLocation(StorageLocationRequest storageLocationRequest) {
         User currentUser = userService.getCurrentUser();
         Store ownedStore = currentUser.getStore();
-
+        if (ownedStore == null) {
+            throw new RuntimeException("Store cannot be null");
+        }
         StorageLocation newStorageLocation = new StorageLocation();
         newStorageLocation.setLocationName(storageLocationRequest.getLocationName());
         newStorageLocation.setDescription(storageLocationRequest.getDescription());
@@ -63,8 +65,10 @@ public class StorageLocationServiceImpl implements StorageLocationService {
     }
 
     @Override
-    public List<StorageLocationDTO> getByStore(Long storeId) {
-        List<StorageLocation> storageLocations = repo.findByStoreId(storeId);
+    public List<StorageLocationDTO> getByStore() {
+        User currentUser = userService.getCurrentUser();
+        Store currentStore = currentUser.getStore();
+        List<StorageLocation> storageLocations = repo.findByStoreId(currentStore.getId());
         return storageLocations.stream()
                 .map(storageLocation -> modelMapper.map(storageLocation, StorageLocationDTO.class))
                 .collect(Collectors.toList());
