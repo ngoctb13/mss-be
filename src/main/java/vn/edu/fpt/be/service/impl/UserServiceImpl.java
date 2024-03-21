@@ -90,7 +90,8 @@ public class UserServiceImpl implements UserService {
         }
 
         UserProfile newUserProfile = new UserProfile();
-        User user = modelMapper.map(registerRequestDTO, User.class);
+        User user = new User();
+        user.setUsername(registerRequestDTO.getUsername());
         user.setPassword(passwordEncoder.encode(registerRequestDTO.getPassword()));
         user.setRole(Role.STORE_OWNER);
         user.setStatus(Status.ACTIVE);
