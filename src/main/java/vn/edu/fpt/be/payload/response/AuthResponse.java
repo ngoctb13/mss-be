@@ -8,12 +8,14 @@ public class AuthResponse {
     private Long id;
     private String username;
     private String role;
+    private final String status;
 
-    public AuthResponse(String accessToken, Long id, String username, String role) {
+    public AuthResponse(String accessToken, Long id, String username, String role, String status) {
         this.token = accessToken;
         this.id = id;
         this.username = username;
         this.role = role;
+        this.status = status;
     }
 
     public String getAccessToken() {
@@ -42,6 +44,9 @@ public class AuthResponse {
 
     public String getUsername() {
         return username;
+    }
+    public String getStatus() {
+        return status;
     }
 
     public void setUsername(String username) {

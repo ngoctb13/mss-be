@@ -67,6 +67,12 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
+    public String getStatusByUsername(String username) {
+        Optional<User> userOptional = userRepository.findByUsername(username);
+        return String.valueOf(userOptional.get().getStatus());
+    }
+
+    @Override
     public String getRoleByUsername(String username) {
         Optional<User> userOptional = userRepository.findByUsername(username);
         return String.valueOf(userOptional.get().getRole());

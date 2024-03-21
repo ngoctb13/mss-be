@@ -17,4 +17,5 @@ public interface UserService {
     User getCurrentUser();
     List<User> getAllUser();
     User deactivateUser(Long id);
+    String getStatusByUsername(String username);
 }

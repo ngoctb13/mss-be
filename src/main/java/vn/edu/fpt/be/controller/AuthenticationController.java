@@ -50,11 +50,13 @@ public class AuthenticationController {
 
         UserPrincipal userPrincipal = (UserPrincipal) authentication.getPrincipal();
         String role = userService.getRoleByUsername(loginRequest.getUsername());
+        String status = userService.getStatusByUsername(loginRequest.getUsername());
 
         return ResponseEntity.ok(new AuthResponse(token,
                 userPrincipal.getId(),
                 userPrincipal.getUsername(),
-                role));
+                role,
+                status));
     }
 
     @PostMapping("/register")
