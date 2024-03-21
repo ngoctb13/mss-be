@@ -4,15 +4,19 @@ import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
 import org.springframework.stereotype.Service;
 import vn.edu.fpt.be.dto.request.DebtPaymentRequest;
+import vn.edu.fpt.be.dto.response.DebtPaymentResponse;
 import vn.edu.fpt.be.model.Customer;
 import vn.edu.fpt.be.model.DebtPaymentHistory;
+import vn.edu.fpt.be.model.Store;
 import vn.edu.fpt.be.model.User;
 import vn.edu.fpt.be.repository.CustomerRepository;
 import vn.edu.fpt.be.repository.DebtPaymentHistoryRepository;
 import vn.edu.fpt.be.service.DebtPaymentHistoryService;
 import vn.edu.fpt.be.service.UserService;
 
+import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -49,5 +53,24 @@ public class DebtPaymentHistoryServiceImpl implements DebtPaymentHistoryService 
             throw new RuntimeException("Error save debt payment history record: ", e);
         }
 
+    }
+
+    @Override
+    public List<DebtPaymentResponse> getAllTransactionHistoryByCustomer(Long customerId) {
+        User currentUser = userService.getCurrentUser();
+        Store store = currentUser.getStore();
+
+        Optional<Customer> customer = customerRepository.findById(customerId);
+        if (customer.isEmpty()) {
+            throw new RuntimeException("Not found customer with id " + customerId);
+        }
+        if (!customer.get().getStore().equals(store)) {
+            throw new RuntimeException("This customer not belongs to current store");
+        }
+
+        List<DebtPaymentHistory> list = repo.findByCustomerIdOrderByCreatedAtDesc(customerId);
+        return list.stream()
+                .map(debtPaymentHistory -> modelMapper.map(debtPaymentHistory, DebtPaymentResponse.class))
+                .collect(Collectors.toList());
     }
 }
