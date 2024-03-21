@@ -108,8 +108,8 @@ public class UserController {
             return ResponseEntity.internalServerError().build();
         }
     }
-    @PutMapping("/deactivate/{userId}")
-    @PreAuthorize("hasAuthority('SYSTEM_ADMIN')")
+    @PostMapping("/deactivate/{userId}")
+    @PreAuthorize("hasAnyAuthority('SYSTEM_ADMIN', 'STORE_OWNER')")
     public ResponseEntity<?> deactivate(@PathVariable Long userId){
         try{
             User deactivateUser = userService.deactivateUser(userId);
