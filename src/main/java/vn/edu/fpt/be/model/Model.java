@@ -2,6 +2,8 @@ package vn.edu.fpt.be.model;
 
 import javax.persistence.*;
 import javax.persistence.MappedSuperclass;
+
+import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
