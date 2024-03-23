@@ -1,6 +1,7 @@
 package vn.edu.fpt.be.service.impl;
 
 import com.itextpdf.io.font.PdfEncodings;
+import com.itextpdf.kernel.colors.ColorConstants;
 import com.itextpdf.kernel.font.PdfFont;
 import com.itextpdf.kernel.font.PdfFontFactory;
 import com.itextpdf.kernel.pdf.PdfDocument;
@@ -12,11 +13,17 @@ import com.itextpdf.layout.property.HorizontalAlignment;
 import com.itextpdf.layout.property.TextAlignment;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import vn.edu.fpt.be.dto.response.DebtPaymentResponse;
+import vn.edu.fpt.be.model.Customer;
 import vn.edu.fpt.be.model.SaleInvoice;
 import vn.edu.fpt.be.model.SaleInvoiceDetail;
 import vn.edu.fpt.be.model.User;
+import vn.edu.fpt.be.model.enums.RecordType;
+import vn.edu.fpt.be.repository.CustomerRepository;
+import vn.edu.fpt.be.repository.DebtPaymentHistoryRepository;
 import vn.edu.fpt.be.repository.SaleInvoiceDetailRepository;
 import vn.edu.fpt.be.repository.SaleInvoiceRepository;
+import vn.edu.fpt.be.service.DebtPaymentHistoryService;
 import vn.edu.fpt.be.service.PDFService;
 import vn.edu.fpt.be.service.UserService;
 import com.itextpdf.layout.Document;
@@ -33,6 +40,8 @@ import java.util.Optional;
 public class PdfServiceImpl implements PDFService {
     private final SaleInvoiceRepository saleInvoiceRepository;
     private final SaleInvoiceDetailRepository saleInvoiceDetailRepository;
+    private final CustomerRepository customerRepository;
+    private final DebtPaymentHistoryService debtPaymentHistoryService;
     private final UserService userService;
 
     private static final String FONT_FILE = "src/main/resources/fonts/Trirong-Regular.ttf";
@@ -148,6 +157,93 @@ public class PdfServiceImpl implements PDFService {
             e.printStackTrace();
         }
 
+        return new ByteArrayInputStream(out.toByteArray());
+    }
+
+    @Override
+    public ByteArrayInputStream generateTransactionPdf(Long customerId, LocalDateTime startDate, LocalDateTime endDate) throws Exception {
+        User currentUser = userService.getCurrentUser();
+        Optional<Customer> customer = customerRepository.findById(customerId);
+        PdfFont font = PdfFontFactory.createFont(FONT_FILE, PdfEncodings.IDENTITY_H, true);
+        List<DebtPaymentResponse> transactions = debtPaymentHistoryService.getAllTransactionHistoryByCustomerAndDateRange(customerId, startDate, endDate);
+        ByteArrayOutputStream out = new ByteArrayOutputStream();
+
+        try (PdfWriter writer = new PdfWriter(out);
+             PdfDocument pdf = new PdfDocument(writer);
+             Document document = new Document(pdf)) {
+
+            document.setFont(font);
+
+            float[] columnWidths = {1, 1};
+            Table headerTable = new Table(columnWidths);
+            headerTable.useAllAvailableWidth();
+            Cell leftCell = new Cell().add(new Paragraph(currentUser.getStore().getStoreName())
+                            .setBold().setFontSize(20).setFixedLeading(25).setMarginTop(5))
+                    .add(new Paragraph("Địa chỉ: " + currentUser.getStore().getAddress()).setFixedLeading(23))
+                    .add(new Paragraph("Điện thoại: " + currentUser.getStore().getPhoneNumber()).setFixedLeading(23));
+            leftCell.setBorder(Border.NO_BORDER);
+            Cell rightCell = new Cell().add(new Paragraph("Chuyên cung cấp các loại gạo ngon, chất lượng cao").setTextAlignment(TextAlignment.RIGHT))
+                    .add(new Paragraph("Phân phối gạo sạch toàn quốc").setTextAlignment(TextAlignment.RIGHT))
+                    .add(new Paragraph("Gạo thơm ngon từ các vùng miền Việt Nam").setTextAlignment(TextAlignment.RIGHT))
+                    .add(new Paragraph("Đảm bảo 100% gạo sạch, không chất bảo quản").setTextAlignment(TextAlignment.RIGHT));
+            rightCell.setBorder(Border.NO_BORDER);
+            headerTable.addCell(leftCell);
+            headerTable.addCell(rightCell);
+            document.add(headerTable);
+
+            document.add(new Paragraph("LỊCH SỬ SAO KÊ").setTextAlignment(TextAlignment.CENTER).setBold().setFontSize(20).setFixedLeading(18).setMarginTop(10));
+
+            // Add customer information
+            document.add(new Paragraph("Kính gửi quý khách hàng: " + customer.get().getCustomerName())
+                    .setTextAlignment(TextAlignment.LEFT).setFixedLeading(18).setBold());
+            document.add(new Paragraph("Điện thoại: " + customer.get().getPhoneNumber())
+                    .setTextAlignment(TextAlignment.LEFT).setFixedLeading(18));
+            document.add(new Paragraph("Địa chỉ: " + customer.get().getAddress())
+                    .setTextAlignment(TextAlignment.LEFT).setFixedLeading(18));
+            document.add(new Paragraph("Cửa hàng xin trân trọng thông báo Sao kê giao dịch của khách hàng như sau: ")
+                    .setTextAlignment(TextAlignment.LEFT).setFixedLeading(18).setItalic());
+            document.add(new Paragraph("Từ ngày: " + startDate + " đến ngày: " + endDate)
+                    .setTextAlignment(TextAlignment.RIGHT).setFixedLeading(18).setItalic().setBold());
+
+            float[] transactionColumnWidths = {1, 3, 3, 2, 3};
+            Table transactionTable = new Table(transactionColumnWidths);
+            transactionTable.useAllAvailableWidth();
+
+            // Add headers to the transaction table
+            transactionTable.addHeaderCell(new Cell().add(new Paragraph("TT")).setBold());
+            transactionTable.addHeaderCell(new Cell().add(new Paragraph("Số lượng")).setBold());
+            transactionTable.addHeaderCell(new Cell().add(new Paragraph("Ngày lập phiếu")).setBold());
+            transactionTable.addHeaderCell(new Cell().add(new Paragraph("Loại")).setBold());
+            transactionTable.addHeaderCell(new Cell().add(new Paragraph("Ghi chú")).setBold());
+
+            int count = 1;
+            for (DebtPaymentResponse transaction : transactions) {
+                String displayText;
+                com.itextpdf.kernel.colors.Color textColor;
+
+                if (transaction.getType() == RecordType.SALE_INVOICE) {
+                    displayText = "NỢ";
+                    textColor = ColorConstants.RED;
+                } else { // Assume the only other type is PAYMENT
+                    displayText = "TRẢ";
+                    textColor = ColorConstants.BLUE;
+                }
+                Text typeText = new Text(displayText).setFontColor(textColor);
+
+                transactionTable.addCell(new Cell().add(new Paragraph(String.valueOf(count++))));
+                transactionTable.addCell(new Cell().add(new Paragraph(String.format("%,.2f", transaction.getAmount()))));
+                transactionTable.addCell(new Cell().add(new Paragraph(transaction.getRecordDate().toString())));
+                transactionTable.addCell(new Cell().add(new Paragraph(typeText)));
+                transactionTable.addCell(new Cell().add(new Paragraph(transaction.getNote())));
+            }
+
+            document.add(transactionTable);
+            document.add(new Paragraph("Cảm ơn quý khách và hẹn gặp lại!")
+                    .setTextAlignment(TextAlignment.CENTER).setMarginTop(15).setFixedLeading(18).setItalic());
+            document.close();
+        } catch (Exception e) {
+
+        }
         return new ByteArrayInputStream(out.toByteArray());
     }
 }
