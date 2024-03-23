@@ -22,6 +22,7 @@ import vn.edu.fpt.be.repository.*;
 import vn.edu.fpt.be.service.*;
 
 import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -169,9 +170,6 @@ public class SaleInvoiceServiceImpl implements SaleInvoiceService {
         try {
             User currentUser = userService.getCurrentUser();
             Store currentStore = currentUser.getStore();
-            if (endDate == null) {
-                endDate = LocalDateTime.now();
-            }
             List<SaleInvoice> invoices = saleInvoiceRepository.findInvoicesByCriteria(startDate, endDate, createdBy, customerId, currentStore.getId());
             return invoices.stream().map(invoice -> SaleInvoiceReportResponse.builder()
                             .id(invoice.getId())
@@ -205,7 +203,13 @@ public class SaleInvoiceServiceImpl implements SaleInvoiceService {
         PaymentRecordRequest paymentRecordRequest = new PaymentRecordRequest();
         paymentRecordRequest.setCustomerId(saleInvoice.getCustomer().getId());
         paymentRecordRequest.setPaymentAmount(amount);
-        paymentRecordRequest.setNote("Khoản thanh toán từ hóa đơn " + saleInvoice.getId() + " vào ngày " + saleInvoice.getCreatedAt());
+        paymentRecordRequest.setNote("Khoản thanh toán từ hóa đơn " + saleInvoice.getId() + " vào ngày " + formatDateTime(String.valueOf(saleInvoice.getCreatedAt())));
         return paymentRecordRequest;
+    }
+
+    public static String formatDateTime(String dateTimeStr) {
+        LocalDateTime dateTime = LocalDateTime.parse(dateTimeStr);
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("'ngày' dd 'tháng' MM 'năm' yyyy 'giờ' HH:mm:ss");
+        return dateTime.format(formatter);
     }
 }
