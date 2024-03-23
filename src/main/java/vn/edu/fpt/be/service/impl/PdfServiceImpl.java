@@ -44,7 +44,7 @@ public class PdfServiceImpl implements PDFService {
     private final DebtPaymentHistoryService debtPaymentHistoryService;
     private final UserService userService;
 
-    private static final String FONT_FILE = "src/main/resources/Trirong-Regular.ttf";
+    private static final String FONT_FILE = "src/main/resources/templates/Trirong-Regular.ttf";
     @Override
     public ByteArrayInputStream generateInvoicePdf(Long saleInvoiceId) throws Exception {
 
