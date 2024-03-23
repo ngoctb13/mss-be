@@ -47,9 +47,6 @@ public class PdfServiceImpl implements PDFService {
     @Value("${mss.app.fonts-url}")
     private String fontsURL;
 
-
-
-//    private static final String FONT_FILE = "src/main/resources/fonts/Trirong-Regular.ttf";
     @Override
     public ByteArrayInputStream generateInvoicePdf(Long saleInvoiceId) throws Exception {
 
