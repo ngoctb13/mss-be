@@ -12,6 +12,7 @@ import com.itextpdf.layout.element.*;
 import com.itextpdf.layout.property.HorizontalAlignment;
 import com.itextpdf.layout.property.TextAlignment;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import vn.edu.fpt.be.dto.response.DebtPaymentResponse;
 import vn.edu.fpt.be.model.Customer;
@@ -43,12 +44,17 @@ public class PdfServiceImpl implements PDFService {
     private final CustomerRepository customerRepository;
     private final DebtPaymentHistoryService debtPaymentHistoryService;
     private final UserService userService;
+    @Value("${mss.app.fonts-url}")
+    private String fontsURL;
 
-    private static final String FONT_FILE = "src/main/resources/templates/Trirong-Regular.ttf";
+
+
+//    private static final String FONT_FILE = "src/main/resources/fonts/Trirong-Regular.ttf";
     @Override
     public ByteArrayInputStream generateInvoicePdf(Long saleInvoiceId) throws Exception {
 
-        PdfFont font = PdfFontFactory.createFont(FONT_FILE, PdfEncodings.IDENTITY_H, true);
+
+        PdfFont font = PdfFontFactory.createFont(fontsURL, PdfEncodings.IDENTITY_H, true);
 
         User currentUser = userService.getCurrentUser();
         Optional<SaleInvoice> saleInvoice = saleInvoiceRepository.findById(saleInvoiceId);
@@ -164,7 +170,7 @@ public class PdfServiceImpl implements PDFService {
     public ByteArrayInputStream generateTransactionPdf(Long customerId, LocalDateTime startDate, LocalDateTime endDate) throws Exception {
         User currentUser = userService.getCurrentUser();
         Optional<Customer> customer = customerRepository.findById(customerId);
-        PdfFont font = PdfFontFactory.createFont(FONT_FILE, PdfEncodings.IDENTITY_H, true);
+        PdfFont font = PdfFontFactory.createFont(fontsURL, PdfEncodings.IDENTITY_H, true);
         List<DebtPaymentResponse> transactions = debtPaymentHistoryService.getAllTransactionHistoryByCustomerAndDateRange(customerId, startDate, endDate);
         ByteArrayOutputStream out = new ByteArrayOutputStream();
 
