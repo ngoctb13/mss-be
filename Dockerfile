@@ -16,6 +16,8 @@ FROM openjdk:17-slim
 # Copy the JAR file from the build stage
 COPY --from=build /home/app/target/*.jar /usr/local/lib/mss-be.jar
 
+COPY --from=build /home/app/src/main/resources/fonts /usr/local/lib/fonts
+
 # Expose the port the app runs on
 EXPOSE 8080
 
