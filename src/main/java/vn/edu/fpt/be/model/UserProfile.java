@@ -20,6 +20,7 @@ public class UserProfile extends Model {
     @Column(name = "gender", length = 10)
     @Enumerated(EnumType.STRING)
     private Gender gender;
+    @Temporal(TemporalType.DATE)
     @Column(name = "date_of_birth")
     private Date dateOfBirth;
     @Column(name = "phone_number", unique = true)

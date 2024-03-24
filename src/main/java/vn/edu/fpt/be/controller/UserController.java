@@ -65,7 +65,7 @@ public class UserController {
     }
 
     @GetMapping("/getUserById/{userId}")
-    @PreAuthorize("hasAuthority('STORE_OWNER')")
+    @PreAuthorize("hasAnyAuthority('STORE_OWNER','STAFF','SYSTEM_ADMIN')")
     public ResponseEntity<?> getUserById(@PathVariable Long userId) {
         try {
 //            Long userId = tokenProvider.getUserIdFromToken(jwt);
