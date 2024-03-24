@@ -2,6 +2,7 @@ package vn.edu.fpt.be.service.impl;
 
 import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import vn.edu.fpt.be.dto.UserDTO;
@@ -69,6 +70,7 @@ public class UserProfileImpl implements UserProfileService {
             throw new RuntimeException("Password must not be null");
         }
         currentUser.setPassword(passwordEncoder.encode(newPassword));
-        userRepository.save(currentUser);
+        User updatedUser = userRepository.save(currentUser);
+        System.out.println(updatedUser);
     }
 }

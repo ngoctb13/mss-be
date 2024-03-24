@@ -47,7 +47,7 @@ public class UserProfileController {
 
     @PostMapping("/current-user/change-password")
     @PreAuthorize("hasAnyAuthority('STAFF','STORE_OWNER','SYSTEM_ADMIN')")
-    public ResponseEntity<?> changeCurrentUserPassword(@RequestBody String newPassword) {
+    public ResponseEntity<?> changeCurrentUserPassword(@RequestParam("newPassword") String newPassword) {
         try {
             userProfileService.changePassword(newPassword);
             return ResponseEntity.ok(new MessageResponse("change password successfully!"));

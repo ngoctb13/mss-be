@@ -55,7 +55,7 @@ public class StoreController {
     }
 
     @PostMapping("/import-invoice")
-    @PreAuthorize("hasAuthority('STORE_OWNER')")
+    @PreAuthorize("hasAnyAuthority('STORE_OWNER','STAFF')")
     public ResponseEntity<?> createImportInvoice(@RequestBody CreateImportProductInvoiceRequest request) {
         try {
             ImportProductInvoiceResponse response = importProductInvoiceService.importProduct(
@@ -71,7 +71,7 @@ public class StoreController {
     }
 
     @PostMapping("/create-sale-invoice")
-    @PreAuthorize("hasAuthority('STORE_OWNER')")
+    @PreAuthorize("hasAnyAuthority('STORE_OWNER','STAFF')")
     public ResponseEntity<?> createSaleInvoice(@RequestBody CreateSaleInvoiceRequest request) {
         try {
             SaleInvoiceDTO response = saleInvoiceService.createSaleInvoice(
