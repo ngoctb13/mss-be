@@ -9,7 +9,9 @@ import vn.edu.fpt.be.dto.ProductCreateDTO;
 import vn.edu.fpt.be.dto.ProductDTO;
 import vn.edu.fpt.be.dto.ProductUpdateDTO;
 import vn.edu.fpt.be.dto.StoreDTO;
+import vn.edu.fpt.be.dto.response.ProductLocationResponse;
 import vn.edu.fpt.be.exception.ErrorResponse;
+import vn.edu.fpt.be.model.Product;
 import vn.edu.fpt.be.service.ProductService;
 
 import java.util.List;
