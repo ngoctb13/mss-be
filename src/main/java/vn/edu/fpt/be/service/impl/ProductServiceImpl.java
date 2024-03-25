@@ -41,12 +41,13 @@ public class ProductServiceImpl implements ProductService {
     public ProductDTO createProduct(ProductCreateDTO productCreateDTO) {
         User currentUser = userService.getCurrentUser();
         Product product = new Product();
-        product.setProductName(productCreateDTO.getProductName());
+
         product.setUnit(productCreateDTO.getUnit());
         product.setRetailPrice(productCreateDTO.getRetailPrice());
 
         product.setDescription(productCreateDTO.getDescription());
         product.setBag_packing(productCreateDTO.getBag_packing());
+        product.setProductName(productCreateDTO.getProductName());
         Store ownStore = currentUser.getStore();
         product.setStatus(Status.ACTIVE);
         product.setStore(ownStore);

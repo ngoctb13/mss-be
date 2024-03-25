@@ -6,6 +6,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
+import vn.edu.fpt.be.dto.SaleInvoiceDTO;
 import vn.edu.fpt.be.dto.SupplierDTO;
 import vn.edu.fpt.be.dto.response.CustomerSaleInvoiceResponse;
 import vn.edu.fpt.be.dto.response.SaleInvoiceReportResponse;
@@ -30,6 +31,19 @@ public class SaleInvoiceController {
             return ResponseEntity.badRequest().body(e.getMessage());
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("An error occurred while fetching those sale invoices!");
+        }
+    }
+
+    @GetMapping("/find-by-id/{saleInvoiceId}")
+    @PreAuthorize("hasAnyAuthority('STAFF','STORE_OWNER')")
+    public ResponseEntity<?> getSaleInvoiceById(@PathVariable Long saleInvoiceId) {
+        try {
+            SaleInvoiceDTO invoice = saleInvoiceService.getSaleInvoiceById(saleInvoiceId);
+            return ResponseEntity.ok().body(invoice);
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.badRequest().body(e.getMessage());
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("An error occurred while fetching this sale invoice!");
         }
     }
 

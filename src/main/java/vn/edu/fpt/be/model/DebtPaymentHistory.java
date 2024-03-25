@@ -5,6 +5,7 @@ import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 import vn.edu.fpt.be.model.enums.RecordType;
+import vn.edu.fpt.be.model.enums.SourceType;
 
 import javax.persistence.*;
 import java.time.LocalDateTime;
@@ -24,6 +25,8 @@ public class DebtPaymentHistory extends Model{
     private RecordType type;
     @Column(name = "source_id")
     private Long sourceId;
+    @Column(name = "source_type")
+    private SourceType sourceType;
     @Column(name = "amount")
     private Double amount;
     @Column(name = "record_date", columnDefinition = "DATETIME(0)")
