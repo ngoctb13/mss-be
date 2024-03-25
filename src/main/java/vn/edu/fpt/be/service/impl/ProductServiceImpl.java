@@ -10,11 +10,15 @@ import org.springframework.stereotype.Service;
 import vn.edu.fpt.be.dto.ProductCreateDTO;
 import vn.edu.fpt.be.dto.ProductDTO;
 import vn.edu.fpt.be.dto.ProductUpdateDTO;
+import vn.edu.fpt.be.dto.SupplierDTO;
+import vn.edu.fpt.be.dto.response.ProductLocationResponse;
 import vn.edu.fpt.be.model.Product;
+import vn.edu.fpt.be.model.StorageLocation;
 import vn.edu.fpt.be.model.Store;
 import vn.edu.fpt.be.model.User;
 import vn.edu.fpt.be.model.enums.Status;
 import vn.edu.fpt.be.repository.ProductRepository;
+import vn.edu.fpt.be.repository.StorageLocationRepository;
 import vn.edu.fpt.be.repository.StoreRepository;
 import vn.edu.fpt.be.repository.UserRepository;
 import vn.edu.fpt.be.security.UserPrincipal;
@@ -32,6 +36,7 @@ public class ProductServiceImpl implements ProductService {
     private final UserRepository userRepository;
     private final ProductRepository productRepository;
     private final UserService userService;
+    private final StorageLocationRepository storageLocationRepository;
     private final ModelMapper modelMapper = new ModelMapper();
 
     private ProductDTO convertToDto(ProductDTO productDTO) {
@@ -134,4 +139,5 @@ public class ProductServiceImpl implements ProductService {
             throw new RuntimeException("Error retrieving product: ", e);
         }
     }
+
 }
