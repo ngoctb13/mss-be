@@ -18,12 +18,14 @@ import vn.edu.fpt.be.exception.CustomServiceException;
 import vn.edu.fpt.be.exception.EntityNotFoundException;
 import vn.edu.fpt.be.model.*;
 import vn.edu.fpt.be.model.enums.RecordType;
+import vn.edu.fpt.be.model.enums.SourceType;
 import vn.edu.fpt.be.repository.*;
 import vn.edu.fpt.be.service.*;
 
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
@@ -118,7 +120,7 @@ public class SaleInvoiceServiceImpl implements SaleInvoiceService {
 //            saveNewDebtForCustomer(customer, newDebt);
             saleInvoiceDetailService.saveSaleInvoiceDetail(requests, savedSaleInvoice);
             PaymentRecordRequest paymentRecordRequest = createPaymentRecordRequest(savedSaleInvoice, paymentAmount);
-            paymentRecordService.createPaymentRecord(paymentRecordRequest);
+            paymentRecordService.createPaymentRecord(paymentRecordRequest, SourceType.SALE_INVOICE, savedSaleInvoice.getId());
         }
 
         return modelMapper.map(initSaleInvoice, SaleInvoiceDTO.class);
@@ -188,12 +190,27 @@ public class SaleInvoiceServiceImpl implements SaleInvoiceService {
         }
     }
 
+    @Override
+    public SaleInvoiceDTO getSaleInvoiceById(Long saleInvoiceId) {
+        User currentUser = userService.getCurrentUser();
+        Optional<SaleInvoice> saleInvoice = saleInvoiceRepository.findById(saleInvoiceId);
+        if (saleInvoice.isEmpty()) {
+            throw new RuntimeException("Not found any sale invoice with id " + saleInvoiceId);
+        }
+        if (!saleInvoice.get().getStore().equals(currentUser.getStore())) {
+            throw new RuntimeException("this sale invocie not belong to current store");
+        }
+
+        return modelMapper.map(saleInvoice.get(), SaleInvoiceDTO.class);
+    }
+
     public DebtPaymentRequest createDebtPaymentRequest(SaleInvoice saleInvoice, double amount) {
         DebtPaymentRequest debtPaymentRequest = new DebtPaymentRequest();
         debtPaymentRequest.setCustomerId(saleInvoice.getCustomer().getId());
         debtPaymentRequest.setType(RecordType.SALE_INVOICE);
         debtPaymentRequest.setAmount(amount);
         debtPaymentRequest.setSourceId(saleInvoice.getId());
+        debtPaymentRequest.setSourceType(SourceType.SALE_INVOICE);
         debtPaymentRequest.setRecordDate(saleInvoice.getCreatedAt());
         debtPaymentRequest.setNote("Khoản nợ từ hóa đơn " + saleInvoice.getId() + " vào ngày " + saleInvoice.getCreatedAt());
         return debtPaymentRequest;

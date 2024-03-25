@@ -45,6 +45,7 @@ public class DebtPaymentHistoryServiceImpl implements DebtPaymentHistoryService 
                 throw new RuntimeException("source id cannot be null");
             }
             debtPaymentHistory.setSourceId(request.getSourceId());
+            debtPaymentHistory.setSourceType(request.getSourceType());
             debtPaymentHistory.setAmount(request.getAmount());
             debtPaymentHistory.setRecordDate(request.getRecordDate());
             debtPaymentHistory.setNote(request.getNote());

@@ -5,6 +5,7 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import vn.edu.fpt.be.model.enums.RecordType;
+import vn.edu.fpt.be.model.enums.SourceType;
 
 import java.time.LocalDateTime;
 
@@ -16,6 +17,7 @@ public class DebtPaymentRequest {
     private Long customerId;
     private RecordType type;
     private Long sourceId;
+    private SourceType sourceType;
     private Double amount;
     private LocalDateTime recordDate;
     private String note;
