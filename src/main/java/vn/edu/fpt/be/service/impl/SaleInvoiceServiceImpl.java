@@ -204,6 +204,29 @@ public class SaleInvoiceServiceImpl implements SaleInvoiceService {
         return modelMapper.map(saleInvoice.get(), SaleInvoiceDTO.class);
     }
 
+    @Override
+    public List<SaleInvoiceReportResponse> getRecentInvoicesByStoreId() {
+        User currentUser = userService.getCurrentUser();
+        Long storeId = currentUser.getStore().getId();
+        if (storeId == null) {
+            throw new RuntimeException("Store can not be null");
+        }
+        LocalDateTime startDate = LocalDateTime.now().minusDays(7);
+        List<SaleInvoice> invoices = saleInvoiceRepository.findRecentInvoicesByStoreId(storeId, startDate);
+        return invoices.stream().map(invoice -> SaleInvoiceReportResponse.builder()
+                        .id(invoice.getId())
+                        .createdAt(invoice.getCreatedAt())
+                        .createdBy(invoice.getCreatedBy())
+                        .totalPrice(invoice.getTotalPrice())
+                        .oldDebt(invoice.getOldDebt())
+                        .totalPayment(invoice.getTotalPayment())
+                        .pricePaid(invoice.getPricePaid())
+                        .newDebt(invoice.getNewDebt())
+                        .customer(invoice.getCustomer())
+                        .build())
+                .collect(Collectors.toList());
+    }
+
     public DebtPaymentRequest createDebtPaymentRequest(SaleInvoice saleInvoice, double amount) {
         DebtPaymentRequest debtPaymentRequest = new DebtPaymentRequest();
         debtPaymentRequest.setCustomerId(saleInvoice.getCustomer().getId());
