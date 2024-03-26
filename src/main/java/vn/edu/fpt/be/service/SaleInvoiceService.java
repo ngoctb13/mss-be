@@ -13,4 +13,5 @@ public interface SaleInvoiceService {
     List<CustomerSaleInvoiceResponse> getSaleInvoiceByCustomer(Long customerId);
     List<SaleInvoiceReportResponse> getSaleInvoicesByFilter(LocalDateTime startDate, LocalDateTime endDate, String createdBy, Long customerId);
     SaleInvoiceDTO getSaleInvoiceById(Long saleInvoiceId);
+    List<SaleInvoiceReportResponse> getRecentInvoicesByStoreId();
 }
