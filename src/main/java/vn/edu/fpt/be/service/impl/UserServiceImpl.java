@@ -6,6 +6,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import vn.edu.fpt.be.dto.*;
+import vn.edu.fpt.be.dto.response.UserResponse;
 import vn.edu.fpt.be.model.Customer;
 import vn.edu.fpt.be.model.User;
 import vn.edu.fpt.be.model.UserProfile;
@@ -39,6 +40,25 @@ public class UserServiceImpl implements UserService {
         }
         return currentUser.get();
     }
+
+    @Override
+    public List<User> getAllUser() {
+        try {
+            User currentUser = getCurrentUser();
+            if (currentUser.getRole() != Role.SYSTEM_ADMIN) {
+                throw new IllegalArgumentException("Bạn không có quyền xem thông tin này");
+            } else {
+                List<User> allUser = userRepository.findAll();
+                return allUser.stream()
+                        .map(user -> modelMapper.map(user, User.class))
+                        .collect(Collectors.toList());
+            }
+        } catch (Exception e) {
+            throw new RuntimeException("Error retrieving user");
+        }
+    }
+
+
     @Override
     public String getRoleByUsername(String username) {
         Optional<User> userOptional = userRepository.findByUsername(username);
@@ -142,4 +162,5 @@ public class UserServiceImpl implements UserService {
         }
         return modelMapper.map(user.get(),UserDTO.class);
     }
+
 }

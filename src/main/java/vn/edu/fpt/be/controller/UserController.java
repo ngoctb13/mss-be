@@ -10,6 +10,7 @@ import vn.edu.fpt.be.dto.StaffCreateDTO;
 import vn.edu.fpt.be.dto.UserDTO;
 import vn.edu.fpt.be.dto.UserProfileDTO;
 import vn.edu.fpt.be.dto.UserUpdateDTO;
+import vn.edu.fpt.be.dto.response.UserResponse;
 import vn.edu.fpt.be.model.User;
 import vn.edu.fpt.be.security.CurrentUser;
 import vn.edu.fpt.be.security.TokenProvider;
@@ -94,6 +95,16 @@ public class UserController {
         try {
             List<UserDTO> users = userService.getUserOfStore();
             return ResponseEntity.ok(users);
+        } catch (Exception e) {
+            return ResponseEntity.internalServerError().build();
+        }
+    }
+    @GetMapping("/all-user")
+    @PreAuthorize("hasAuthority('SYSTEM_ADMIN')")
+    public ResponseEntity<?> getAllUser() {
+        try {
+            List<User> users = userService.getAllUser();
+            return ResponseEntity.status(HttpStatus.OK).body(users);
         } catch (Exception e) {
             return ResponseEntity.internalServerError().build();
         }

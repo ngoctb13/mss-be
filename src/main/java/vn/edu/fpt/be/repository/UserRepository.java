@@ -1,7 +1,6 @@
 package vn.edu.fpt.be.repository;
 
 import org.springframework.data.jpa.repository.JpaRepository;
-import vn.edu.fpt.be.model.Store;
 import vn.edu.fpt.be.model.User;
 import vn.edu.fpt.be.model.enums.Role;
 
@@ -14,4 +13,5 @@ public interface UserRepository extends JpaRepository<User, Long> {
 //   User findByStoreId(Long storeId);
    List<User> findByStoreId(Long storeId);
    List<User> findByStoreIdAndRole (Long storeId, Role role);
+   List<User> findAll();
 }

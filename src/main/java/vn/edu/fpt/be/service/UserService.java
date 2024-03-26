@@ -1,6 +1,7 @@
 package vn.edu.fpt.be.service;
 
 import vn.edu.fpt.be.dto.*;
+import vn.edu.fpt.be.dto.response.UserResponse;
 import vn.edu.fpt.be.model.User;
 
 import java.util.List;
@@ -14,4 +15,5 @@ public interface UserService {
     List<UserDTO> getUserOfStore();
     UserDTO getUserById(Long storeId);
     User getCurrentUser();
+    List<User> getAllUser();
 }
