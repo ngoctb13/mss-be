@@ -10,17 +10,21 @@ import org.springframework.stereotype.Service;
 import vn.edu.fpt.be.dto.ProductCreateDTO;
 import vn.edu.fpt.be.dto.ProductDTO;
 import vn.edu.fpt.be.dto.ProductUpdateDTO;
+import vn.edu.fpt.be.dto.response.ProductModelResponse;
 import vn.edu.fpt.be.model.Product;
+import vn.edu.fpt.be.model.StorageLocation;
 import vn.edu.fpt.be.model.Store;
 import vn.edu.fpt.be.model.User;
 import vn.edu.fpt.be.model.enums.Status;
 import vn.edu.fpt.be.repository.ProductRepository;
+import vn.edu.fpt.be.repository.StorageLocationRepository;
 import vn.edu.fpt.be.repository.StoreRepository;
 import vn.edu.fpt.be.repository.UserRepository;
 import vn.edu.fpt.be.security.UserPrincipal;
 import vn.edu.fpt.be.service.ProductService;
 import vn.edu.fpt.be.service.UserService;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -31,6 +35,7 @@ public class ProductServiceImpl implements ProductService {
     private final StoreRepository storeRepository;
     private final UserRepository userRepository;
     private final ProductRepository productRepository;
+    private final StorageLocationRepository storageLocationRepository;
     private final UserService userService;
     private final ModelMapper modelMapper = new ModelMapper();
 
@@ -134,5 +139,36 @@ public class ProductServiceImpl implements ProductService {
         } catch (Exception e) {
             throw new RuntimeException("Error retrieving product: ", e);
         }
+    }
+
+    @Override
+    public List<ProductModelResponse> findProductContainName(String nameInput) {
+        User currentUser = userService.getCurrentUser();
+        Store currentStore = currentUser.getStore();
+        List<Product> products = productRepository.findByStoreIdAndProductNameContaining(currentStore.getId(), nameInput);
+
+        List<ProductModelResponse> productModelResponses = new ArrayList<>();
+
+        for (Product product : products) {
+            List<StorageLocation> storageLocations = storageLocationRepository.findByProductId(product.getId());
+
+            ProductModelResponse response = ProductModelResponse.builder()
+                    .id(product.getId())
+                    .productName(product.getProductName())
+                    .unit(product.getUnit())
+                    .retailPrice(product.getRetailPrice())
+                    .importPrice(product.getImportPrice())
+                    .description(product.getDescription())
+                    .inventory(product.getInventory())
+                    .bag_packing(product.getBag_packing())
+                    .status(product.getStatus())
+                    .store(product.getStore())
+                    .storageLocations(storageLocations)
+                    .build();
+
+            productModelResponses.add(response);
+        }
+
+        return productModelResponses;
     }
 }

@@ -9,6 +9,7 @@ import vn.edu.fpt.be.dto.ProductCreateDTO;
 import vn.edu.fpt.be.dto.ProductDTO;
 import vn.edu.fpt.be.dto.ProductUpdateDTO;
 import vn.edu.fpt.be.dto.StoreDTO;
+import vn.edu.fpt.be.dto.response.ProductModelResponse;
 import vn.edu.fpt.be.exception.ErrorResponse;
 import vn.edu.fpt.be.service.ProductService;
 
@@ -74,6 +75,19 @@ public class ProductController {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(null);
         }
     }
+
+    @GetMapping("/contain-name/{nameInput}")
+    @PreAuthorize("hasAnyAuthority('STORE_OWNER', 'STAFF')")
+    public ResponseEntity<?> findProductContainName(
+            @PathVariable String nameInput) {
+        try {
+            List<ProductModelResponse> products = productService.findProductContainName(nameInput);
+            return ResponseEntity.ok(products);
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(null);
+        }
+    }
+
     @PutMapping("/change-status/{productId}")
     @PreAuthorize("hasAuthority('STORE_OWNER')")
     public ResponseEntity<ProductDTO> changeStatusProduct(@PathVariable Long productId) {
