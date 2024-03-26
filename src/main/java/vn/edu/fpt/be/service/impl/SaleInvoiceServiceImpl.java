@@ -212,7 +212,7 @@ public class SaleInvoiceServiceImpl implements SaleInvoiceService {
         debtPaymentRequest.setSourceId(saleInvoice.getId());
         debtPaymentRequest.setSourceType(SourceType.SALE_INVOICE);
         debtPaymentRequest.setRecordDate(saleInvoice.getCreatedAt());
-        debtPaymentRequest.setNote("Khoản nợ từ hóa đơn " + saleInvoice.getId() + " vào ngày " + saleInvoice.getCreatedAt());
+        debtPaymentRequest.setNote("Khoản nợ từ hóa đơn " + saleInvoice.getId() + " vào ngày " + formatDateTime(String.valueOf(saleInvoice.getCreatedAt())));
         return debtPaymentRequest;
     }
 

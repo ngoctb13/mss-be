@@ -120,4 +120,16 @@ public class CustomerServiceImpl implements CustomerService {
         Customer saveCustomer= customerRepository.save(customer);
         return modelMapper.map(saveCustomer, CustomerDTO.class);
     }
+
+    @Override
+    public List<CustomerDTO> getAllCustomerOrderByTotalDebt() {
+        User currentUser = userService.getCurrentUser();
+        if (currentUser.getStore() == null) {
+            throw new RuntimeException("Store can not be null");
+        }
+        List<Customer> customers = customerRepository.findByStoreIdOrderByTotalDebtDesc(currentUser.getStore().getId());
+        return customers.stream()
+                .map(customer -> modelMapper.map(customer, CustomerDTO.class))
+                .collect(Collectors.toList());
+    }
 }

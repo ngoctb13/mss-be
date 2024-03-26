@@ -20,6 +20,8 @@ import vn.edu.fpt.be.service.DebtPaymentHistoryService;
 import vn.edu.fpt.be.service.PaymentRecordService;
 import vn.edu.fpt.be.service.UserService;
 
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.Optional;
 
 @Service
@@ -105,5 +107,11 @@ public class PaymentRecordServiceImpl implements PaymentRecordService {
         } catch (DataAccessException e) {
             throw new CustomServiceException("Fail to update customer: " + e.getMessage(), e);
         }
+    }
+
+    public static String formatDateTime(String dateTimeStr) {
+        LocalDateTime dateTime = LocalDateTime.parse(dateTimeStr);
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("'ngày' dd 'tháng' MM 'năm' yyyy 'giờ' HH:mm:ss");
+        return dateTime.format(formatter);
     }
 }
