@@ -74,23 +74,48 @@ public class StorageLocationController {
     @PreAuthorize("hasAnyAuthority('STORE_OWNER', 'STAFF')")
     public ResponseEntity<ProductLocationResponse> getAllProductsWithLocations() {
         try {
-            ProductLocationResponse response = service.listProductLocation(); // Giả sử bạn đã cập nhật service để có phương thức này
+            ProductLocationResponse response = service.listProductLocation();
             return ResponseEntity.ok(response);
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                    .body(new ProductLocationResponse()); // Trả về một response rỗng hoặc thông báo lỗi tùy bạn
+                    .body(new ProductLocationResponse());
         }
     }
-    @PostMapping("/add-location-for-product")
+    @PostMapping("/add-or-update-location-for-product")
     @PreAuthorize("hasAuthority('STORE_OWNER')")
-    public ResponseEntity<List<StorageLocationDTO>> addNewStorageLocations(@RequestBody StorageLocationForProductRequest request) {
+    public ResponseEntity<?> addOrUpdateNewStorageLocations(@RequestBody StorageLocationForProductRequest request) {
         try {
-            List<StorageLocationDTO> newStorageLocations = service.addNewStorageLocation(request);
+            StorageLocationDTO newStorageLocations = service.addOrUpdateNewStorageLocation(request);
             return ResponseEntity.ok(newStorageLocations);
         } catch (IllegalArgumentException e) {
             return ResponseEntity.badRequest().build();
         } catch (RuntimeException e) {
             return ResponseEntity.unprocessableEntity().build();
+        }
+    }
+    @PostMapping("/add-location-for-product")
+    @PreAuthorize("hasAuthority('STORE_OWNER')")
+    public ResponseEntity<?> addNewStorageLocations(@RequestBody StorageLocationForProductRequest request) {
+        try {
+            StorageLocationDTO newStorageLocations = service.addNewStorageLocation(request);
+            return ResponseEntity.ok(newStorageLocations);
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.badRequest().build();
+        } catch (RuntimeException e) {
+            return ResponseEntity.unprocessableEntity().build();
+        }
+    }
+    @GetMapping("/findLocationProduct")
+    public ResponseEntity<?> findLocationProduct(){
+        try {
+            List<StorageLocationDTO> storageLocations = service.findLocationProduct();
+            if (storageLocations.isEmpty()) {
+                return ResponseEntity.noContent().build();
+            }
+            return ResponseEntity.status(HttpStatus.OK).body(storageLocations);
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body("An error occurred while fetching the storage locations.");
         }
     }
 }

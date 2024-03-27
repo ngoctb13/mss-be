@@ -13,5 +13,7 @@ public interface StorageLocationService {
     List<StorageLocationDTO> getByStore();
     StorageLocationDTO deactivate(Long storageLocationId);
     ProductLocationResponse listProductLocation();
-    List<StorageLocationDTO> addNewStorageLocation(StorageLocationForProductRequest storageLocationRequest);
+    StorageLocationDTO addOrUpdateNewStorageLocation(StorageLocationForProductRequest storageLocationRequest);
+    StorageLocationDTO addNewStorageLocation(StorageLocationForProductRequest storageLocationRequest);
+    List<StorageLocationDTO> findLocationProduct();
 }

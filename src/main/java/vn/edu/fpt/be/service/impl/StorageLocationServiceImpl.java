@@ -22,9 +22,7 @@ import vn.edu.fpt.be.service.ProductService;
 import vn.edu.fpt.be.service.StorageLocationService;
 import vn.edu.fpt.be.service.UserService;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
@@ -109,20 +107,21 @@ public class StorageLocationServiceImpl implements StorageLocationService {
             return new ProductLocationResponse.ProductWithLocations(
                     product.getId(),
                     product.getProductName(),
-                    product.getUnit(), // Thêm unit
-                    product.getRetailPrice(), // Thêm retailPrice
-                    product.getInventory(), // Thêm inventory
-                    product.getBag_packing(), // Thêm bag_packing
+                    product.getUnit(),
+                    product.getRetailPrice(),
+                    product.getInventory(),
+                    product.getBag_packing(),
                     product.getStatus(),
-                    locationInfos // Thêm thông tin vị trí
+                    locationInfos
             );
         }).collect(Collectors.toList());
 
         return new ProductLocationResponse(productWithLocationsList);
     }
 
+
     @Override
-    public List<StorageLocationDTO> addNewStorageLocation(StorageLocationForProductRequest storageLocationRequest) {
+    public StorageLocationDTO addOrUpdateNewStorageLocation(StorageLocationForProductRequest storageLocationRequest) {
         User currentUser = userService.getCurrentUser();
         Store ownedStore = currentUser.getStore();
         if (ownedStore == null) {
@@ -132,28 +131,78 @@ public class StorageLocationServiceImpl implements StorageLocationService {
         Product existsProduct = productRepository.findById(storageLocationRequest.getProductId())
                 .orElseThrow(() -> new IllegalArgumentException("Product not found"));
 
-        List<StorageLocationDTO> savedLocations = new ArrayList<>();
-        for (Long storageId : storageLocationRequest.getStorageLocationIds()) {
-            StorageLocation existsStorageLocation = repo.findById(storageId)
-                    .orElseThrow(() -> new IllegalArgumentException("Storage location not found: " + storageId));
+        // Assuming storageLocationRequest.getStorageLocationId() is the correct method to retrieve a single ID.
+        Long storageLocationId = storageLocationRequest.getStorageLocationIds();
+        StorageLocation storageLocation = repo.findById(storageLocationId)
+                .orElseThrow(() -> new IllegalArgumentException("Storage location not found: " + storageLocationId));
 
-            // Tạo một đối tượng StorageLocation mới và thiết lập các thuộc tính
-            StorageLocation newStorageLocation = new StorageLocation();
-            newStorageLocation.setLocationName(existsStorageLocation.getLocationName());
-            newStorageLocation.setDescription(existsStorageLocation.getDescription());
-            newStorageLocation.setStatus(Status.ACTIVE);
-            newStorageLocation.setStore(ownedStore);
-            newStorageLocation.setCreatedBy(currentUser.getUsername());
-            newStorageLocation.setProduct(existsProduct);
-
-            // Lưu StorageLocation mới
-            StorageLocation savedStorageLocation = repo.save(newStorageLocation);
-            savedLocations.add(modelMapper.map(savedStorageLocation, StorageLocationDTO.class));
+        // If the storage location does not have a product associated or is associated with a different product, update it.
+        if (storageLocation.getProduct() == null || !storageLocation.getProduct().getId().equals(existsProduct.getId())) {
+            storageLocation.setProduct(existsProduct);
+            storageLocation = repo.save(storageLocation);
         }
 
-        return savedLocations;
+        // Map the storage location to its DTO and return it.
+        return modelMapper.map(storageLocation, StorageLocationDTO.class);
     }
 
 
+    @Override
+    public StorageLocationDTO addNewStorageLocation(StorageLocationForProductRequest storageLocationRequest) {
+        // Fetch the current user and their associated store
+        User currentUser = userService.getCurrentUser();
+        Store ownedStore = currentUser.getStore();
+        if (ownedStore == null) {
+            throw new RuntimeException("Store cannot be null");
+        }
+
+        // Find the requested product; throw an exception if not found
+        Product existsProduct = productRepository.findById(storageLocationRequest.getProductId())
+                .orElseThrow(() -> new IllegalArgumentException("Product not found"));
+
+        // Assuming 'repo' is a repository for StorageLocation entities,
+        // find the requested storage location; throw an exception if not found
+        StorageLocation existsStorageLocation = repo.findById(storageLocationRequest.getStorageLocationIds()) // Adjusted for correct method name
+                .orElseThrow(() -> new IllegalArgumentException("Storage location not found"));
+
+        // Check if the product is already stored in any location within the store
+        boolean isProductStoredAlready = repo.existsByProductIdAndStoreId(existsProduct.getId(), ownedStore.getId());
+        if (isProductStoredAlready) {
+            throw new IllegalStateException("Product is already stored at a unique storage location");
+        }
+
+        // Create a new storage location using details from the found location
+        StorageLocation newStorageLocation = new StorageLocation();
+        newStorageLocation.setLocationName(existsStorageLocation.getLocationName());
+        newStorageLocation.setDescription(existsStorageLocation.getDescription());
+        newStorageLocation.setStatus(Status.ACTIVE);
+        newStorageLocation.setStore(ownedStore);
+        newStorageLocation.setCreatedBy(currentUser.getUsername());
+        newStorageLocation.setProduct(existsProduct);
+
+        // Save the new storage location
+        StorageLocation savedStorageLocation = repo.save(newStorageLocation);
+
+        // Map the saved storage location to its DTO
+
+        return modelMapper.map(savedStorageLocation, StorageLocationDTO.class);
+    }
+
+
+
+    @Override
+    public List<StorageLocationDTO> findLocationProduct() {
+        User currentUser = userService.getCurrentUser();
+        Store currentStore = currentUser.getStore();
+        try {
+            List<StorageLocation> storageLocations = repo.findStorageLocations(currentStore.getId());
+            return storageLocations.stream()
+                    .map(storageLocation -> modelMapper.map(storageLocation, StorageLocationDTO.class))
+                    .collect(Collectors.toList());
+        } catch (Exception e) {
+            // Log the stack trace and any other useful information
+            throw new RuntimeException("An error occurred while fetching the storage locations.", e);
+        }
+    }
 
 }
