@@ -131,7 +131,7 @@ public class ProductServiceImpl implements ProductService {
         try {
             User currentUser = userService.getCurrentUser();
             Store currentStore = currentUser.getStore();
-            List<Product> products = productRepository.findByStoreIdAndProductNameContaining(currentStore.getId(), nameInput);
+            List<Product> products = productRepository.findByStoreIdAndStatusAndProductNameContaining(currentStore.getId(), Status.ACTIVE, nameInput);
 
             return products.stream()
                     .map(product -> modelMapper.map(product, ProductDTO.class))
@@ -145,7 +145,7 @@ public class ProductServiceImpl implements ProductService {
     public List<ProductModelResponse> findProductContainName(String nameInput) {
         User currentUser = userService.getCurrentUser();
         Store currentStore = currentUser.getStore();
-        List<Product> products = productRepository.findByStoreIdAndProductNameContaining(currentStore.getId(), nameInput);
+        List<Product> products = productRepository.findByStoreIdAndStatusAndProductNameContaining(currentStore.getId(), Status.ACTIVE, nameInput);
 
         List<ProductModelResponse> productModelResponses = new ArrayList<>();
 
