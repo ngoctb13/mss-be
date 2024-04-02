@@ -7,6 +7,7 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import vn.edu.fpt.be.dto.*;
 import vn.edu.fpt.be.exception.ErrorResponse;
+import vn.edu.fpt.be.model.User;
 import vn.edu.fpt.be.service.ImportProductInvoiceService;
 import vn.edu.fpt.be.service.SaleInvoiceService;
 import vn.edu.fpt.be.service.StoreService;
@@ -54,6 +55,17 @@ public class StoreController {
         }
     }
 
+    @GetMapping("/list-all")
+    @PreAuthorize("hasAuthority('SYSTEM_ADMIN')")
+    public ResponseEntity<?> listAllStores() {
+        try {
+            List<StoreDTO> stores = storeService.listAllStores();
+            return new ResponseEntity<>(stores, HttpStatus.OK);
+        } catch (Exception e) {
+            return new ResponseEntity<>(new ErrorResponse("Failed to fetch stores: " + e.getMessage()), HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
     @PostMapping("/import-invoice")
     @PreAuthorize("hasAnyAuthority('STORE_OWNER','STAFF')")
     public ResponseEntity<?> createImportInvoice(@RequestBody CreateImportProductInvoiceRequest request) {
@@ -83,6 +95,19 @@ public class StoreController {
         } catch (Exception e) {
             // You might want to handle different exceptions differently
             return ResponseEntity.badRequest().body(e);
+        }
+    }
+
+    @PostMapping("/deactivate/{storeId}")
+    @PreAuthorize("hasAuthority('SYSTEM_ADMIN')")
+    public ResponseEntity<?> deactivate(@PathVariable Long storeId){
+        try{
+            StoreDTO deactivateStore = storeService.deactivateStore(storeId);
+            return ResponseEntity.ok().body(deactivateStore);
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.badRequest().body(e.getMessage());
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("An error occurred while deactivate the store.");
         }
     }
 }

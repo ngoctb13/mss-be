@@ -11,6 +11,7 @@ import vn.edu.fpt.be.dto.StoreCreateDTO;
 import vn.edu.fpt.be.dto.StoreDTO;
 import vn.edu.fpt.be.model.Store;
 import vn.edu.fpt.be.model.User;
+import vn.edu.fpt.be.model.enums.Role;
 import vn.edu.fpt.be.model.enums.Status;
 import vn.edu.fpt.be.repository.StoreRepository;
 import vn.edu.fpt.be.repository.UserRepository;
@@ -92,6 +93,42 @@ public class StoreServiceImpl implements StoreService {
         } catch (Exception e) {
             throw new RuntimeException("Failed to fetch store by owner.", e);
         }
+    }
+
+    @Override
+    public List<StoreDTO> listAllStores() {
+        try {
+            List<Store> stores = storeRepository.findAll();
+            return stores.stream().map(store -> StoreDTO.builder()
+                    .id(store.getId())
+                    .storeName(store.getStoreName())
+                    .address(store.getAddress())
+                    .owner(userRepository.findStoreOwnerByStoreId(store.getId(), Role.STORE_OWNER).get())
+                    .status(String.valueOf(store.getStatus()))
+                    .build())
+                    .collect(Collectors.toList());
+        } catch (Exception e) {
+            throw new RuntimeException("Failed to fetch all stores.", e);
+        }
+    }
+
+    @Override
+    public StoreDTO deactivateStore(Long storeId) {
+        if (storeId == null) {
+            throw new IllegalArgumentException("store id can not be null");
+        }
+        Optional<Store> store = storeRepository.findById(storeId);
+        if (store.isEmpty()) {
+            throw new RuntimeException("not found any store with id " + storeId);
+        }
+        Store gotStore = store.get();
+        if (gotStore.getStatus() == Status.ACTIVE) {
+            gotStore.setStatus(Status.INACTIVE);
+        } else {
+            gotStore.setStatus(Status.ACTIVE);
+        }
+        Store updatedStore = storeRepository.save(gotStore);
+        return modelMapper.map(updatedStore, StoreDTO.class);
     }
 
     private StoreDTO convertToDto(Store store) {

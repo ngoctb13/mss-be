@@ -120,4 +120,16 @@ public class UserController {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("An error occurred while deactivate the supplier.");
         }
     }
+    @PostMapping("/change-password/by-user")
+    @PreAuthorize("hasAnyAuthority('SYSTEM_ADMIN', 'STORE_OWNER')")
+    public ResponseEntity<?> changePasswordByUserId(@RequestParam("userId") Long userId, @RequestParam("newPassword") String newPassword){
+        try{
+            UserDTO updatedUser = userService.changePasswordByUserId(userId, newPassword);
+            return ResponseEntity.ok().body(updatedUser);
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.badRequest().body(e.getMessage());
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("An error occurred while change password");
+        }
+    }
 }
