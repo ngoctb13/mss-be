@@ -32,6 +32,18 @@ public class UserProfileController {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("An error occurred while fetching current user profile!");
         }
     }
+    @GetMapping("/by-user/{userId}")
+    @PreAuthorize("hasAnyAuthority('STORE_OWNER','SYSTEM_ADMIN')")
+    public ResponseEntity<?> getUserProfileByUser(@PathVariable Long userId) {
+        try {
+            UserProfileResponse response = userProfileService.getUserProfileByUser(userId);
+            return ResponseEntity.ok().body(response);
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.badRequest().body(e.getMessage());
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("An error occurred while fetching user profile!");
+        }
+    }
     @PostMapping("/current-user/update")
     @PreAuthorize("hasAnyAuthority('STAFF','STORE_OWNER','SYSTEM_ADMIN')")
     public ResponseEntity<?> updateCurrentUserProfile(@RequestBody UpdateProfileRequest req) {

@@ -10,4 +10,5 @@ public interface UserProfileService {
     UserProfileResponse getCurrentUserProfile();
     UserProfileResponse updateCurrentUserProfile(UpdateProfileRequest request);
     void changePassword(String newPassword);
+    UserProfileResponse getUserProfileByUser(Long userId);
 }

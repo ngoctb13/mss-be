@@ -10,5 +10,6 @@ public interface StoreService {
     StoreDTO createStore(StoreCreateDTO storeCreateDTO);
     List<StoreDTO> getAllStores();
     StoreDTO getStoreByOwner(Long ownerId);
-
+    List<StoreDTO> listAllStores();
+    StoreDTO deactivateStore(Long storeId);
 }

@@ -73,4 +73,13 @@ public class UserProfileImpl implements UserProfileService {
         User updatedUser = userRepository.save(currentUser);
         System.out.println(updatedUser);
     }
+
+    @Override
+    public UserProfileResponse getUserProfileByUser(Long userId) {
+        if (userId == null) {
+            throw new RuntimeException("User can not be null");
+        }
+        UserProfile userProfile = userProfileRepository.findByUserId(userId);
+        return modelMapper.map(userProfile, UserProfileResponse.class);
+    }
 }
