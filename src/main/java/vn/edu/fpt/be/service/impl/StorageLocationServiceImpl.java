@@ -131,18 +131,14 @@ public class StorageLocationServiceImpl implements StorageLocationService {
         Product existsProduct = productRepository.findById(storageLocationRequest.getProductId())
                 .orElseThrow(() -> new IllegalArgumentException("Product not found"));
 
-        // Assuming storageLocationRequest.getStorageLocationId() is the correct method to retrieve a single ID.
         Long storageLocationId = storageLocationRequest.getStorageLocationIds();
         StorageLocation storageLocation = repo.findById(storageLocationId)
                 .orElseThrow(() -> new IllegalArgumentException("Storage location not found: " + storageLocationId));
 
-        // If the storage location does not have a product associated or is associated with a different product, update it.
         if (storageLocation.getProduct() == null || !storageLocation.getProduct().getId().equals(existsProduct.getId())) {
             storageLocation.setProduct(existsProduct);
             storageLocation = repo.save(storageLocation);
         }
-
-        // Map the storage location to its DTO and return it.
         return modelMapper.map(storageLocation, StorageLocationDTO.class);
     }
 
@@ -156,22 +152,17 @@ public class StorageLocationServiceImpl implements StorageLocationService {
             throw new RuntimeException("Store cannot be null");
         }
 
-        // Find the requested product; throw an exception if not found
         Product existsProduct = productRepository.findById(storageLocationRequest.getProductId())
                 .orElseThrow(() -> new IllegalArgumentException("Product not found"));
 
-        // Assuming 'repo' is a repository for StorageLocation entities,
-        // find the requested storage location; throw an exception if not found
         StorageLocation existsStorageLocation = repo.findById(storageLocationRequest.getStorageLocationIds()) // Adjusted for correct method name
                 .orElseThrow(() -> new IllegalArgumentException("Storage location not found"));
 
-        // Check if the product is already stored in any location within the store
         boolean isProductStoredAlready = repo.existsByProductIdAndStoreId(existsProduct.getId(), ownedStore.getId());
         if (isProductStoredAlready) {
             throw new IllegalStateException("Product is already stored at a unique storage location");
         }
 
-        // Create a new storage location using details from the found location
         StorageLocation newStorageLocation = new StorageLocation();
         newStorageLocation.setLocationName(existsStorageLocation.getLocationName());
         newStorageLocation.setDescription(existsStorageLocation.getDescription());
@@ -180,10 +171,7 @@ public class StorageLocationServiceImpl implements StorageLocationService {
         newStorageLocation.setCreatedBy(currentUser.getUsername());
         newStorageLocation.setProduct(existsProduct);
 
-        // Save the new storage location
         StorageLocation savedStorageLocation = repo.save(newStorageLocation);
-
-        // Map the saved storage location to its DTO
 
         return modelMapper.map(savedStorageLocation, StorageLocationDTO.class);
     }
