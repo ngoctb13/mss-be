@@ -1,6 +1,8 @@
 package vn.edu.fpt.be.model.enums;
 
 public enum RecordType {
-    PAYMENT,
-    SALE_INVOICE
+    PAYMENT, //trả
+    SALE_INVOICE, // nợ
+    OWNER_DEBT,
+    OWNER_PAID
 }

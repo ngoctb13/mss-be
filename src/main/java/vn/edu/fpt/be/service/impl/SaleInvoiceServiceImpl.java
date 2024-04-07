@@ -11,6 +11,7 @@ import vn.edu.fpt.be.dto.SaleInvoiceDTO;
 import vn.edu.fpt.be.dto.SaleInvoiceDetailDTO;
 import vn.edu.fpt.be.dto.SaleInvoiceDetailRequest;
 import vn.edu.fpt.be.dto.request.DebtPaymentRequest;
+import vn.edu.fpt.be.dto.request.DebtRecordRequest;
 import vn.edu.fpt.be.dto.request.PaymentRecordRequest;
 import vn.edu.fpt.be.dto.response.CustomerSaleInvoiceResponse;
 import vn.edu.fpt.be.dto.response.SaleInvoiceReportResponse;
@@ -38,6 +39,7 @@ public class SaleInvoiceServiceImpl implements SaleInvoiceService {
     private final UserService userService;
     private final DebtPaymentHistoryService debtPaymentHistoryService;
     private final PaymentRecordService paymentRecordService;
+    private final DebtRecordService debtRecordService;
     private final ModelMapper modelMapper = new ModelMapper();
 
 
@@ -57,7 +59,11 @@ public class SaleInvoiceServiceImpl implements SaleInvoiceService {
         initSaleInvoice.setStore(currentStore);
         initSaleInvoice.setPricePaid(pricePaid);
         double oldDebt = customer.getTotalDebt();
-        initSaleInvoice.setOldDebt(oldDebt);
+        if (oldDebt <= 0) {
+            initSaleInvoice.setOldDebt(0.0);
+        } else {
+            initSaleInvoice.setOldDebt(oldDebt);
+        }
         initSaleInvoice.setCreatedBy(currentUser.getUsername());
 
 
@@ -67,7 +73,7 @@ public class SaleInvoiceServiceImpl implements SaleInvoiceService {
         double totalPayment;
         double debtAmount = 0.0;
         double paymentAmount = 0.0;
-        if (customer.getTotalDebt() == null || customer.getTotalDebt() == 0) {
+        if (customer.getTotalDebt() == null || customer.getTotalDebt() <= 0) {
             totalPayment = totalPrice;
             if (pricePaid > totalPayment) {
                 throw new RuntimeException("Price paid can not greater than total payment");
@@ -109,10 +115,10 @@ public class SaleInvoiceServiceImpl implements SaleInvoiceService {
 
         if (debtAmount != 0.0) {
             SaleInvoice savedSaleInvoice = saleInvoiceRepository.save(initSaleInvoice);
-            saveNewDebtForCustomer(customer, newDebt);
+//            saveNewDebtForCustomer(customer, newDebt);
             saleInvoiceDetailService.saveSaleInvoiceDetail(requests, savedSaleInvoice);
-            DebtPaymentRequest debtPaymentRequest = createDebtPaymentRequest(savedSaleInvoice, debtAmount);
-            debtPaymentHistoryService.saveDebtPaymentHistory(debtPaymentRequest);
+            DebtRecordRequest debtRecordRequest = createDebtRecordRequest(savedSaleInvoice, debtAmount);
+            debtRecordService.createDebtRecord(debtRecordRequest, SourceType.SALE_INVOICE, savedSaleInvoice.getId());
         }
 
         if (paymentAmount != 0.0) {
@@ -227,24 +233,20 @@ public class SaleInvoiceServiceImpl implements SaleInvoiceService {
                 .collect(Collectors.toList());
     }
 
-    public DebtPaymentRequest createDebtPaymentRequest(SaleInvoice saleInvoice, double amount) {
-        DebtPaymentRequest debtPaymentRequest = new DebtPaymentRequest();
-        debtPaymentRequest.setCustomerId(saleInvoice.getCustomer().getId());
-        debtPaymentRequest.setType(RecordType.SALE_INVOICE);
-        debtPaymentRequest.setAmount(amount);
-        debtPaymentRequest.setSourceId(saleInvoice.getId());
-        debtPaymentRequest.setSourceType(SourceType.SALE_INVOICE);
-        debtPaymentRequest.setRecordDate(saleInvoice.getCreatedAt());
-        debtPaymentRequest.setNote("Khoản nợ từ hóa đơn " + saleInvoice.getId() + " vào " + formatDateTime(String.valueOf(saleInvoice.getCreatedAt())));
-        return debtPaymentRequest;
-    }
-
     public PaymentRecordRequest createPaymentRecordRequest(SaleInvoice saleInvoice, double amount) {
         PaymentRecordRequest paymentRecordRequest = new PaymentRecordRequest();
         paymentRecordRequest.setCustomerId(saleInvoice.getCustomer().getId());
         paymentRecordRequest.setPaymentAmount(amount);
         paymentRecordRequest.setNote("Khoản thanh toán từ hóa đơn " + saleInvoice.getId() + " vào " + formatDateTime(String.valueOf(saleInvoice.getCreatedAt())));
         return paymentRecordRequest;
+    }
+
+    public DebtRecordRequest createDebtRecordRequest(SaleInvoice saleInvoice, double amount) {
+        DebtRecordRequest debtRecordRequest = new DebtRecordRequest();
+        debtRecordRequest.setCustomerId(saleInvoice.getCustomer().getId());
+        debtRecordRequest.setDebtAmount(amount);
+        debtRecordRequest.setNote("Khoản nợ từ hóa đơn " + saleInvoice.getId() + " vào " + formatDateTime(String.valueOf(saleInvoice.getCreatedAt())));
+        return debtRecordRequest;
     }
 
     public static String formatDateTime(String dateTimeStr) {

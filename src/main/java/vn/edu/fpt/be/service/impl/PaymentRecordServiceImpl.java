@@ -49,6 +49,10 @@ public class PaymentRecordServiceImpl implements PaymentRecordService {
             PaymentRecord paymentRecord = new PaymentRecord();
             paymentRecord.setCustomer(customer.get());
 
+            if (request.getPaymentAmount() == 0) {
+                throw new RuntimeException("The payment amount can not equal zero");
+            }
+
             if (request.getPaymentAmount() > customer.get().getTotalDebt()) {
                 throw new RuntimeException("Payment amount can not greater than customer total debt");
             }
