@@ -14,14 +14,10 @@ import java.time.LocalDateTime;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-public class DebtPaymentResponse {
+public class OwnerDebtPaymentHistoryRes {
     private Long id;
-    private LocalDateTime createdAt;
     private Customer customer;
     private RecordType type;
-    private Long sourceId;
-    private SourceType sourceType;
     private Double amount;
-    private LocalDateTime recordDate;
     private String note;
 }
