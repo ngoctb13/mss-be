@@ -10,6 +10,8 @@ import org.springframework.stereotype.Service;
 import vn.edu.fpt.be.dto.ProductCreateDTO;
 import vn.edu.fpt.be.dto.ProductDTO;
 import vn.edu.fpt.be.dto.ProductUpdateDTO;
+import vn.edu.fpt.be.dto.SupplierDTO;
+import vn.edu.fpt.be.dto.response.ProductLocationResponse;
 import vn.edu.fpt.be.dto.response.ProductModelResponse;
 import vn.edu.fpt.be.model.Product;
 import vn.edu.fpt.be.model.StorageLocation;
@@ -37,6 +39,7 @@ public class ProductServiceImpl implements ProductService {
     private final ProductRepository productRepository;
     private final StorageLocationRepository storageLocationRepository;
     private final UserService userService;
+    private final StorageLocationRepository storageLocationRepository;
     private final ModelMapper modelMapper = new ModelMapper();
 
     private ProductDTO convertToDto(ProductDTO productDTO) {

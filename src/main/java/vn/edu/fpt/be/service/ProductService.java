@@ -3,10 +3,12 @@ package vn.edu.fpt.be.service;
 import vn.edu.fpt.be.dto.ProductCreateDTO;
 import vn.edu.fpt.be.dto.ProductDTO;
 import vn.edu.fpt.be.dto.ProductUpdateDTO;
+import vn.edu.fpt.be.dto.response.ProductLocationResponse;
 import vn.edu.fpt.be.dto.response.ProductModelResponse;
 import vn.edu.fpt.be.model.Product;
 
 import java.util.List;
+import java.util.Optional;
 
 public interface ProductService {
     ProductDTO createProduct(ProductCreateDTO productCreateDTO);
