@@ -12,6 +12,7 @@ import java.util.List;
 @AllArgsConstructor
 @NoArgsConstructor
 public class StorageLocationForProductRequest {
-    private Long storageLocationIds; // Danh sách các ID vị trí lưu trữ
     private Long productId;
+    private Double inventory;
+    private Long storageLocationId;
 }

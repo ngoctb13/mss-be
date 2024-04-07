@@ -131,8 +131,12 @@ public class StorageLocationServiceImpl implements StorageLocationService {
         Product existsProduct = productRepository.findById(storageLocationRequest.getProductId())
                 .orElseThrow(() -> new IllegalArgumentException("Product not found"));
 
+        // Update the inventory of the product
+        existsProduct.setInventory(storageLocationRequest.getInventory());
+        productRepository.save(existsProduct);
+
         // Assuming storageLocationRequest.getStorageLocationId() is the correct method to retrieve a single ID.
-        Long storageLocationId = storageLocationRequest.getStorageLocationIds();
+        Long storageLocationId = storageLocationRequest.getStorageLocationId();
         StorageLocation storageLocation = repo.findById(storageLocationId)
                 .orElseThrow(() -> new IllegalArgumentException("Storage location not found: " + storageLocationId));
 
@@ -162,7 +166,7 @@ public class StorageLocationServiceImpl implements StorageLocationService {
 
         // Assuming 'repo' is a repository for StorageLocation entities,
         // find the requested storage location; throw an exception if not found
-        StorageLocation existsStorageLocation = repo.findById(storageLocationRequest.getStorageLocationIds()) // Adjusted for correct method name
+        StorageLocation existsStorageLocation = repo.findById(storageLocationRequest.getStorageLocationId()) // Adjusted for correct method name
                 .orElseThrow(() -> new IllegalArgumentException("Storage location not found"));
 
         // Check if the product is already stored in any location within the store
