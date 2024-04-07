@@ -39,7 +39,6 @@ public class ProductServiceImpl implements ProductService {
     private final ProductRepository productRepository;
     private final StorageLocationRepository storageLocationRepository;
     private final UserService userService;
-    private final StorageLocationRepository storageLocationRepository;
     private final ModelMapper modelMapper = new ModelMapper();
 
     private ProductDTO convertToDto(ProductDTO productDTO) {
