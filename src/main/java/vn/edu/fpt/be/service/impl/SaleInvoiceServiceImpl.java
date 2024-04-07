@@ -10,18 +10,23 @@ import vn.edu.fpt.be.dto.ImportProductDetailRequest;
 import vn.edu.fpt.be.dto.SaleInvoiceDTO;
 import vn.edu.fpt.be.dto.SaleInvoiceDetailDTO;
 import vn.edu.fpt.be.dto.SaleInvoiceDetailRequest;
+import vn.edu.fpt.be.dto.request.DebtPaymentRequest;
+import vn.edu.fpt.be.dto.request.DebtRecordRequest;
+import vn.edu.fpt.be.dto.request.PaymentRecordRequest;
 import vn.edu.fpt.be.dto.response.CustomerSaleInvoiceResponse;
 import vn.edu.fpt.be.dto.response.SaleInvoiceReportResponse;
 import vn.edu.fpt.be.exception.CustomServiceException;
 import vn.edu.fpt.be.exception.EntityNotFoundException;
 import vn.edu.fpt.be.model.*;
+import vn.edu.fpt.be.model.enums.RecordType;
+import vn.edu.fpt.be.model.enums.SourceType;
 import vn.edu.fpt.be.repository.*;
-import vn.edu.fpt.be.service.SaleInvoiceDetailService;
-import vn.edu.fpt.be.service.SaleInvoiceService;
-import vn.edu.fpt.be.service.UserService;
+import vn.edu.fpt.be.service.*;
 
 import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
@@ -32,6 +37,9 @@ public class SaleInvoiceServiceImpl implements SaleInvoiceService {
     private final SaleInvoiceDetailService saleInvoiceDetailService;
     private final UserRepository userRepository;
     private final UserService userService;
+    private final DebtPaymentHistoryService debtPaymentHistoryService;
+    private final PaymentRecordService paymentRecordService;
+    private final DebtRecordService debtRecordService;
     private final ModelMapper modelMapper = new ModelMapper();
 
 
@@ -50,25 +58,76 @@ public class SaleInvoiceServiceImpl implements SaleInvoiceService {
         initSaleInvoice.setCustomer(customer);
         initSaleInvoice.setStore(currentStore);
         initSaleInvoice.setPricePaid(pricePaid);
-        initSaleInvoice.setOldDebt(customer.getTotalDebt());
+        double oldDebt = customer.getTotalDebt();
+        if (oldDebt <= 0) {
+            initSaleInvoice.setOldDebt(0.0);
+        } else {
+            initSaleInvoice.setOldDebt(oldDebt);
+        }
         initSaleInvoice.setCreatedBy(currentUser.getUsername());
+
+
         double totalPrice = calculateTotalInvoicePrice(requests);
         initSaleInvoice.setTotalPrice(totalPrice);
 
         double totalPayment;
-        if (customer.getTotalDebt() == null) {
+        double debtAmount = 0.0;
+        double paymentAmount = 0.0;
+        if (customer.getTotalDebt() == null || customer.getTotalDebt() <= 0) {
             totalPayment = totalPrice;
+            if (pricePaid > totalPayment) {
+                throw new RuntimeException("Price paid can not greater than total payment");
+            }
+            if (pricePaid < totalPayment) {
+                debtAmount = totalPayment - pricePaid;
+            }
         } else {
             totalPayment = totalPrice + customer.getTotalDebt();
+            if (pricePaid > totalPayment) {
+                throw new RuntimeException("Price paid can not greater than total payment");
+            }
+            if (pricePaid > totalPrice) {
+                paymentAmount = pricePaid - totalPrice;
+            }
+            if (pricePaid < totalPrice) {
+                debtAmount = totalPrice - pricePaid;
+            }
         }
         initSaleInvoice.setTotalPayment(totalPayment);
 
-        double newDebt = totalPayment - pricePaid;
+        double newDebt = 0.0;
+        if (debtAmount == 0.0 && paymentAmount == 0.0) {
+            newDebt = oldDebt;
+        }
+        if (debtAmount != 0.0) {
+            newDebt = oldDebt + debtAmount;
+        }
+        if (paymentAmount != 0.0) {
+            newDebt = oldDebt - paymentAmount;
+        }
         initSaleInvoice.setNewDebt(newDebt);
 
-        SaleInvoice savedSaleInvoice = saleInvoiceRepository.save(initSaleInvoice);
-        saveNewDebtForCustomer(customer, newDebt);
-        saleInvoiceDetailService.saveSaleInvoiceDetail(requests, savedSaleInvoice);
+        if (debtAmount == 0.0 && paymentAmount == 0.0) {
+            SaleInvoice savedSaleInvoice = saleInvoiceRepository.save(initSaleInvoice);
+            saveNewDebtForCustomer(customer, newDebt);
+            saleInvoiceDetailService.saveSaleInvoiceDetail(requests, savedSaleInvoice);
+        }
+
+        if (debtAmount != 0.0) {
+            SaleInvoice savedSaleInvoice = saleInvoiceRepository.save(initSaleInvoice);
+//            saveNewDebtForCustomer(customer, newDebt);
+            saleInvoiceDetailService.saveSaleInvoiceDetail(requests, savedSaleInvoice);
+            DebtRecordRequest debtRecordRequest = createDebtRecordRequest(savedSaleInvoice, debtAmount);
+            debtRecordService.createDebtRecord(debtRecordRequest, SourceType.SALE_INVOICE, savedSaleInvoice.getId());
+        }
+
+        if (paymentAmount != 0.0) {
+            SaleInvoice savedSaleInvoice = saleInvoiceRepository.save(initSaleInvoice);
+//            saveNewDebtForCustomer(customer, newDebt);
+            saleInvoiceDetailService.saveSaleInvoiceDetail(requests, savedSaleInvoice);
+            PaymentRecordRequest paymentRecordRequest = createPaymentRecordRequest(savedSaleInvoice, paymentAmount);
+            paymentRecordService.createPaymentRecord(paymentRecordRequest, SourceType.SALE_INVOICE, savedSaleInvoice.getId());
+        }
 
         return modelMapper.map(initSaleInvoice, SaleInvoiceDTO.class);
     }
@@ -110,10 +169,6 @@ public class SaleInvoiceServiceImpl implements SaleInvoiceService {
                             .build())
                     .collect(Collectors.toList());
         } catch (Exception e) {
-            // Handle the exception based on your application's requirement
-            // For example, log the error and throw a custom exception or return an error response
-            // Log the error (using a logging framework like SLF4J)
-            // Logger.error("Error retrieving sale invoices for customer: {}", customerId, e);
             throw new RuntimeException("Error retrieving sale invoices for customer: " + customerId, e);
         }
     }
@@ -123,9 +178,6 @@ public class SaleInvoiceServiceImpl implements SaleInvoiceService {
         try {
             User currentUser = userService.getCurrentUser();
             Store currentStore = currentUser.getStore();
-            if (endDate == null) {
-                endDate = LocalDateTime.now();
-            }
             List<SaleInvoice> invoices = saleInvoiceRepository.findInvoicesByCriteria(startDate, endDate, createdBy, customerId, currentStore.getId());
             return invoices.stream().map(invoice -> SaleInvoiceReportResponse.builder()
                             .id(invoice.getId())
@@ -142,5 +194,64 @@ public class SaleInvoiceServiceImpl implements SaleInvoiceService {
         } catch (Exception e) {
             throw new CustomServiceException("Error accessing the database", e);
         }
+    }
+
+    @Override
+    public SaleInvoiceDTO getSaleInvoiceById(Long saleInvoiceId) {
+        User currentUser = userService.getCurrentUser();
+        Optional<SaleInvoice> saleInvoice = saleInvoiceRepository.findById(saleInvoiceId);
+        if (saleInvoice.isEmpty()) {
+            throw new RuntimeException("Not found any sale invoice with id " + saleInvoiceId);
+        }
+        if (!saleInvoice.get().getStore().equals(currentUser.getStore())) {
+            throw new RuntimeException("this sale invocie not belong to current store");
+        }
+
+        return modelMapper.map(saleInvoice.get(), SaleInvoiceDTO.class);
+    }
+
+    @Override
+    public List<SaleInvoiceReportResponse> getRecentInvoicesByStoreId() {
+        User currentUser = userService.getCurrentUser();
+        Long storeId = currentUser.getStore().getId();
+        if (storeId == null) {
+            throw new RuntimeException("Store can not be null");
+        }
+        LocalDateTime startDate = LocalDateTime.now().minusDays(7);
+        List<SaleInvoice> invoices = saleInvoiceRepository.findRecentInvoicesByStoreId(storeId, startDate);
+        return invoices.stream().map(invoice -> SaleInvoiceReportResponse.builder()
+                        .id(invoice.getId())
+                        .createdAt(invoice.getCreatedAt())
+                        .createdBy(invoice.getCreatedBy())
+                        .totalPrice(invoice.getTotalPrice())
+                        .oldDebt(invoice.getOldDebt())
+                        .totalPayment(invoice.getTotalPayment())
+                        .pricePaid(invoice.getPricePaid())
+                        .newDebt(invoice.getNewDebt())
+                        .customer(invoice.getCustomer())
+                        .build())
+                .collect(Collectors.toList());
+    }
+
+    public PaymentRecordRequest createPaymentRecordRequest(SaleInvoice saleInvoice, double amount) {
+        PaymentRecordRequest paymentRecordRequest = new PaymentRecordRequest();
+        paymentRecordRequest.setCustomerId(saleInvoice.getCustomer().getId());
+        paymentRecordRequest.setPaymentAmount(amount);
+        paymentRecordRequest.setNote("Khoản thanh toán từ hóa đơn " + saleInvoice.getId() + " vào " + formatDateTime(String.valueOf(saleInvoice.getCreatedAt())));
+        return paymentRecordRequest;
+    }
+
+    public DebtRecordRequest createDebtRecordRequest(SaleInvoice saleInvoice, double amount) {
+        DebtRecordRequest debtRecordRequest = new DebtRecordRequest();
+        debtRecordRequest.setCustomerId(saleInvoice.getCustomer().getId());
+        debtRecordRequest.setDebtAmount(amount);
+        debtRecordRequest.setNote("Khoản nợ từ hóa đơn " + saleInvoice.getId() + " vào " + formatDateTime(String.valueOf(saleInvoice.getCreatedAt())));
+        return debtRecordRequest;
+    }
+
+    public static String formatDateTime(String dateTimeStr) {
+        LocalDateTime dateTime = LocalDateTime.parse(dateTimeStr);
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("'ngày' dd 'tháng' MM 'năm' yyyy 'giờ' HH:mm:ss");
+        return dateTime.format(formatter);
     }
 }

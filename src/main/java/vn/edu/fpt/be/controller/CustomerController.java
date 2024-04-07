@@ -63,6 +63,18 @@ public class CustomerController {
             return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
+
+    @GetMapping("/all/by-store/order-by-total-debt")
+    @PreAuthorize("hasAnyAuthority('STAFF','STORE_OWNER')")
+    public ResponseEntity<?> getCustomersByStoreOrderByTotalDebt() {
+        try {
+            List<CustomerDTO> customers = customerService.getAllCustomerOrderByTotalDebt();
+            return ResponseEntity.status(HttpStatus.OK).body(customers);
+        } catch (Exception e) {
+            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
     @PutMapping("/change-status/{customerId}")
     @PreAuthorize("hasAuthority('STORE_OWNER')")
     public ResponseEntity<?> deactivate(@PathVariable Long customerId) {

@@ -12,4 +12,6 @@ public interface SaleInvoiceService {
     SaleInvoiceDTO createSaleInvoice(Long customerId, List<SaleInvoiceDetailRequest> requests, double pricePaid);
     List<CustomerSaleInvoiceResponse> getSaleInvoiceByCustomer(Long customerId);
     List<SaleInvoiceReportResponse> getSaleInvoicesByFilter(LocalDateTime startDate, LocalDateTime endDate, String createdBy, Long customerId);
+    SaleInvoiceDTO getSaleInvoiceById(Long saleInvoiceId);
+    List<SaleInvoiceReportResponse> getRecentInvoicesByStoreId();
 }

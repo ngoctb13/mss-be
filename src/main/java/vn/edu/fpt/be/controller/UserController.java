@@ -65,7 +65,7 @@ public class UserController {
     }
 
     @GetMapping("/getUserById/{userId}")
-    @PreAuthorize("hasAuthority('STORE_OWNER')")
+    @PreAuthorize("hasAnyAuthority('STORE_OWNER','STAFF','SYSTEM_ADMIN')")
     public ResponseEntity<?> getUserById(@PathVariable Long userId) {
         try {
 //            Long userId = tokenProvider.getUserIdFromToken(jwt);
@@ -108,8 +108,8 @@ public class UserController {
             return ResponseEntity.internalServerError().build();
         }
     }
-    @PutMapping("/deactivate/{userId}")
-    @PreAuthorize("hasAuthority('SYSTEM_ADMIN')")
+    @PostMapping("/deactivate/{userId}")
+    @PreAuthorize("hasAnyAuthority('SYSTEM_ADMIN', 'STORE_OWNER')")
     public ResponseEntity<?> deactivate(@PathVariable Long userId){
         try{
             User deactivateUser = userService.deactivateUser(userId);
@@ -118,6 +118,18 @@ public class UserController {
             return ResponseEntity.badRequest().body(e.getMessage());
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("An error occurred while deactivate the supplier.");
+        }
+    }
+    @PostMapping("/change-password/by-user")
+    @PreAuthorize("hasAnyAuthority('SYSTEM_ADMIN', 'STORE_OWNER')")
+    public ResponseEntity<?> changePasswordByUserId(@RequestParam("userId") Long userId, @RequestParam("newPassword") String newPassword){
+        try{
+            UserDTO updatedUser = userService.changePasswordByUserId(userId, newPassword);
+            return ResponseEntity.ok().body(updatedUser);
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.badRequest().body(e.getMessage());
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("An error occurred while change password");
         }
     }
 }

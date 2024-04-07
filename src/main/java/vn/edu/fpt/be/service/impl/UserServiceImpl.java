@@ -17,6 +17,7 @@ import vn.edu.fpt.be.security.UserPrincipal;
 import vn.edu.fpt.be.service.UserService;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Optional;
@@ -47,8 +48,11 @@ public class UserServiceImpl implements UserService {
             if (currentUser.getRole() != Role.SYSTEM_ADMIN){
                 throw new RuntimeException("Error retrieving user");
             }else {
-                List<User> users = userRepository.findAll();
-                return users;
+                List<Role> roles = new ArrayList<>();
+                roles.add(Role.STORE_OWNER);
+                roles.add(Role.STAFF);
+
+                return userRepository.findByRoleIn(roles);
             }
         }catch (Exception e){
             throw new IllegalArgumentException("Bạn không có quyền xem thông tin này");
@@ -64,6 +68,29 @@ public class UserServiceImpl implements UserService {
             user.setStatus(Status.ACTIVE);
         }
         return userRepository.save(user);
+    }
+
+    @Override
+    public String getStatusByUsername(String username) {
+        Optional<User> userOptional = userRepository.findByUsername(username);
+        return String.valueOf(userOptional.get().getStatus());
+    }
+
+    @Override
+    public UserDTO changePasswordByUserId(Long userId, String newPassword) {
+        if (userId == null || newPassword == null) {
+            throw new IllegalArgumentException("User id and newPassword can not be null");
+        }
+        Optional<User> user = userRepository.findById(userId);
+        if (user.isEmpty()) {
+            throw new RuntimeException("Not found any user with id " + userId);
+        }
+        User foundUser = user.get();
+        foundUser.setPassword(passwordEncoder.encode(newPassword));
+
+        User updatedUser = userRepository.save(foundUser);
+
+        return modelMapper.map(updatedUser, UserDTO.class);
     }
 
     @Override
@@ -90,7 +117,8 @@ public class UserServiceImpl implements UserService {
         }
 
         UserProfile newUserProfile = new UserProfile();
-        User user = modelMapper.map(registerRequestDTO, User.class);
+        User user = new User();
+        user.setUsername(registerRequestDTO.getUsername());
         user.setPassword(passwordEncoder.encode(registerRequestDTO.getPassword()));
         user.setRole(Role.STORE_OWNER);
         user.setStatus(Status.ACTIVE);

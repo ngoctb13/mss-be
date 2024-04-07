@@ -14,10 +14,14 @@ public interface SaleInvoiceRepository extends JpaRepository<SaleInvoice, Long> 
             "AND (:endDate IS NULL OR si.createdAt <= :endDate) " +
             "AND (:createdBy IS NULL OR si.createdBy = :createdBy) " +
             "AND (:customerId IS NULL OR si.customer.id = :customerId) " +
-            "AND si.store.id = :storeId")
+            "AND si.store.id = :storeId " +
+            "ORDER BY si.createdAt DESC") // Thêm dòng này để sắp xếp
     List<SaleInvoice> findInvoicesByCriteria(@Param("startDate") LocalDateTime startDate,
                                              @Param("endDate") LocalDateTime endDate,
                                              @Param("createdBy") String createdBy,
                                              @Param("customerId") Long customerId,
                                              @Param("storeId") Long storeId);
+
+    @Query("SELECT si FROM SaleInvoice si WHERE si.createdAt >= :startDate AND si.store.id = :storeId ORDER BY si.createdAt DESC")
+    List<SaleInvoice> findRecentInvoicesByStoreId(@Param("storeId") Long storeId, @Param("startDate") LocalDateTime startDate);
 }

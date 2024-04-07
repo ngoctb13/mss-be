@@ -12,6 +12,7 @@ import vn.edu.fpt.be.dto.ProductDTO;
 import vn.edu.fpt.be.dto.ProductUpdateDTO;
 import vn.edu.fpt.be.dto.SupplierDTO;
 import vn.edu.fpt.be.dto.response.ProductLocationResponse;
+import vn.edu.fpt.be.dto.response.ProductModelResponse;
 import vn.edu.fpt.be.model.Product;
 import vn.edu.fpt.be.model.StorageLocation;
 import vn.edu.fpt.be.model.Store;
@@ -25,6 +26,7 @@ import vn.edu.fpt.be.security.UserPrincipal;
 import vn.edu.fpt.be.service.ProductService;
 import vn.edu.fpt.be.service.UserService;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -35,6 +37,7 @@ public class ProductServiceImpl implements ProductService {
     private final StoreRepository storeRepository;
     private final UserRepository userRepository;
     private final ProductRepository productRepository;
+    private final StorageLocationRepository storageLocationRepository;
     private final UserService userService;
     private final StorageLocationRepository storageLocationRepository;
     private final ModelMapper modelMapper = new ModelMapper();
@@ -46,12 +49,13 @@ public class ProductServiceImpl implements ProductService {
     public ProductDTO createProduct(ProductCreateDTO productCreateDTO) {
         User currentUser = userService.getCurrentUser();
         Product product = new Product();
-        product.setProductName(productCreateDTO.getProductName());
+
         product.setUnit(productCreateDTO.getUnit());
         product.setRetailPrice(productCreateDTO.getRetailPrice());
 
         product.setDescription(productCreateDTO.getDescription());
         product.setBag_packing(productCreateDTO.getBag_packing());
+        product.setProductName(productCreateDTO.getProductName());
         Store ownStore = currentUser.getStore();
         product.setStatus(Status.ACTIVE);
         product.setStore(ownStore);
@@ -130,7 +134,7 @@ public class ProductServiceImpl implements ProductService {
         try {
             User currentUser = userService.getCurrentUser();
             Store currentStore = currentUser.getStore();
-            List<Product> products = productRepository.findByStoreIdAndProductNameContaining(currentStore.getId(), nameInput);
+            List<Product> products = productRepository.findByStoreIdAndStatusAndProductNameContaining(currentStore.getId(), Status.ACTIVE, nameInput);
 
             return products.stream()
                     .map(product -> modelMapper.map(product, ProductDTO.class))
@@ -140,4 +144,34 @@ public class ProductServiceImpl implements ProductService {
         }
     }
 
+    @Override
+    public List<ProductModelResponse> findProductContainName(String nameInput) {
+        User currentUser = userService.getCurrentUser();
+        Store currentStore = currentUser.getStore();
+        List<Product> products = productRepository.findByStoreIdAndStatusAndProductNameContaining(currentStore.getId(), Status.ACTIVE, nameInput);
+
+        List<ProductModelResponse> productModelResponses = new ArrayList<>();
+
+        for (Product product : products) {
+            List<StorageLocation> storageLocations = storageLocationRepository.findByProductId(product.getId());
+
+            ProductModelResponse response = ProductModelResponse.builder()
+                    .id(product.getId())
+                    .productName(product.getProductName())
+                    .unit(product.getUnit())
+                    .retailPrice(product.getRetailPrice())
+                    .importPrice(product.getImportPrice())
+                    .description(product.getDescription())
+                    .inventory(product.getInventory())
+                    .bag_packing(product.getBag_packing())
+                    .status(product.getStatus())
+                    .store(product.getStore())
+                    .storageLocations(storageLocations)
+                    .build();
+
+            productModelResponses.add(response);
+        }
+
+        return productModelResponses;
+    }
 }
