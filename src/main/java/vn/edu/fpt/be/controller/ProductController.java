@@ -9,6 +9,9 @@ import vn.edu.fpt.be.dto.ProductCreateDTO;
 import vn.edu.fpt.be.dto.ProductDTO;
 import vn.edu.fpt.be.dto.ProductUpdateDTO;
 import vn.edu.fpt.be.dto.StoreDTO;
+import vn.edu.fpt.be.dto.request.PersonalDebtCreateRequest;
+import vn.edu.fpt.be.dto.request.ProductWithLocationRequest;
+import vn.edu.fpt.be.dto.response.PersonalDebtResponse;
 import vn.edu.fpt.be.dto.response.ProductLocationResponse;
 import vn.edu.fpt.be.dto.response.ProductModelResponse;
 import vn.edu.fpt.be.exception.ErrorResponse;
@@ -100,6 +103,42 @@ public class ProductController {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(null);
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(null);
+        }
+    }
+
+    @GetMapping("/all/with-location/{nameInput}")
+    @PreAuthorize("hasAnyAuthority('STORE_OWNER', 'STAFF')")
+    public ResponseEntity<?> listAllProductWithLocation(
+            @PathVariable String nameInput) {
+        try {
+            List<ProductModelResponse> products = productService.listAllProductWithLocation(nameInput);
+            return ResponseEntity.ok(products);
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(null);
+        }
+    }
+
+    @GetMapping("/list-all")
+    @PreAuthorize("hasAnyAuthority('STORE_OWNER', 'STAFF')")
+    public ResponseEntity<?> listAll() {
+        try {
+            List<ProductModelResponse> products = productService.listAllProduct();
+            return ResponseEntity.ok(products);
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(null);
+        }
+    }
+
+    @PutMapping("/update-with-location/{productId}")
+    @PreAuthorize("hasAuthority('STORE_OWNER')")
+    public ResponseEntity<?> updateProductWithLocation(@PathVariable Long productId, @RequestBody ProductWithLocationRequest request) {
+        try {
+            ProductModelResponse res = productService.updateProductWithLocation(productId, request);
+            return new ResponseEntity<>(res, HttpStatus.OK);
+        } catch (IllegalArgumentException e) {
+            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+        } catch (Exception e) {
+            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 

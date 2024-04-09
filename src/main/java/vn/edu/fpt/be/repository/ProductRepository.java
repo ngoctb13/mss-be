@@ -13,8 +13,10 @@ import java.util.Optional;
 public interface ProductRepository extends JpaRepository<Product, Long> {
     List<Product> findByStoreId(Long storeId);
     List<Product> findByProductName(String productName);
-    List<Product> findByStoreIdAndProductNameContaining(Long storeId, String nameInput);
+//    List<Product> findByStoreIdAndProductNameContaining(Long storeId, String nameInput);
     @Query("SELECT p FROM Product p WHERE p.store.id = :storeId AND p.status = :status AND LOWER(p.productName) LIKE LOWER(CONCAT('%',:nameInput,'%'))")
     List<Product> findByStoreIdAndStatusAndProductNameContaining(Long storeId, Status status, String nameInput);
+    @Query("SELECT p FROM Product p WHERE p.store.id = :storeId AND (:nameInput IS NULL OR LOWER(p.productName) LIKE LOWER(CONCAT('%',:nameInput,'%')))")
+    List<Product> findByStoreIdAndProductNameContaining(@Param("storeId") Long storeId, @Param("nameInput") String nameInput);
 
 }
