@@ -97,10 +97,7 @@ public class DebtPaymentHistoryServiceImpl implements DebtPaymentHistoryService 
         }
 
         List<DebtPaymentHistory> list = repo.findByCustomerIdAndOptionalCreatedAtRange(customerId, startDate, endDate);
-        List<DebtPaymentHistory> filteredList = list.stream()
-                .filter(history -> history.getSourceType() != null)
-                .toList();
-        return filteredList.stream()
+        return list.stream()
                 .map(debtPaymentHistory -> modelMapper.map(debtPaymentHistory, DebtPaymentResponse.class))
                 .collect(Collectors.toList());
     }
@@ -127,6 +124,7 @@ public class DebtPaymentHistoryServiceImpl implements DebtPaymentHistoryService 
             debtPaymentHistory.setCreatedBy(currentUser.getUsername());
             debtPaymentHistory.setType(req.getType());
             debtPaymentHistory.setAmount(req.getAmount());
+            debtPaymentHistory.setRecordDate(req.getRecordDate());
             debtPaymentHistory.setNote(req.getNote());
 
             DebtPaymentHistory savedDebtPaymentHistory = repo.save(debtPaymentHistory);

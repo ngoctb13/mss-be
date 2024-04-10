@@ -56,6 +56,7 @@ public class PaymentRecordServiceImpl implements PaymentRecordService {
             if (request.getPaymentAmount() > customer.get().getTotalDebt()) {
                 throw new RuntimeException("Payment amount can not greater than customer total debt");
             }
+            paymentRecord.setRecordDate(request.getRecordDate());
             paymentRecord.setPaymentAmount(request.getPaymentAmount());
             paymentRecord.setNote(request.getNote());
             paymentRecord.setCreatedBy(currentUser.getUsername());
@@ -97,7 +98,7 @@ public class PaymentRecordServiceImpl implements PaymentRecordService {
             debtPaymentRequest.setSourceId(sourceId);
         }
         debtPaymentRequest.setSourceType(sourceType);
-        debtPaymentRequest.setRecordDate(paymentRecord.getCreatedAt());
+        debtPaymentRequest.setRecordDate(paymentRecord.getRecordDate());
         debtPaymentRequest.setNote(paymentRecord.getNote());
 
         return debtPaymentRequest;

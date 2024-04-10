@@ -56,6 +56,7 @@ public class DebtRecordServiceImpl implements DebtRecordService {
                 throw new RuntimeException("The debt amount can not equal zero");
             }
 
+            debtRecord.setRecordDate(request.getRecordDate());
             debtRecord.setDebtAmount(request.getDebtAmount());
             debtRecord.setNote(request.getNote());
             debtRecord.setCreatedBy(currentUser.getUsername());
@@ -101,7 +102,7 @@ public class DebtRecordServiceImpl implements DebtRecordService {
             debtPaymentRequest.setSourceId(sourceId);
         }
         debtPaymentRequest.setSourceType(sourceType);
-        debtPaymentRequest.setRecordDate(debtRecord.getCreatedAt());
+        debtPaymentRequest.setRecordDate(debtRecord.getRecordDate());
         debtPaymentRequest.setNote(debtRecord.getNote());
 
         return debtPaymentRequest;

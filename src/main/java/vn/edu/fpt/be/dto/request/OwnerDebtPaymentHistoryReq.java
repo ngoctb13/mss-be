@@ -16,5 +16,6 @@ public class OwnerDebtPaymentHistoryReq {
     private Long customerId;
     private RecordType type;
     private Double amount;
+    private LocalDateTime recordDate;
     private String note;
 }

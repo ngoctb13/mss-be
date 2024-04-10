@@ -6,6 +6,8 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import vn.edu.fpt.be.model.Customer;
 
+import java.time.LocalDateTime;
+
 @Data
 @Builder
 @AllArgsConstructor
@@ -14,5 +16,6 @@ public class DebtRecordResponse {
     private Long id;
     private Customer customer;
     private Double debtAmount;
+    private LocalDateTime recordDate;
     private String note;
 }

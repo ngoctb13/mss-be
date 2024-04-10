@@ -2,6 +2,8 @@ package vn.edu.fpt.be.service.impl;
 
 import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
+import org.springframework.dao.DataAccessException;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -21,6 +23,7 @@ import vn.edu.fpt.be.security.UserPrincipal;
 import vn.edu.fpt.be.service.CustomerService;
 import vn.edu.fpt.be.service.UserService;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -131,5 +134,32 @@ public class CustomerServiceImpl implements CustomerService {
         return customers.stream()
                 .map(customer -> modelMapper.map(customer, CustomerDTO.class))
                 .collect(Collectors.toList());
+    }
+
+    @Override
+    public List<CustomerDTO> getAllCustomerHaveDebt(String type) {
+        try {
+            User currentUser = userService.getCurrentUser();
+            if (currentUser.getStore() == null) {
+                throw new RuntimeException("Store can not be null");
+            }
+            String customerType = "CUSTOMER";
+            String ownerType = "OWNER";
+            List<Customer> customers = new ArrayList<>();
+            if (type.equals(customerType)) {
+                customers = customerRepository.findCustomersHaveDebt(currentUser.getStore().getId());
+            } else if (type.equals(ownerType)){
+                customers = customerRepository.findCustomersWhichOwnerHaveDebt(currentUser.getStore().getId());
+            }
+            return customers.stream()
+                    .map(customer -> modelMapper.map(customer, CustomerDTO.class))
+                    .collect(Collectors.toList());
+        } catch (DataIntegrityViolationException e) {
+            throw new RuntimeException("Database integrity violation", e);
+        } catch (DataAccessException e) {
+            throw new RuntimeException("Data access exception occurred", e);
+        } catch (Exception e) {
+            throw new RuntimeException("An error occurred", e);
+        }
     }
 }

@@ -236,6 +236,7 @@ public class SaleInvoiceServiceImpl implements SaleInvoiceService {
     public PaymentRecordRequest createPaymentRecordRequest(SaleInvoice saleInvoice, double amount) {
         PaymentRecordRequest paymentRecordRequest = new PaymentRecordRequest();
         paymentRecordRequest.setCustomerId(saleInvoice.getCustomer().getId());
+        paymentRecordRequest.setRecordDate(saleInvoice.getCreatedAt());
         paymentRecordRequest.setPaymentAmount(amount);
         paymentRecordRequest.setNote("Khoản thanh toán từ hóa đơn " + saleInvoice.getId() + " vào " + formatDateTime(String.valueOf(saleInvoice.getCreatedAt())));
         return paymentRecordRequest;
@@ -244,6 +245,7 @@ public class SaleInvoiceServiceImpl implements SaleInvoiceService {
     public DebtRecordRequest createDebtRecordRequest(SaleInvoice saleInvoice, double amount) {
         DebtRecordRequest debtRecordRequest = new DebtRecordRequest();
         debtRecordRequest.setCustomerId(saleInvoice.getCustomer().getId());
+        debtRecordRequest.setRecordDate(saleInvoice.getCreatedAt());
         debtRecordRequest.setDebtAmount(amount);
         debtRecordRequest.setNote("Khoản nợ từ hóa đơn " + saleInvoice.getId() + " vào " + formatDateTime(String.valueOf(saleInvoice.getCreatedAt())));
         return debtRecordRequest;
