@@ -31,6 +31,7 @@ import com.itextpdf.layout.Document;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
+import java.text.SimpleDateFormat;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
@@ -61,6 +62,9 @@ public class PdfServiceImpl implements PDFService {
         if (saleInvoice.get().getStore() != currentUser.getStore()) {
             throw new RuntimeException("This invoice not belong to current store");
         }
+        SimpleDateFormat dateFormat = new SimpleDateFormat("dd-MM-yyyy 'giờ' HH:mm:ss");
+        String formattedDate = dateFormat.format(saleInvoice.get().getCreatedAt());
+
         List<SaleInvoiceDetail> saleInvoiceDetailList = saleInvoiceDetailRepository.findBySaleInvoiceId(saleInvoiceId);
         ByteArrayOutputStream out = new ByteArrayOutputStream();
 
@@ -87,7 +91,7 @@ public class PdfServiceImpl implements PDFService {
             document.add(headerTable);
 
             document.add(new Paragraph("HÓA ĐƠN BÁN HÀNG").setTextAlignment(TextAlignment.CENTER).setBold().setFontSize(20).setFixedLeading(18));
-            document.add(new Paragraph("Ngày " + saleInvoice.get().getCreatedAt()).setTextAlignment(TextAlignment.CENTER).setFixedLeading(18));
+            document.add(new Paragraph("Ngày " + formattedDate).setTextAlignment(TextAlignment.CENTER).setFixedLeading(18));
 
             // Add customer information
             document.add(new Paragraph("Khách hàng: " + saleInvoice.get().getCustomer().getCustomerName())
@@ -171,6 +175,10 @@ public class PdfServiceImpl implements PDFService {
         List<DebtPaymentResponse> transactions = debtPaymentHistoryService.getAllTransactionHistoryByCustomerAndDateRange(customerId, startDate, endDate);
         ByteArrayOutputStream out = new ByteArrayOutputStream();
 
+        SimpleDateFormat dateFormat = new SimpleDateFormat("dd-MM-yyyy 'giờ' HH:mm:ss");
+        String formattedStartDate = dateFormat.format(startDate);
+        String formattedEndDate = dateFormat.format(endDate);
+
         try (PdfWriter writer = new PdfWriter(out);
              PdfDocument pdf = new PdfDocument(writer);
              Document document = new Document(pdf)) {
@@ -205,7 +213,7 @@ public class PdfServiceImpl implements PDFService {
                     .setTextAlignment(TextAlignment.LEFT).setFixedLeading(18));
             document.add(new Paragraph("Cửa hàng xin trân trọng thông báo Sao kê giao dịch của khách hàng như sau: ")
                     .setTextAlignment(TextAlignment.LEFT).setFixedLeading(18).setItalic());
-            document.add(new Paragraph("Từ ngày: " + startDate + " đến ngày: " + endDate)
+            document.add(new Paragraph("Từ ngày: " + formattedStartDate + " đến ngày: " + formattedEndDate)
                     .setTextAlignment(TextAlignment.RIGHT).setFixedLeading(18).setItalic().setBold());
 
             float[] transactionColumnWidths = {1, 3, 3, 2, 3};
@@ -225,10 +233,16 @@ public class PdfServiceImpl implements PDFService {
                 com.itextpdf.kernel.colors.Color textColor;
 
                 if (transaction.getType() == RecordType.SALE_INVOICE) {
-                    displayText = "NỢ";
+                    displayText = "KHÁCH NỢ";
                     textColor = ColorConstants.RED;
-                } else { // Assume the only other type is PAYMENT
-                    displayText = "TRẢ";
+                } else if (transaction.getType() == RecordType.PAYMENT){ // Assume the only other type is PAYMENT
+                    displayText = "KHÁCH TRẢ";
+                    textColor = ColorConstants.BLUE;
+                } else if (transaction.getType() == RecordType.OWNER_DEBT){
+                    displayText = "CỬA HÀNG NỢ";
+                    textColor = ColorConstants.RED;
+                } else {
+                    displayText = "CỬA HÀNG TRẢ";
                     textColor = ColorConstants.BLUE;
                 }
                 Text typeText = new Text(displayText).setFontColor(textColor);
