@@ -33,7 +33,9 @@ import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.text.SimpleDateFormat;
 import java.time.LocalDateTime;
+import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
+import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 
@@ -62,8 +64,10 @@ public class PdfServiceImpl implements PDFService {
         if (saleInvoice.get().getStore() != currentUser.getStore()) {
             throw new RuntimeException("This invoice not belong to current store");
         }
+        LocalDateTime localDateTime = saleInvoice.get().getCreatedAt();
+        Date date = Date.from(localDateTime.atZone(ZoneId.systemDefault()).toInstant());
         SimpleDateFormat dateFormat = new SimpleDateFormat("dd-MM-yyyy 'giờ' HH:mm:ss");
-        String formattedDate = dateFormat.format(saleInvoice.get().getCreatedAt());
+        String formattedDate = dateFormat.format(date);
 
         List<SaleInvoiceDetail> saleInvoiceDetailList = saleInvoiceDetailRepository.findBySaleInvoiceId(saleInvoiceId);
         ByteArrayOutputStream out = new ByteArrayOutputStream();
