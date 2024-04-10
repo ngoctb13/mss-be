@@ -75,6 +75,17 @@ public class CustomerController {
         }
     }
 
+    @GetMapping("/all/have-debt")
+    @PreAuthorize("hasAnyAuthority('STAFF','STORE_OWNER')")
+    public ResponseEntity<?> getCustomersHaveDebt(@RequestParam("type") String type) {
+        try {
+            List<CustomerDTO> customers = customerService.getAllCustomerHaveDebt(type);
+            return ResponseEntity.status(HttpStatus.OK).body(customers);
+        } catch (Exception e) {
+            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
     @PutMapping("/change-status/{customerId}")
     @PreAuthorize("hasAuthority('STORE_OWNER')")
     public ResponseEntity<?> deactivate(@PathVariable Long customerId) {

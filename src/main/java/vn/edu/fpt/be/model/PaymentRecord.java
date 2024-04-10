@@ -6,6 +6,7 @@ import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 
 import javax.persistence.*;
+import java.time.LocalDateTime;
 
 @EqualsAndHashCode(callSuper = false)
 @Data
@@ -19,6 +20,8 @@ public class PaymentRecord extends Model{
     private Customer customer;
     @Column(name = "payment_amount")
     private Double paymentAmount; // Số tiền được thanh toán
+    @Column(name = "record_date", columnDefinition = "DATETIME(0)")
+    private LocalDateTime recordDate; //ngay lap phieu
     @Column(name = "note")
     private String note;
 }

@@ -6,6 +6,7 @@ import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 
 import javax.persistence.*;
+import java.time.LocalDateTime;
 
 @EqualsAndHashCode(callSuper = false)
 @Data
@@ -19,6 +20,8 @@ public class DebtRecord extends Model {
     private Customer customer;
     @Column(name = "debt_amount")
     private Double debtAmount;
+    @Column(name = "record_date", columnDefinition = "DATETIME(0)")
+    private LocalDateTime recordDate;
     @Column(name = "note")
     private String note;
 }

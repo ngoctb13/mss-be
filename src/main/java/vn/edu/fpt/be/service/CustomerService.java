@@ -14,4 +14,5 @@ public interface CustomerService {
     List<CustomerDTO> getCustomersTotalDebtGreaterThan(double totalDebt);
     CustomerDTO deactivate(Long customerId);
     List<CustomerDTO> getAllCustomerOrderByTotalDebt();
+    List<CustomerDTO> getAllCustomerHaveDebt(String type);
 }
