@@ -64,10 +64,6 @@ public class PdfServiceImpl implements PDFService {
         if (saleInvoice.get().getStore() != currentUser.getStore()) {
             throw new RuntimeException("This invoice not belong to current store");
         }
-        LocalDateTime localDateTime = saleInvoice.get().getCreatedAt();
-        Date date = Date.from(localDateTime.atZone(ZoneId.systemDefault()).toInstant());
-        SimpleDateFormat dateFormat = new SimpleDateFormat("dd-MM-yyyy 'giờ' HH:mm:ss");
-        String formattedDate = dateFormat.format(date);
 
         List<SaleInvoiceDetail> saleInvoiceDetailList = saleInvoiceDetailRepository.findBySaleInvoiceId(saleInvoiceId);
         ByteArrayOutputStream out = new ByteArrayOutputStream();
@@ -95,7 +91,7 @@ public class PdfServiceImpl implements PDFService {
             document.add(headerTable);
 
             document.add(new Paragraph("HÓA ĐƠN BÁN HÀNG").setTextAlignment(TextAlignment.CENTER).setBold().setFontSize(20).setFixedLeading(18));
-            document.add(new Paragraph("Ngày " + formattedDate).setTextAlignment(TextAlignment.CENTER).setFixedLeading(18));
+            document.add(new Paragraph("Ngày " + formatPdfDate(saleInvoice.get().getCreatedAt())).setTextAlignment(TextAlignment.CENTER).setFixedLeading(18));
 
             // Add customer information
             document.add(new Paragraph("Khách hàng: " + saleInvoice.get().getCustomer().getCustomerName())
@@ -179,10 +175,6 @@ public class PdfServiceImpl implements PDFService {
         List<DebtPaymentResponse> transactions = debtPaymentHistoryService.getAllTransactionHistoryByCustomerAndDateRange(customerId, startDate, endDate);
         ByteArrayOutputStream out = new ByteArrayOutputStream();
 
-        SimpleDateFormat dateFormat = new SimpleDateFormat("dd-MM-yyyy 'giờ' HH:mm:ss");
-        String formattedStartDate = dateFormat.format(startDate);
-        String formattedEndDate = dateFormat.format(endDate);
-
         try (PdfWriter writer = new PdfWriter(out);
              PdfDocument pdf = new PdfDocument(writer);
              Document document = new Document(pdf)) {
@@ -217,7 +209,7 @@ public class PdfServiceImpl implements PDFService {
                     .setTextAlignment(TextAlignment.LEFT).setFixedLeading(18));
             document.add(new Paragraph("Cửa hàng xin trân trọng thông báo Sao kê giao dịch của khách hàng như sau: ")
                     .setTextAlignment(TextAlignment.LEFT).setFixedLeading(18).setItalic());
-            document.add(new Paragraph("Từ ngày: " + formattedStartDate + " đến ngày: " + formattedEndDate)
+            document.add(new Paragraph("Từ ngày: " + formatPdfDate(startDate) + " đến ngày: " + formatPdfDate(endDate))
                     .setTextAlignment(TextAlignment.RIGHT).setFixedLeading(18).setItalic().setBold());
 
             float[] transactionColumnWidths = {1, 3, 3, 2, 3};
@@ -266,5 +258,11 @@ public class PdfServiceImpl implements PDFService {
 
         }
         return new ByteArrayInputStream(out.toByteArray());
+    }
+
+    private String formatPdfDate(LocalDateTime inputLocalDateTime) {
+        Date date = Date.from(inputLocalDateTime.atZone(ZoneId.systemDefault()).toInstant());
+        SimpleDateFormat dateFormat = new SimpleDateFormat("dd-MM-yyyy 'giờ' HH:mm:ss");
+        return dateFormat.format(date);
     }
 }
