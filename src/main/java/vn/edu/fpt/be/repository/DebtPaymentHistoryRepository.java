@@ -12,9 +12,9 @@ public interface DebtPaymentHistoryRepository extends JpaRepository<DebtPaymentH
     List<DebtPaymentHistory> findByCustomerIdOrderByCreatedAtDesc(Long customerId);
 
     @Query("SELECT d FROM DebtPaymentHistory d WHERE d.customer.id = :customerId " +
-            "AND (:startDate IS NULL OR d.createdAt >= :startDate) " +
-            "AND (:endDate IS NULL OR d.createdAt <= :endDate) " +
-            "ORDER BY d.createdAt DESC")
+            "AND (:startDate IS NULL OR d.recordDate >= :startDate) " +
+            "AND (:endDate IS NULL OR d.recordDate <= :endDate) " +
+            "ORDER BY d.recordDate DESC")
     List<DebtPaymentHistory> findByCustomerIdAndOptionalCreatedAtRange(
             @Param("customerId") Long customerId,
             @Param("startDate") LocalDateTime startDate,
