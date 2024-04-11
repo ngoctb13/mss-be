@@ -45,7 +45,7 @@ public class StoreController {
     }
 
     @GetMapping("/by-owner/{ownerId}")
-    @PreAuthorize("hasAuthority('SYSTEM_ADMIN')")
+    @PreAuthorize("hasAnyAuthority('SYSTEM_ADMIN', 'STORE_OWNER', 'STAFF')")
     public ResponseEntity<?> getStoresByOwner(@PathVariable Long ownerId) {
         try {
             StoreDTO store = storeService.getStoreByOwner(ownerId);

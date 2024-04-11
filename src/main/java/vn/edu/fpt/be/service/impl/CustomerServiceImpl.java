@@ -73,6 +73,24 @@ public class CustomerServiceImpl implements CustomerService {
     }
 
     @Override
+    public CustomerDTO getCustomerById(Long customerId) {
+        if (customerId == null) {
+            throw new RuntimeException("Customer id can not be empty");
+        }
+        User currentUser = userService.getCurrentUser();
+        Store currentStore = currentUser.getStore();
+
+        Optional<Customer> customer = customerRepository.findById(customerId);
+        if (customer.isEmpty()) {
+            throw new RuntimeException("Can not found any customer with id " + customerId);
+        }
+        if (!customer.get().getStore().equals(currentStore)) {
+            throw new RuntimeException("This customer not belong to current store");
+        }
+        return modelMapper.map(customer.get(), CustomerDTO.class);
+    }
+
+    @Override
     public List<CustomerDTO> getAllCustomers(int pageNumber, int pageSize) {
         Pageable pageable = PageRequest.of(pageNumber, pageSize);
         Page<Customer> customerPage = customerRepository.findAll(pageable);

@@ -109,4 +109,15 @@ public class CustomerController {
                     .body("An error occurred while updating the product.");
         }
     }
+
+    @GetMapping("/find-by-id/{customerId}")
+    @PreAuthorize("hasAnyAuthority('STAFF','STORE_OWNER')")
+    public ResponseEntity<?> getCustomerById(@PathVariable Long customerId) {
+        try {
+            CustomerDTO customer = customerService.getCustomerById(customerId);
+            return ResponseEntity.status(HttpStatus.OK).body(customer);
+        } catch (Exception e) {
+            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
 }
