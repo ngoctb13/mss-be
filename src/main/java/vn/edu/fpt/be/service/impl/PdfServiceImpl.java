@@ -181,6 +181,13 @@ public class PdfServiceImpl implements PDFService {
 
             document.setFont(font);
 
+            if (startDate == null && !transactions.isEmpty()) {
+                startDate = transactions.get(transactions.size() - 1).getRecordDate();
+            }
+            if (endDate == null && !transactions.isEmpty()) {
+                endDate = transactions.get(0).getRecordDate();
+            }
+
             float[] columnWidths = {1, 1};
             Table headerTable = new Table(columnWidths);
             headerTable.useAllAvailableWidth();
