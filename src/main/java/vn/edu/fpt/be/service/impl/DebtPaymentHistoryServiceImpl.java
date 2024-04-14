@@ -77,7 +77,7 @@ public class DebtPaymentHistoryServiceImpl implements DebtPaymentHistoryService 
             throw new RuntimeException("This customer not belongs to current store");
         }
 
-        List<DebtPaymentHistory> list = repo.findByCustomerIdOrderByCreatedAtDesc(customerId);
+        List<DebtPaymentHistory> list = repo.findByCustomerIdOrderByRecordDateDesc(customerId);
         return list.stream()
                 .map(debtPaymentHistory -> modelMapper.map(debtPaymentHistory, DebtPaymentResponse.class))
                 .collect(Collectors.toList());

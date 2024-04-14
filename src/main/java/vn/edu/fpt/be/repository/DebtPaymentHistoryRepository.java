@@ -9,8 +9,7 @@ import java.time.LocalDateTime;
 import java.util.List;
 
 public interface DebtPaymentHistoryRepository extends JpaRepository<DebtPaymentHistory, Long> {
-    List<DebtPaymentHistory> findByCustomerIdOrderByCreatedAtDesc(Long customerId);
-
+    List<DebtPaymentHistory> findByCustomerIdOrderByRecordDateDesc(Long customerId);
     @Query("SELECT d FROM DebtPaymentHistory d WHERE d.customer.id = :customerId " +
             "AND (:startDate IS NULL OR d.recordDate >= :startDate) " +
             "AND (:endDate IS NULL OR d.recordDate <= :endDate) " +

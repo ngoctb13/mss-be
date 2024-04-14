@@ -11,6 +11,7 @@ import vn.edu.fpt.be.model.User;
 import vn.edu.fpt.be.service.ImportProductInvoiceService;
 import vn.edu.fpt.be.service.SaleInvoiceService;
 import vn.edu.fpt.be.service.StoreService;
+import vn.edu.fpt.be.service.UrlSharingService;
 
 import java.util.List;
 
@@ -22,7 +23,20 @@ public class StoreController {
     private final StoreService storeService;
     private final ImportProductInvoiceService importProductInvoiceService;
     private final SaleInvoiceService saleInvoiceService;
+    private final UrlSharingService urlSharingService;
 
+    @GetMapping("/generate-url-sharing/{customerId}")
+    @PreAuthorize("hasAuthority('STORE_OWNER')")
+    public ResponseEntity<?> generateSharingUrl(@PathVariable Long customerId) {
+        try {
+            String sharingUrl = urlSharingService.generateSharingUrl(customerId);
+            return new ResponseEntity<>(sharingUrl, HttpStatus.OK);
+        } catch (IllegalArgumentException e) {
+            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+        } catch (Exception e) {
+            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
     @PostMapping("/create")
     @PreAuthorize("hasAuthority('STORE_OWNER')")
     public ResponseEntity<?> createStore(@RequestBody StoreCreateDTO storeCreateDTO) {
