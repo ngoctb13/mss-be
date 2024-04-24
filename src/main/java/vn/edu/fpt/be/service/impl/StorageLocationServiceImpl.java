@@ -153,7 +153,4 @@ public class StorageLocationServiceImpl implements StorageLocationService {
 
         return savedLocations;
     }
-
-
-
 }
