@@ -11,6 +11,7 @@ import java.time.LocalDateTime;
 import java.util.List;
 
 public interface SupplierService {
+    //hihi
     SupplierDTO createSupplier(SupplierCreateDTO supplierCreateDTO);
     List<SupplierDTO> getAllSuppliers();
     SupplierDTO deactivate(Long supplierId);
