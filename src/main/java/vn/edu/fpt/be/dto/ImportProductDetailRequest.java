@@ -17,5 +17,4 @@ public class ImportProductDetailRequest {
     private Long productId;
     private Double quantity;
     private Double importPrice;
-    private Long storageLocationId;
 }

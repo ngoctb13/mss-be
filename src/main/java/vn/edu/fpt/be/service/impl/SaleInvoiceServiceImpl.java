@@ -233,6 +233,29 @@ public class SaleInvoiceServiceImpl implements SaleInvoiceService {
                 .collect(Collectors.toList());
     }
 
+    @Override
+    public List<SaleInvoiceReportResponse> getAllSaleInvoiceByCurrentStore() {
+        User currentUser = userService.getCurrentUser();
+        Long storeId = currentUser.getStore().getId();
+        if (storeId == null) {
+            throw new RuntimeException("Store can not be null");
+        }
+
+        List<SaleInvoice> invoices = saleInvoiceRepository.findAllByStoreIdOrderByCreatedAtAsc(storeId);
+        return invoices.stream().map(invoice -> SaleInvoiceReportResponse.builder()
+                        .id(invoice.getId())
+                        .createdAt(invoice.getCreatedAt())
+                        .createdBy(invoice.getCreatedBy())
+                        .totalPrice(invoice.getTotalPrice())
+                        .oldDebt(invoice.getOldDebt())
+                        .totalPayment(invoice.getTotalPayment())
+                        .pricePaid(invoice.getPricePaid())
+                        .newDebt(invoice.getNewDebt())
+                        .customer(invoice.getCustomer())
+                        .build())
+                .collect(Collectors.toList());
+    }
+
     public PaymentRecordRequest createPaymentRecordRequest(SaleInvoice saleInvoice, double amount) {
         PaymentRecordRequest paymentRecordRequest = new PaymentRecordRequest();
         paymentRecordRequest.setCustomerId(saleInvoice.getCustomer().getId());

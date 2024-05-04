@@ -26,9 +26,6 @@ public class ImportProductInvoiceDetail extends Model {
     private Double importPrice;
     @Column(name = "total_price") // tong tien cua mot san pham = quantity * importPrice
     private Double totalPrice;
-    @ManyToOne
-    @JoinColumn(name = "storage_location_id", referencedColumnName = "id", nullable = false)
-    private StorageLocation storageLocation;
     @Column(name = "product_details_at_time_of_import", columnDefinition = "json")
     private String productDetailsAtTimeOfImport;
 }

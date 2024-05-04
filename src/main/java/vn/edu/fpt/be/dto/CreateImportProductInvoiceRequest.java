@@ -12,7 +12,7 @@ import java.util.List;
 @AllArgsConstructor
 @NoArgsConstructor
 public class CreateImportProductInvoiceRequest {
-    private Long supplierId;
+    private Long customerId;
     private List<ImportProductDetailRequest> productDetails;
     private Double pricePaid;
 }

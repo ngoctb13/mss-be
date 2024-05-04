@@ -4,6 +4,7 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import vn.edu.fpt.be.model.Customer;
 import vn.edu.fpt.be.model.Store;
 import vn.edu.fpt.be.model.Supplier;
 
@@ -13,10 +14,11 @@ import vn.edu.fpt.be.model.Supplier;
 @NoArgsConstructor
 public class ImportProductInvoiceResponse {
     private Long id;
+    private Double totalInvoicePrice;
     private Double oldDebt;
     private Double totalPayment;
     private Double pricePaid;
     private Double newDebt;
-    private Supplier supplier;
+    private Customer customer;
     private Store store;
 }

@@ -44,8 +44,6 @@ public class ImportProductInvoiceDetailServiceImpl implements ImportProductInvoi
             User currentUser = userService.getCurrentUser();
             Product product = productRepository.findById(importProductDetailRequest.getProductId())
                     .orElseThrow(() -> new EntityNotFoundException("Product not found with ID: " + importProductDetailRequest.getProductId()));
-            StorageLocation storageLocation = storageLocationRepository.findById(importProductDetailRequest.getStorageLocationId())
-                    .orElseThrow(() -> new EntityNotFoundException("Storage location not found with ID: " + importProductDetailRequest.getStorageLocationId()));
 
             ImportProductInvoiceDetail importDetail = new ImportProductInvoiceDetail();
             importDetail.setCreatedBy(currentUser.getUsername());
@@ -54,12 +52,10 @@ public class ImportProductInvoiceDetailServiceImpl implements ImportProductInvoi
             importDetail.setQuantity(importProductDetailRequest.getQuantity());
             importDetail.setImportPrice(importProductDetailRequest.getImportPrice());
             importDetail.setTotalPrice(importProductDetailRequest.getImportPrice() * importProductDetailRequest.getQuantity());
-            importDetail.setStorageLocation(storageLocation);
             importDetail.setImportProductInvoice(invoice);
             ImportProductInvoiceDetail savedImportDetail = repo.save(importDetail);
 
             updateProductInventoryAndImportPrice(product,importProductDetailRequest.getQuantity(),importProductDetailRequest.getImportPrice());
-            updateProductInStorageLocation(storageLocation, product);
 
             return modelMapper.map(savedImportDetail, ImportProductDetailResponse.class);
         } catch (EntityNotFoundException e) {
@@ -76,11 +72,6 @@ public class ImportProductInvoiceDetailServiceImpl implements ImportProductInvoi
         product.setImportPrice(importPrice);
 
         productRepository.save(product);
-    }
-
-    private void updateProductInStorageLocation(StorageLocation storageLocation, Product product) {
-        storageLocation.setProduct(product);
-        storageLocationRepository.save(storageLocation);
     }
 
     private String convertToJson(Product product) {

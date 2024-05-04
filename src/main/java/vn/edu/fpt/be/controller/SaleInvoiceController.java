@@ -75,4 +75,16 @@ public class SaleInvoiceController {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("An error occurred while fetching this sale invoice!");
         }
     }
+    @GetMapping("/all-invoice")
+    @PreAuthorize("hasAnyAuthority('STAFF','STORE_OWNER')")
+    public ResponseEntity<?> getAllInvoices() {
+        try {
+            List<SaleInvoiceReportResponse> invoices = saleInvoiceService.getAllSaleInvoiceByCurrentStore();
+            return ResponseEntity.ok().body(invoices);
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.badRequest().body(e.getMessage());
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("An error occurred while fetching this sale invoice!");
+        }
+    }
 }

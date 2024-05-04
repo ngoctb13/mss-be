@@ -12,6 +12,7 @@ import vn.edu.fpt.be.dto.ImportProductDetailResponse;
 import vn.edu.fpt.be.dto.SaleInvoiceDetailDTO;
 import vn.edu.fpt.be.dto.SaleInvoiceDetailRequest;
 import vn.edu.fpt.be.dto.response.ProductExportResponse;
+import vn.edu.fpt.be.dto.response.ProductSalesResponse;
 import vn.edu.fpt.be.exception.CustomServiceException;
 import vn.edu.fpt.be.model.*;
 import vn.edu.fpt.be.model.jsonDetail.ProductDetailJson;
@@ -23,6 +24,7 @@ import vn.edu.fpt.be.security.UserPrincipal;
 import vn.edu.fpt.be.service.SaleInvoiceDetailService;
 import vn.edu.fpt.be.service.UserService;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.*;
 import java.util.stream.Collectors;
@@ -100,6 +102,34 @@ public class SaleInvoiceDetailServiceImpl implements SaleInvoiceDetailService {
                             .totalPrice(detail.getTotalPrice())
                             .build())
                     .collect(Collectors.toList());
+        } catch (Exception e) {
+            throw new RuntimeException("An unexpected error occurred while fetching data: " + e.getMessage(), e);
+        }
+    }
+
+    @Override
+    public List<ProductSalesResponse> getProductSalesByMonthAndYear(int month, int year) {
+        try {
+            User currentUser = userService.getCurrentUser();
+            Long currentStoreId = currentUser.getStore().getId();
+            if (currentStoreId == null) {
+                throw new RuntimeException("Current user not have store yet!");
+            }
+
+            List<SaleInvoiceDetail> details = saleInvoiceDetailRepository.findByStoreIdAndMonthAndYear(currentStoreId, month, year);
+            Map<Long, ProductSalesResponse> responseMap = new HashMap<>();
+
+            for (SaleInvoiceDetail detail : details) {
+                Long productId = detail.getProduct().getId();
+                ProductSalesResponse response = responseMap.getOrDefault(productId, new ProductSalesResponse(detail.getProduct().getProductName(), 0.0));
+
+                double quantity = detail.getQuantity();
+
+                response.setTotalSaleQuantity(response.getTotalSaleQuantity() + quantity);
+
+                responseMap.put(productId, response);
+            }
+            return new ArrayList<>(responseMap.values());
         } catch (Exception e) {
             throw new RuntimeException("An unexpected error occurred while fetching data: " + e.getMessage(), e);
         }

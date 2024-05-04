@@ -9,6 +9,7 @@ import org.springframework.web.bind.annotation.*;
 import vn.edu.fpt.be.dto.SaleInvoiceDetailDTO;
 import vn.edu.fpt.be.dto.response.CustomerSaleInvoiceResponse;
 import vn.edu.fpt.be.dto.response.ProductExportResponse;
+import vn.edu.fpt.be.dto.response.ProductSalesResponse;
 import vn.edu.fpt.be.service.SaleInvoiceDetailService;
 
 import java.time.LocalDateTime;
@@ -34,6 +35,22 @@ public class SaleInvoiceDetailController {
             return ResponseEntity.badRequest().body(e.getMessage());
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("An error occurred while fetching product export report!");
+        }
+    }
+
+    @GetMapping("/product-sale")
+    @PreAuthorize("hasAnyAuthority('STAFF','STORE_OWNER')")
+    public ResponseEntity<?> getProductSalesByMonthAndYear(
+            @RequestParam(value = "month", required = false) int month,
+            @RequestParam(value = "year", required = false) int year
+    ) {
+        try {
+            List<ProductSalesResponse> responses = service.getProductSalesByMonthAndYear(month, year);
+            return ResponseEntity.ok().body(responses);
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.badRequest().body(e.getMessage());
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("An error occurred while fetching product sale!");
         }
     }
 

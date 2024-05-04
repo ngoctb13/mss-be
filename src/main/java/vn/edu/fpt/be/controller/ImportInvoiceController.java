@@ -6,6 +6,8 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
+import vn.edu.fpt.be.dto.ImportProductInvoiceResponse;
+import vn.edu.fpt.be.dto.SaleInvoiceDTO;
 import vn.edu.fpt.be.dto.response.CustomerSaleInvoiceResponse;
 import vn.edu.fpt.be.dto.response.ImportInvoiceReportResponse;
 import vn.edu.fpt.be.dto.response.SaleInvoiceReportResponse;
@@ -25,7 +27,7 @@ public class ImportInvoiceController {
     @PreAuthorize("hasAnyAuthority('STAFF','STORE_OWNER')")
     public ResponseEntity<?> getImportInvoiceByCustomer(@PathVariable Long supplierId) {
         try {
-            List<SupplierImportInvoiceResponse> invoices = service.getImportInvoiceBySupplier(supplierId);
+            List<SupplierImportInvoiceResponse> invoices = service.getImportInvoiceByCustomer(supplierId);
             return ResponseEntity.ok().body(invoices);
         } catch (IllegalArgumentException e) {
             return ResponseEntity.badRequest().body(e.getMessage());
@@ -38,14 +40,26 @@ public class ImportInvoiceController {
     public ResponseEntity<?> getSaleInvoicesByFilter(@RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime startDate,
                                                      @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime endDate,
                                                      @RequestParam(required = false) String createdBy,
-                                                     @RequestParam(required = false) Long supplierId) {
+                                                     @RequestParam(required = false) Long customerId) {
         try {
-            List<ImportInvoiceReportResponse> invoices = service.getImportInvoicesByFilter(startDate, endDate, createdBy, supplierId);
+            List<ImportInvoiceReportResponse> invoices = service.getImportInvoicesByFilter(startDate, endDate, createdBy, customerId);
             return ResponseEntity.ok().body(invoices);
         } catch (IllegalArgumentException e) {
             return ResponseEntity.badRequest().body(e.getMessage());
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("An error occurred while fetching those sale invoices!");
+        }
+    }
+    @GetMapping("/find-by-id/{importInvoiceId}")
+    @PreAuthorize("hasAnyAuthority('STAFF','STORE_OWNER')")
+    public ResponseEntity<?> getImportInvoiceById(@PathVariable Long importInvoiceId) {
+        try {
+            ImportProductInvoiceResponse invoice = service.getImportInvoiceById(importInvoiceId);
+            return ResponseEntity.ok().body(invoice);
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.badRequest().body(e.getMessage());
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("An error occurred while fetching this import invoice!");
         }
     }
 }
