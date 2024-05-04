@@ -23,5 +23,5 @@ public class ImportInvoiceReportResponse {
     private Double totalPayment;
     private Double pricePaid;
     private Double newDebt;
-    private Supplier supplier;
+    private Customer customer;
 }

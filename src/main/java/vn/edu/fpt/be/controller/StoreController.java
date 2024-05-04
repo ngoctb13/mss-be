@@ -85,13 +85,12 @@ public class StoreController {
     public ResponseEntity<?> createImportInvoice(@RequestBody CreateImportProductInvoiceRequest request) {
         try {
             ImportProductInvoiceResponse response = importProductInvoiceService.importProduct(
-                    request.getSupplierId(),
+                    request.getCustomerId(),
                     request.getProductDetails(),
                     request.getPricePaid()
             );
             return ResponseEntity.ok(response);
         } catch (Exception e) {
-            // You might want to handle different exceptions differently
             return ResponseEntity.badRequest().body(e);
         }
     }

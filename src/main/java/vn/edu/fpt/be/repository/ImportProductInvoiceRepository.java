@@ -10,15 +10,15 @@ import java.time.LocalDateTime;
 import java.util.List;
 
 public interface ImportProductInvoiceRepository extends JpaRepository<ImportProductInvoice, Long> {
-    List<ImportProductInvoice> findBySupplierIdAndStoreIdOrderByCreatedAtDesc(Long supplierId, Long storeId);
+    List<ImportProductInvoice> findByCustomerIdAndStoreIdOrderByCreatedAtDesc(Long customerId, Long storeId);
     @Query("SELECT si FROM ImportProductInvoice si WHERE (:startDate IS NULL OR si.createdAt >= :startDate) " +
             "AND (:endDate IS NULL OR si.createdAt <= :endDate) " +
             "AND (:createdBy IS NULL OR si.createdBy = :createdBy) " +
-            "AND (:supplierId IS NULL OR si.supplier.id = :supplierId) " +
+            "AND (:supplierId IS NULL OR si.customer.id = :customerId) " +
             "AND si.store.id = :storeId")
     List<ImportProductInvoice> findInvoicesByCriteria(@Param("startDate") LocalDateTime startDate,
                                              @Param("endDate") LocalDateTime endDate,
                                              @Param("createdBy") String createdBy,
-                                             @Param("supplierId") Long supplierId,
+                                             @Param("customerId") Long customerId,
                                              @Param("storeId") Long storeId);
 }

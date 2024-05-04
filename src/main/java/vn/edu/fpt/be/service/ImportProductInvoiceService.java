@@ -11,8 +11,8 @@ import java.time.LocalDateTime;
 import java.util.List;
 
 public interface ImportProductInvoiceService {
-    ImportProductInvoiceResponse importProduct(Long supplierId, List<ImportProductDetailRequest> listProductDetails, Double pricePaid);
-    List<SupplierImportInvoiceResponse> getImportInvoiceBySupplier(Long customerId);
-    List<ImportInvoiceReportResponse> getImportInvoicesByFilter(LocalDateTime startDate, LocalDateTime endDate, String createdBy, Long supplierId);
-
+    ImportProductInvoiceResponse importProduct(Long customerId, List<ImportProductDetailRequest> listProductDetails, Double pricePaid);
+    List<SupplierImportInvoiceResponse> getImportInvoiceByCustomer(Long customerId);
+    List<ImportInvoiceReportResponse> getImportInvoicesByFilter(LocalDateTime startDate, LocalDateTime endDate, String createdBy, Long customerId);
+    ImportProductInvoiceResponse getImportInvoiceById(Long importInvoiceId);
 }

@@ -26,8 +26,8 @@ public class ImportProductInvoice extends Model{
     @Column(name = "new_debt") //no con lai = tong tien phai tra - so tien da tra
     private Double newDebt;
     @ManyToOne
-    @JoinColumn(name = "supplier_id")
-    private Supplier supplier;
+    @JoinColumn(name = "customer_id")
+    private Customer customer;
     @ManyToOne
     @JoinColumn(name = "store_id")
     private Store store;

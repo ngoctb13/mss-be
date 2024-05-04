@@ -24,4 +24,8 @@ public interface SaleInvoiceRepository extends JpaRepository<SaleInvoice, Long> 
 
     @Query("SELECT si FROM SaleInvoice si WHERE si.createdAt >= :startDate AND si.store.id = :storeId ORDER BY si.createdAt DESC")
     List<SaleInvoice> findRecentInvoicesByStoreId(@Param("storeId") Long storeId, @Param("startDate") LocalDateTime startDate);
+
+    @Query("SELECT si FROM SaleInvoice si WHERE si.store.id = :storeId ORDER BY si.createdAt ASC")
+    List<SaleInvoice> findAllByStoreIdOrderByCreatedAtAsc(@Param("storeId") Long storeId);
+
 }
