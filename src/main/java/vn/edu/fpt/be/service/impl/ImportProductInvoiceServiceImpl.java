@@ -164,7 +164,7 @@ public class ImportProductInvoiceServiceImpl implements ImportProductInvoiceServ
     }
 
     @Override
-    public List<ImportInvoiceReportResponse> getImportInvoicesByFilter(LocalDateTime startDate, LocalDateTime endDate, String createdBy, Long supplierId) {
+    public List<ImportInvoiceReportResponse> getImportInvoicesByFilter(LocalDateTime startDate, LocalDateTime endDate, String createdBy, Long customerId) {
         try {
             User currentUser = userService.getCurrentUser();
             Store currentStore = currentUser.getStore();
@@ -175,7 +175,7 @@ public class ImportProductInvoiceServiceImpl implements ImportProductInvoiceServ
             if (endDate == null) {
                 endDate = LocalDateTime.now();
             }
-            List<ImportProductInvoice> invoices = invoiceRepository.findInvoicesByCriteria(startDate, endDate, createdBy, supplierId, currentStore.getId());
+            List<ImportProductInvoice> invoices = invoiceRepository.findInvoicesByCriteria(startDate, endDate, createdBy, customerId, currentStore.getId());
             return invoices.stream().map(invoice -> ImportInvoiceReportResponse.builder()
                             .id(invoice.getId())
                             .createdAt(invoice.getCreatedAt())
